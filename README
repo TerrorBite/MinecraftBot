@@ -1,0 +1,3 @@
+MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.
+
+The goal of this plugin is to stay simple. It will only pass messages back and forth between IRC and Minecraft.

@@ -1,0 +1,11 @@
+name: MinecraftBot
+author: Rafa652
+main: me.rafa652.minecraftbot.MinecraftBot
+version: 0.93
+commands:
+    me:
+        description: Sends an action, equivalent to IRC's /me
+        usage: /me action
+    names:
+        description: Displays the users on the IRC channel
+        usage: /names

@@ -1,3 +1,21 @@
 MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.
 
-The goal of this plugin is to stay simple. It will only pass messages back and forth between IRC and Minecraft.
+The goal of this plugin is to stay simple. This plugin is only capable of
+passing messages back and forth between Minecraft and IRC.
+
+At this point, it's capable of...
+
+From Minecraft, it displays:
+-Regular chat messages
+-3rd person (/me) messages, which this plugin adds support for
+-Players joining
+-Players leaving
+-Players being kicked
+-Server messages (console 'say' command)
+
+From IRC, it displays:
+-Normal messages
+-3rd person (/me) messages
+-Joins
+-Parts (no part messages due to limitations)
+-Quits

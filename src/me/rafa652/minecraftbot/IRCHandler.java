@@ -112,7 +112,15 @@ public class IRCHandler extends PircBot {
 			nick = super.getNick();
 			return;
 		}
+	}
+	
+	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		// Rejoin channel on kick
+		if (!recipientNick.equals(super.getNick())) return;
 		
+		// wait 3 seconds here
+		if (key.isEmpty()) super.joinChannel(channel);
+		else super.joinChannel(channel, key);
 	}
 
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {

@@ -2,6 +2,7 @@ package me.rafa652.minecraftbot;
 
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,7 +19,8 @@ public class MinecraftBot extends JavaPlugin {
 	private ServerConsoleHandler serverListener = new ServerConsoleHandler(this);
 	
 	// PlayerChatHandler lists which colors to use
-	final String ca = "\u000306";
+	final String ca_i = "\u000306";
+	final ChatColor ca_m = ChatColor.DARK_PURPLE;
 	
 	// Bot and its info
 	public IRCHandler bot;
@@ -119,13 +121,13 @@ public class MinecraftBot extends JavaPlugin {
 			}
 			
 			Player player = (Player)sender;
-			String message = ca + "* " + player.getDisplayName(); // x03 (IRC color) followed by 6 (purple)
+			String message = "* " + player.getDisplayName(); // x03 (IRC color) followed by 6 (purple)
 			for (int i=0; i<args.length; i++) message += " " + args[i];
 			
 			// To IRC
-			bot.sendMessage(message);
+			bot.sendMessage(ca_i + message);
 			// To Minecraft
-			sender.getServer().broadcastMessage(message);
+			sender.getServer().broadcastMessage(ca_m + message);
 			
 			return true;
 		}

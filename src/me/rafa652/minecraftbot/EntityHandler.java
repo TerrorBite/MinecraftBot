@@ -13,7 +13,7 @@ public class EntityHandler extends EntityListener {
 	public static MinecraftBot plugin;
 	
 	// PlayerChatHandler lists which colors to use
-	final String ce = "\u000310"; // color for event
+	final String ck = "\u000304"; // color for death or kick
 
 	public EntityHandler(MinecraftBot instance) {
 		plugin = instance;
@@ -22,7 +22,7 @@ public class EntityHandler extends EntityListener {
 	public void onEntityDeath(EntityDeathEvent event) {
 		if(event instanceof PlayerDeathEvent) {
 			PlayerDeathEvent death = (PlayerDeathEvent)event;
-			plugin.bot.sendMessage(ce + death.getDeathMessage());
+			plugin.bot.sendMessage(ck + "* "+ death.getDeathMessage());
 		}
 
 		// The following code was never used, and is incomplete and probably buggy.

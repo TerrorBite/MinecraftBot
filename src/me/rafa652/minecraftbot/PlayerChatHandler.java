@@ -10,12 +10,19 @@ public class PlayerChatHandler extends PlayerListener {
 	
 	public static MinecraftBot plugin;
 	
-	// Colors are defined at the top with very short names just so
-	// they're easier to find and change if necessary.
-	
-	// Normal events are 10 (teal, dark aqua), except kick which is 4 (red)
-	// Chat messages have no color.
-	// For reference, /me is 6 (purple, dark purple)
+	/*
+	 * Colors are defined at the top with very short names just so
+	 * they're easier to find and change if necessary.
+	 * 
+	 * Normal events are 10 (teal, ChatColor.DARK_AQUA)
+	 * except kicks and deaths which are 04 (ChatColor.RED)
+	 * /me is 6 (purple, ChatColor.DARK_PURPLE)
+	 * 
+	 * Chat messages have no color.
+	 * 
+	 * Later on, these colors will come from a class that deals with
+	 * configuration. These colors will be customizable eventually.
+	*/
 	
 	final String ce = "\u000310"; // color for event (normal)
 	final String ck = "\u000304"; // color for kick
@@ -34,6 +41,6 @@ public class PlayerChatHandler extends PlayerListener {
 		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " left the game");
 	}
 	public void onPlayerKick(PlayerKickEvent event) {
-		plugin.bot.sendMessage(ck + "*" + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
+		plugin.bot.sendMessage(ck + "* " + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
 	}
 }

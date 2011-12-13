@@ -18,8 +18,9 @@ public class IRCHandler extends PircBot {
 	public boolean doNotReconnect = false;
 	
 	// PlayerChatHandler lists which colors to use
-	final ChatColor ce = ChatColor.DARK_AQUA; // color for event
 	final ChatColor ca = ChatColor.DARK_PURPLE; // color for action
+	final ChatColor ce = ChatColor.DARK_AQUA; // color for event
+	final ChatColor ck = ChatColor.RED; // color for kick/death
 	
 	public IRCHandler(MinecraftBot instance) {
 		this.plugin = instance;
@@ -113,15 +114,7 @@ public class IRCHandler extends PircBot {
 			return;
 		}
 	}
-	
-	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		// Rejoin channel on kick
-		if (!recipientNick.equals(super.getNick())) return;
-		
-		// wait 3 seconds here
-		if (key.isEmpty()) super.joinChannel(channel);
-		else super.joinChannel(channel, key);
-	}
+
 
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {
 		if (!isCommand(sender, message))
@@ -145,6 +138,21 @@ public class IRCHandler extends PircBot {
 		if (!reason.isEmpty()) message = ": " + reason;
 		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + message);
 	}
+	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		// Kick - Rejoin if it was self
+		String message = "";
+		if (!reason.isEmpty()) message = ": " + reason;
+		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + message);
+		
+		if (recipientNick.equals(super.getNick())) {
+			// Self was kicked - attempt to rejoin.
+			
+			// wait 3 seconds here
+			if (key.isEmpty()) super.joinChannel(channel);
+			else super.joinChannel(channel, key);
+		}
+	}
+	
 	
 	public void sendMessage(String message) {
 		// We already know what the target channel is.
@@ -166,7 +174,7 @@ public class IRCHandler extends PircBot {
 			for (int i=0; i<players.length; i++)
 				output += " " + players[i].getDisplayName();
 			super.sendMessage(channel, output);
-			plugin.getServer().broadcastMessage(ce + "* #" + sender + "asked who's playing");
+			plugin.getServer().broadcastMessage(ce + "* #" + sender + " asked for the player list");
 			return true;
 		}
 		return false;
@@ -181,7 +189,7 @@ public class IRCHandler extends PircBot {
 		if (list.length <= 25)
 			for (int i=0; i<list.length; i++) nicks += " " + list[i].getNick();
 		else
-			nicks += " Too many to list!";
+			nicks += " Too many! You will have to join " + channel + " to see who's on.";
 		
 		return nicks;
 	}

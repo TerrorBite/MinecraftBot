@@ -10,6 +10,7 @@ From Minecraft, it displays:
 -Players joining
 -Players leaving
 -Players being kicked
+-Player death messages
 -Server messages (console 'say' command)
 
 From IRC, it displays:
@@ -18,6 +19,7 @@ From IRC, it displays:
 -Joins
 -Parts (no part messages due to limitations)
 -Kicks
+-Nick changes
 -Quits
 
 Before this plugin can be good enough to be 1.0, it needs to

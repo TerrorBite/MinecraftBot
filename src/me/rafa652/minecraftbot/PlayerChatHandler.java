@@ -32,7 +32,8 @@ public class PlayerChatHandler extends PlayerListener {
 	}
 	
 	public void onPlayerChat(PlayerChatEvent event) {
-		plugin.bot.sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
+		if (!event.isCancelled())
+			plugin.bot.sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
 	}
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " joined the game");
@@ -41,6 +42,7 @@ public class PlayerChatHandler extends PlayerListener {
 		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " left the game");
 	}
 	public void onPlayerKick(PlayerKickEvent event) {
-		plugin.bot.sendMessage(ck + "* " + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
+		if (!event.isCancelled())
+			plugin.bot.sendMessage(ck + "* " + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
 	}
 }

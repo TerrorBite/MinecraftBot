@@ -1,5 +1,6 @@
 #MinecraftBot configuration example
-#You may enter your info and save this file as config.yml
+#You may make a copy of this file, fill in your info,
+#and save it as plugins/MinecraftBot/config.yml
 
 #Server info:
 server:
@@ -35,4 +36,30 @@ bot:
   #If this nick is registered with NickServ and needs a password
   #to be used, enter it here:
   nickpass: ''
+
+
+#Colors (all required):
+color:
+  #List of usable colors:
+  #black, darkblue, green, red, purple, yellow, teal, aqua, blue, darkgray, gray, white
   
+  #Color used in normal chat
+  normal: 'white'
+  
+  #Color used when someone does /me
+  me: 'purple'
+  
+  #Color used for events (joins, quits, kicks, etc)
+  event: 'teal'
+  
+  #Color used when a player is kicked
+  kick: 'red'
+  
+  #Color used when a player dies
+  death: 'red'
+  
+
+#Events (all required):
+event:
+  #Events to show in Minecraft:
+  #Events to show in IRC:

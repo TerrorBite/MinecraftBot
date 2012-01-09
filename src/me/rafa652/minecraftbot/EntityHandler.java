@@ -4,6 +4,8 @@ package me.rafa652.minecraftbot;
 //import java.util.logging.Level;
 //import org.bukkit.entity.Player;
 //import org.bukkit.event.entity.EntityDamageEvent;
+import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
+
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -12,17 +14,20 @@ public class EntityHandler extends EntityListener {
 
 	public static MinecraftBot plugin;
 	
-	// PlayerChatHandler lists which colors to use
-	final String ck = "\u000304"; // color for death or kick
+	final String cd; // color for death or kick
 
 	public EntityHandler(MinecraftBot instance) {
 		plugin = instance;
+		
+		cd = plugin.config.getIRCColor(ColorContext.Death);
 	}
 
 	public void onEntityDeath(EntityDeathEvent event) {
-		if(event instanceof PlayerDeathEvent) {
+		if (plugin.config.event_mc_death == false) return;
+		
+		if (event instanceof PlayerDeathEvent) {
 			PlayerDeathEvent death = (PlayerDeathEvent)event;
-			plugin.bot.sendMessage(ck + "* "+ death.getDeathMessage());
+			plugin.bot.sendMessage(cd + "* "+ death.getDeathMessage());
 		}
 
 		// The following code was never used, and is incomplete and probably buggy.

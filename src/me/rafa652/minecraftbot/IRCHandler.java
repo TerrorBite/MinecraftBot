@@ -1,38 +1,43 @@
 package me.rafa652.minecraftbot;
 
+import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
 public class IRCHandler extends PircBot {
-	private MinecraftBot plugin;
-	public String nick;
-	public int port;
-	public String server;
-	public String serverpass;
-	public String channel;
-	public String key;
-	public String nickpass;
+	public static MinecraftBot plugin;
 	
 	public boolean doNotReconnect = false;
 	
-	// PlayerChatHandler lists which colors to use
-	final ChatColor ca = ChatColor.DARK_PURPLE; // color for action
-	final ChatColor ce = ChatColor.DARK_AQUA; // color for event
-	final ChatColor ck = ChatColor.RED; // color for kick/death
+	// Defined in the constructor
+	private final ChatColor ce; // color for event
+	private final ChatColor ck; // color for kick
+	private final ChatColor cm; // color for /me
+	private String server;
+	private String serverpass;
+	private String nick;
+	private int port;
+	private String channel;
+	private String key;
+	private String nickpass;
 	
 	public IRCHandler(MinecraftBot instance) {
-		this.plugin = instance;
+		plugin = instance;
 		
-		// Get data from plugin
-		nick = plugin.nick;
-		port = plugin.port;
-		server = plugin.server;
-		serverpass = plugin.serverpass;
-		channel = plugin.channel;
-		key = plugin.key;
-		nickpass = plugin.nickpass;
+		MinecraftBotConfiguration c = plugin.config;
+		ce = c.getChatColor(ColorContext.Event);
+		ck = c.getChatColor(ColorContext.Kick);
+		cm = c.getChatColor(ColorContext.Me);
+		server = c.bot_server;
+		serverpass = c.bot_serverpass;
+		nick = c.bot_nick;
+		port = c.bot_port;
+		channel = c.bot_channel;
+		key = c.bot_key;
+		nickpass = c.bot_nickpass;
 		
 		super.setName(nick);
 		super.setLogin("MinecraftBot");
@@ -117,28 +122,35 @@ public class IRCHandler extends PircBot {
 
 
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {
-		if (!isCommand(sender, message))
-			plugin.getServer().broadcastMessage("<#" + sender + "> " + message);
+		if (plugin.config.event_irc_chat == false) return;
+		if (isCommand(sender, message)) return; 
+		plugin.getServer().broadcastMessage("<#" + sender + "> " + message);
 	}
 	public void onAction(String sender, String login, String hostnick, String target, String action) {
-		plugin.getServer().broadcastMessage(ca + "* #" + sender + " " + action);
+		if (plugin.config.event_irc_chat == false) return;
+		plugin.getServer().broadcastMessage(cm + "* #" + sender + " " + action);
 	}
 	public void onJoin(String channel, String sender, String login, String hostnick) {
+		if (plugin.config.event_irc_join == false) return;
 		plugin.getServer().broadcastMessage(ce + "* #" + sender + " joined " + channel);
 	}
 	public void onNickChange(String oldNick, String login, String hostnick, String newNick) {
+		if (plugin.config.event_irc_nick == false) return;
 		plugin.getServer().broadcastMessage(ce + "* #" + oldNick + " is now known as #" + newNick);
 	}
 	public void onPart(String channel, String sender, String login, String hostnick) {
+		if (plugin.config.event_irc_part == false) return;
 		// Can't pass the leave reason to here because PircBot doesn't support it.
 		plugin.getServer().broadcastMessage(ce + "* #" + sender + " left " + channel);
 	}
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostnick, String reason) {
+		if (plugin.config.event_irc_part == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
 		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + message);
 	}
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		if (plugin.config.event_irc_kick == false) return;
 		// Kick - Rejoin if it was self
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
@@ -152,6 +164,19 @@ public class IRCHandler extends PircBot {
 			else super.joinChannel(channel, key);
 		}
 	}
+	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
+		// TODO this
+		if (plugin.config.event_irc_topic == false) return;
+	}
+	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
+		// TODO this
+		if (plugin.config.event_irc_mode == false) return;
+	}
+	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
+		// TODO this
+		if (plugin.config.event_irc_mode == false) return;
+	}
+	
 	
 	
 	public void sendMessage(String message) {
@@ -183,13 +208,13 @@ public class IRCHandler extends PircBot {
 	public String userlist() {
 		// User list on a string
 		User list[] = super.getUsers(channel);
-		String nicks = ce + "";
+		String nicks = channel + ":";
 		
 		// In case this is used in a large channel; to prevent flooding the player's screen with names
 		if (list.length <= 25)
 			for (int i=0; i<list.length; i++) nicks += " " + list[i].getNick();
 		else
-			nicks += " Too many! You will have to join " + channel + " to see who's on.";
+			nicks += " Too many to list! You will have to look at " + channel + " yourself to see who's on.";
 		
 		return nicks;
 	}

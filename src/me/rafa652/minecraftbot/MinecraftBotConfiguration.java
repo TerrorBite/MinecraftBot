@@ -1,9 +1,9 @@
 /*
- * This makes it easier to get to the configuration options.
- * Instead of at one point loading the configuration file and
- * making sure that all the values have been stored where they
- * need to go, this object loads the values at the beginning
- * and then it can be sent to any other object.
+ * The point of this is to make it easier to load the configuration
+ * and store the values into the right areas. This object loads the
+ * configuration once, then it can be passed to other objects. Those
+ * other objects can get whichever configuration values they need.
+ * Better than making a confusing mess in MinecraftBot's onEnable().
  */
 
 // To do: Add support with EntityHandler, IRCHandler, MinecraftBot, PlayerChatHandler, ServerConsoleHandler
@@ -50,7 +50,6 @@ public class MinecraftBotConfiguration {
 	public MinecraftBotConfiguration(MinecraftBot plugin) {
 		FileConfiguration config = plugin.getConfig();
 		
-		// using config.yml
 		config.options().copyDefaults(true);
 		
 		// Loading all config values
@@ -62,6 +61,9 @@ public class MinecraftBotConfiguration {
 		bot_nick = config.getString("bot.nick");
 		bot_nickpass = config.getString("bot.nickpass");
 		
+		// save defaults from included config.yml
+		plugin.saveConfig();
+		
 		try {
 			setColors(
 					config.getString("color.me"),
@@ -69,12 +71,33 @@ public class MinecraftBotConfiguration {
 					config.getString("color.kick"),
 					config.getString("color.death"));
 		} catch (Exception e) {
+			
+		// Now checking to see if the config's right
 			plugin.log.severe("[MinecraftBot] Could not load the color configuration properly.");
+			plugin.log.severe("[MinecraftBot] Are some colors missing or misspelled?");
 			success = false;
 		}
-				
+		
+		if (bot_nick == null || bot_nick.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] Bot name is missing in the configuration.");
+			success = false;
+		}
+		if (bot_server == null || bot_server.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] The server to connect to is not defined in the configuration.");
+			success = false;
+		}
+		if (bot_port > 65535 || bot_port < 0) {
+			plugin.log.severe("[MinecraftBot] An invalid port number was specified in the configuration.");
+			success = false;
+		}
+		if (bot_channel == null || bot_channel.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] The channel to join is not defined in the configuration.");
+			success = false;
+		}
+		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
+		
 	}
-	public boolean goodConfig() {
+	public boolean isGood() {
 		return success;
 	}
 	
@@ -95,10 +118,10 @@ public class MinecraftBotConfiguration {
 	private void setColors(String me, String event, String kick, String death) throws Exception {
 		// This handles the colors from the configuration
 		// It should throw an IllegalArgumentException if the color is not valid.
-		setColors(ColorContext.Me, Color.valueOf(me));
-		setColors(ColorContext.Event, Color.valueOf(event));
-		setColors(ColorContext.Kick, Color.valueOf(kick));
-		setColors(ColorContext.Death, Color.valueOf(death));
+		setColors(ColorContext.Me, Color.valueOf(me.toLowerCase()));
+		setColors(ColorContext.Event, Color.valueOf(event.toLowerCase()));
+		setColors(ColorContext.Kick, Color.valueOf(kick.toLowerCase()));
+		setColors(ColorContext.Death, Color.valueOf(death.toLowerCase()));
 	}
 	private void setColors(ColorContext context, Color color) {
 		// This translates and stores the colors in their right places
@@ -157,18 +180,19 @@ public class MinecraftBotConfiguration {
 		}
 	}
 	
-	public int getIRCColor(ColorContext context) {
+	public String getIRCColor(ColorContext context) {
+		String color = "\u0003"; // IRC color code
 		switch (context) {
 		case Me:
-			return color_irc_me;
+			return color + color_irc_me;
 		case Event:
-			return color_irc_event;
+			return color + color_irc_event;
 		case Kick:
-			return color_irc_kick;
+			return color + color_irc_kick;
 		case Death:
-			return color_irc_death;
+			return color + color_irc_death;
 		}
-		return 1;
+		return color + "01";
 	}
 	
 	public ChatColor getChatColor(ColorContext context) {

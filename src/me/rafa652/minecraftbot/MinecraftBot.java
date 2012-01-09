@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
@@ -22,38 +21,33 @@ public class MinecraftBot extends JavaPlugin {
 	final String ca_i = "\u000306";
 	final ChatColor ca_m = ChatColor.DARK_PURPLE;
 	
-	// Bot and its info
+	public MinecraftBotConfiguration config;
 	public IRCHandler bot;
-	public String server;
-	public int port;
-	public String serverpass;
-	public String channel;
-	public String key;
-	public String nick;
-	public String nickpass;
 	
 	public void onEnable() {
 		log.info("[MinecraftBot] v" + version + " loaded.");
 		PluginManager pm = getServer().getPluginManager();
 		
-		if (loadConfiguration()) {
+		config = new MinecraftBotConfiguration(this);
+		
+		if (config.isGood()) {
 			pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.SERVER_COMMAND, serverListener, Event.Priority.Monitor, this);
-			
-			if (!nick.equals("MinecraftBot")) // avoid redundancy
-				log.info("[MinecraftBot] will now call itself " + nick);
+		
+			if (!config.bot_nick.equals("MinecraftBot")) // avoid redundancy
+				log.info("[MinecraftBot] will now call itself " + config.bot_nick);
 
 			bot = new IRCHandler(this);
-			// IRCHandler constructor copies the values from 'this' now.
-			// Better than having a very long constructor.
+			
+			// If failed to connect, disable plugin
 			if (!bot.connect()) pm.disablePlugin(this);
-			// Now the bot is now in charge of reporting errors and just about everything else.
+			// Now only IRCHandler sends info to the logger
 		} else {
-			log.severe("[MinecraftBot] Failed to load configuration. This plugin is now disabling itself.");
+			log.severe("[MinecraftBot] Configuration failed to load.");
 			pm.disablePlugin(this);
 		}
 	}
@@ -65,52 +59,6 @@ public class MinecraftBot extends JavaPlugin {
 			bot.dispose();
 		}
 		log.info("[MinecraftBot] v" + version + " disabled.");
-	}
-	
-	public boolean loadConfiguration() {
-		FileConfiguration config = getConfig();
-		
-		// config.yml is included
-		config.options().copyDefaults(true);
-		
-		server = config.getString("server.server");
-		port = config.getInt("server.port");
-		serverpass = config.getString("server.password");
-		
-		channel = config.getString("channel.channel");
-		key = config.getString("channel.key");
-		
-		nick = config.getString("bot.nick");
-		nickpass = config.getString("bot.nickpass");
-		
-		saveConfig();
-		
-		// Fail if required info is missing
-		// While we're at it, say what exactly went wrong.
-		boolean status = true;
-		if (nick == null || nick.isEmpty()) {
-			log.severe("[MinecraftBot] Bot name is missing in the configuration.");
-			status = false;
-		}
-		if (server == null || server.isEmpty()) {
-			log.severe("[MinecraftBot] The server to connect to is not defined in the configuration.");
-			status = false;
-		}
-		if (port > 65535 || port < 0) {
-			log.severe("[MinecraftBot] An invalid port number was specified in the configuration.");
-			status = false;
-		}
-		if (channel == null || channel.isEmpty()) {
-			log.severe("[MinecraftBot] The channel to join is not defined in the configuration.");
-			status = false;
-		}
-		
-		if (!channel.startsWith("#")) {
-			// Fixing it instead of complaining about it
-			channel = "#" + channel;
-		}
-		
-		return status;
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
@@ -132,7 +80,7 @@ public class MinecraftBot extends JavaPlugin {
 			return true;
 		}
 		if (cmd.getName().equalsIgnoreCase("names")) {
-			sender.sendMessage("Users in " + bot.channel + ":" + bot.userlist());
+			sender.sendMessage(bot.userlist());
 			return true;
 		}
 		

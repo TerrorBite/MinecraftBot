@@ -14,6 +14,7 @@ public class ServerConsoleHandler extends ServerListener {
 	@Override
 	public void onServerCommand(ServerCommandEvent event) {
 		String check = event.getCommand().toLowerCase();
+		if (plugin.config.event_mc_server == false) return;
 		
 		if(check.startsWith("say ")) {
 			String msg = event.getCommand().split("\\s+", 2)[1];

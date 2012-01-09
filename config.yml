@@ -1,6 +1,6 @@
 #MinecraftBot configuration example
 #You may make a copy of this file, fill in your info,
-#and save it as plugins/MinecraftBot/config.yml
+#and save it into plugins/MinecraftBot/config.yml
 
 #Server info:
 server:
@@ -66,6 +66,8 @@ event:
     leave: true
     kick: true
     death: true
+    
+    #server: The message displayed using the /say server command
   
   #Events from IRC to show in Minecraft:
   irc:

@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

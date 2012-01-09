@@ -144,18 +144,12 @@ public class IRCHandler extends PircBot {
 		plugin.getServer().broadcastMessage(ce + "* #" + sender + " left " + channel);
 	}
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostnick, String reason) {
-		if (plugin.config.event_irc_part == false) return;
+		if (plugin.config.event_irc_quit == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
 		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + message);
 	}
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		if (plugin.config.event_irc_kick == false) return;
-		// Kick - Rejoin if it was self
-		String message = "";
-		if (!reason.isEmpty()) message = ": " + reason;
-		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + message);
-		
 		if (recipientNick.equals(super.getNick())) {
 			// Self was kicked - attempt to rejoin.
 			
@@ -163,6 +157,11 @@ public class IRCHandler extends PircBot {
 			if (key.isEmpty()) super.joinChannel(channel);
 			else super.joinChannel(channel, key);
 		}
+		
+		if (plugin.config.event_irc_kick == false) return;
+		String message = "";
+		if (!reason.isEmpty()) message = ": " + reason;
+		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + message);
 	}
 	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
 		// TODO this

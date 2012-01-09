@@ -2,6 +2,8 @@ package me.rafa652.minecraftbot;
 
 import java.util.logging.Logger;
 
+import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,16 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class MinecraftBot extends JavaPlugin {
 	private String version = "0.93";
 	public Logger log = Logger.getLogger("Minecraft");
-	private PlayerChatHandler playerListener = new PlayerChatHandler(this);
-	private EntityHandler entityListener = new EntityHandler(this);
-	private ServerConsoleHandler serverListener = new ServerConsoleHandler(this);
-	
-	// PlayerChatHandler lists which colors to use
-	final String ca_i = "\u000306";
-	final ChatColor ca_m = ChatColor.DARK_PURPLE;
 	
 	public MinecraftBotConfiguration config;
 	public IRCHandler bot;
+	
+	// Not instantiating yet because they use config
+	private PlayerChatHandler playerListener;
+	private EntityHandler entityListener;
+	private ServerConsoleHandler serverListener;
 	
 	public void onEnable() {
 		log.info("[MinecraftBot] v" + version + " loaded.");
@@ -31,6 +31,10 @@ public class MinecraftBot extends JavaPlugin {
 		config = new MinecraftBotConfiguration(this);
 		
 		if (config.isGood()) {
+			playerListener = new PlayerChatHandler(this);
+			entityListener = new EntityHandler(this);
+			serverListener = new ServerConsoleHandler(this);
+			
 			pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
@@ -68,14 +72,15 @@ public class MinecraftBot extends JavaPlugin {
 				return true;
 			}
 			
+			if (config.event_mc_chat == false) return true; // MC chat turned off in config
 			Player player = (Player)sender;
 			String message = "* " + player.getDisplayName(); // x03 (IRC color) followed by 6 (purple)
 			for (int i=0; i<args.length; i++) message += " " + args[i];
 			
 			// To IRC
-			bot.sendMessage(ca_i + message);
+			bot.sendMessage(config.getIRCColor(ColorContext.Me) + message);
 			// To Minecraft
-			sender.getServer().broadcastMessage(ca_m + message);
+			sender.getServer().broadcastMessage(config.getChatColor(ColorContext.Me) + message);
 			
 			return true;
 		}

@@ -1,7 +1,7 @@
 /*
  * The point of this is to make it easier to load the configuration
  * and store the values into the right areas. This object loads the
- * configuration once, then it can be passed to other objects. Those
+ * configuration once, then it can be used by other objects. Those
  * other objects can get whichever configuration values they need.
  * Better than making a confusing mess in MinecraftBot's onEnable().
  */
@@ -26,7 +26,6 @@ public class MinecraftBotConfiguration {
 // Event display values -------------------------
 	public boolean event_mc_server;
 	public boolean event_mc_chat;
-	public boolean event_mc_me;
 	public boolean event_mc_join;
 	public boolean event_mc_leave;
 	public boolean event_mc_kick;
@@ -53,6 +52,7 @@ public class MinecraftBotConfiguration {
 		config.options().copyDefaults(true);
 		
 		// Loading all config values
+		
 		bot_server = config.getString("server.server");
 		bot_port = config.getInt("server.port");
 		bot_serverpass = config.getString("server.password");
@@ -60,6 +60,22 @@ public class MinecraftBotConfiguration {
 		bot_key = config.getString("channel.key");
 		bot_nick = config.getString("bot.nick");
 		bot_nickpass = config.getString("bot.nickpass");
+		
+		event_mc_server = config.getBoolean("event.mc.server");
+		event_mc_chat = config.getBoolean("event.mc.chat");
+		event_mc_join = config.getBoolean("event.mc.join");
+		event_mc_leave = config.getBoolean("event.mc.leave");
+		event_mc_kick = config.getBoolean("event.mc.kick");
+		event_mc_death = config.getBoolean("event.mc.death");
+		
+		event_irc_chat = config.getBoolean("event.irc.chat");
+		event_irc_join = config.getBoolean("event.irc.join");
+		event_irc_part = config.getBoolean("event.irc.part");
+		event_irc_quit = config.getBoolean("event.irc.quit");
+		event_irc_kick = config.getBoolean("event.irc.kick");
+		event_irc_nick = config.getBoolean("event.irc.nick");
+		event_irc_mode = config.getBoolean("event.irc.mode");
+		event_irc_topic = config.getBoolean("event.irc.topic");
 		
 		// save defaults from included config.yml
 		plugin.saveConfig();

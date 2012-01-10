@@ -174,7 +174,7 @@ public class MinecraftBotConfiguration {
 		case grey:
 			i = 15; m = ChatColor.GRAY; break;
 		case white:
-			i = 16; m = ChatColor.WHITE; break;
+			i = 0; m = ChatColor.WHITE; break;
 		}
 		
 		// Values to their proper places

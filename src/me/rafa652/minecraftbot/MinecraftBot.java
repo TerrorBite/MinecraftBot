@@ -12,7 +12,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	private String version = "0.93-1";
+	private String version = "0.94";
 	public Logger log = Logger.getLogger("Minecraft");
 	
 	public MinecraftBotConfiguration config;

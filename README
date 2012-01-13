@@ -1,8 +1,7 @@
 MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.
 It uses the PircBot API (http://www.jibble.org/pircbot.php) to connect to and interact with IRC.
 
-The goal of this plugin is to stay simple.
-This plugin is only capable of passing messages back and forth between Minecraft and IRC.
+Features:
 
 From Minecraft, it displays:
 -Regular chat messages
@@ -17,18 +16,13 @@ From IRC, it displays:
 -Normal messages
 -3rd person (/me) messages
 -Joins
--Parts (no part messages due to limitations)
+-Parts (no part messages due to API limitation)
 -Kicks
 -Nick changes
 -Quits
 
-Before this plugin can be good enough to be 1.0, it needs to
+Before this plugin can be considered complete, it needs to
 be good enough to use as a simple IRC client. This means adding:
 -IRC colors to Minecraft
 -Mode changes to Minecraft (not necessarily all but at least common ones, like op and voice)
 -Topic changes to Minecraft
-
-Misc features to add:
--Configuration
---Which messages to show
---What colors to use

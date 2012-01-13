@@ -192,15 +192,22 @@ public class IRCHandler extends PircBot {
 	}
 	
 	private boolean isCommand(String sender, String message) {
+		// Place IRC commands in here. Return true if it was a command.
+		// Returning false causes the line to be shown in Minecraft.
+		
+		// Player list
 		if (message.toLowerCase().startsWith("!players")) {
-			Player players[] = plugin.getServer().getOnlinePlayers();
-			String output = "There are " + players.length + " connected:";
-			for (int i=0; i<players.length; i++)
-				output += " " + players[i].getDisplayName();
-			super.sendMessage(channel, output);
-			plugin.getServer().broadcastMessage(ce + "* #" + sender + " asked for the player list");
+			Player p[] = plugin.getServer().getOnlinePlayers();
+			String o;
+			int n = p.length;
+			o = "There " + (n==1?"is ":"are ") + p + " player" + (n==1?"s":"") + "connected" + (n==0?".":":");
+			for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
+			super.sendMessage(channel, o);
+			if (plugin.config.event_irc_chat)
+				plugin.getServer().broadcastMessage(ce + "* #" + sender + " asked for the player list");
 			return true;
 		}
+		
 		return false;
 	}
 	

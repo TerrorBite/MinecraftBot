@@ -56,8 +56,7 @@ public class MinecraftBot extends JavaPlugin {
 	}
 	
 	public void onDisable() {
-		if (bot != null && bot.isConnected()) {
-			bot.doNotReconnect = true;
+		if (bot != null) {
 			bot.disconnect();
 			bot.dispose();
 		}
@@ -85,15 +84,6 @@ public class MinecraftBot extends JavaPlugin {
 		}
 		if (cmd.getName().equalsIgnoreCase("names")) {
 			sender.sendMessage(bot.userlist());
-			return true;
-		}
-		
-		// Don't know if this will work without defining it in plugin.yml
-		// but it's worth a try
-		if (cmd.getName().equalsIgnoreCase("broadcast")) {
-			String message = "{Broadcast}";
-			for (int i = 0; i < args.length; i++) message += (" " + args[i]);
-			this.bot.sendMessage(message);
 			return true;
 		}
 		

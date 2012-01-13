@@ -10,8 +10,6 @@ import org.jibble.pircbot.User;
 public class IRCHandler extends PircBot {
 	public static MinecraftBot plugin;
 	
-	public boolean doNotReconnect = false;
-	
 	// Defined in the constructor
 	private final ChatColor ce; // color for event
 	private final ChatColor ck; // color for kick
@@ -47,7 +45,7 @@ public class IRCHandler extends PircBot {
 	public boolean connect() {
 		// Attempts to connect. Returns false on failure.
 		int attempt = 0;
-		int retry = 50; // Times to attempt connecting
+		int retry = 10; // Times to attempt connecting
 		
 		// Limitations with bukkit and/or myself have forced
 		// me to just have the plugin connect again and again.
@@ -78,21 +76,11 @@ public class IRCHandler extends PircBot {
 
 			return true;
 		}
-		sendlog("Failed to connect after " + attempt + " attempts. Giving up.", 2);
+		sendlog("Failed to connect after " + attempt + " attempts. Enter /reconnect to try again.", 2);
 		return false;
 	}
 	public void onDisconnect() {
-		// Attempts to reconnect. On failure, disables the plugin...
-		if (doNotReconnect) {
-			// ...unless we actually want to stay disconnected.
-			sendlog("Disconnected.", 0);
-			return;
-		}
-		sendlog("Disconnected. Attempting to reconnect...", 1);
-		if (!connect()) {
-			sendlog("Failed to reconnect.", 2);
-			plugin.getServer().getPluginManager().disablePlugin(plugin);
-		}
+		sendlog("Disconnected.", 0);
 	}
 	private void checkNick() {
 		// Check to see whether this was the given nick.
@@ -124,11 +112,11 @@ public class IRCHandler extends PircBot {
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {
 		if (plugin.config.event_irc_chat == false) return;
 		if (isCommand(sender, message)) return; 
-		plugin.getServer().broadcastMessage("<#" + sender + "> " + message);
+		plugin.getServer().broadcastMessage("<#" + sender + "> " + c(message));
 	}
 	public void onAction(String sender, String login, String hostnick, String target, String action) {
 		if (plugin.config.event_irc_chat == false) return;
-		plugin.getServer().broadcastMessage(cm + "* #" + sender + " " + action);
+		plugin.getServer().broadcastMessage(cm + "* #" + sender + " " + c(action));
 	}
 	public void onJoin(String channel, String sender, String login, String hostnick) {
 		if (plugin.config.event_irc_join == false) return;
@@ -147,7 +135,7 @@ public class IRCHandler extends PircBot {
 		if (plugin.config.event_irc_quit == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
-		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + message);
+		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + c(message));
 	}
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
 		if (recipientNick.equals(super.getNick())) {
@@ -161,19 +149,33 @@ public class IRCHandler extends PircBot {
 		if (plugin.config.event_irc_kick == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
-		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + message);
+		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + c(message));
 	}
 	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
-		// TODO this
 		if (plugin.config.event_irc_topic == false) return;
+		if (!changed) return; // Don't want the original topic
+		plugin.getServer().broadcastMessage(ce + "* #" + setBy + " changed the topic to: " + c(topic));
 	}
-	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		// TODO this
+	public void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
 		if (plugin.config.event_irc_mode == false) return;
+		plugin.getServer().broadcastMessage("* #" + sourceNick + " gave channel operator status to #" + recipient);
 	}
-	public void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		// TODO this
+	public void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
 		if (plugin.config.event_irc_mode == false) return;
+		plugin.getServer().broadcastMessage("* #" + sourceNick + " removed channel operator status from #" + recipient);
+	}
+	public void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		if (plugin.config.event_irc_mode == false) return;
+		plugin.getServer().broadcastMessage("* #" + sourceNick + " gave voice to #" + recipient);
+	}
+	public void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+		if (plugin.config.event_irc_mode == false) return;
+		plugin.getServer().broadcastMessage("* #" + sourceNick + " took voice from #" + recipient);
+	}
+	private String c(String line) {
+		// TODO IRC colors translate to Minecraft colors here
+		// Short name to keep lines short
+		return line;
 	}
 	
 	
@@ -181,6 +183,19 @@ public class IRCHandler extends PircBot {
 	public void sendMessage(String message) {
 		// We already know what the target channel is.
 		super.sendMessage(channel, message);
+	}
+	public String userlist() {
+		// User list on a string
+		User list[] = super.getUsers(channel);
+		String nicks = channel + ":";
+		
+		// In case this is used in a large channel; to prevent flooding the player's screen with names
+		if (list.length <= 25)
+			for (int i=0; i<list.length; i++) nicks += " " + list[i].getNick();
+		else
+			nicks += " Too many to list! You will have to look at " + channel + " yourself to see who's on.";
+		
+		return nicks;
 	}
 	
 	private void sendlog(String message, int type) {
@@ -209,19 +224,5 @@ public class IRCHandler extends PircBot {
 		}
 		
 		return false;
-	}
-	
-	public String userlist() {
-		// User list on a string
-		User list[] = super.getUsers(channel);
-		String nicks = channel + ":";
-		
-		// In case this is used in a large channel; to prevent flooding the player's screen with names
-		if (list.length <= 25)
-			for (int i=0; i<list.length; i++) nicks += " " + list[i].getNick();
-		else
-			nicks += " Too many to list! You will have to look at " + channel + " yourself to see who's on.";
-		
-		return nicks;
 	}
 }

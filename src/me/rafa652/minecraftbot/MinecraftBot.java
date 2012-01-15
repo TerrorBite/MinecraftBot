@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jibble.pircbot.User;
 
 public class MinecraftBot extends JavaPlugin {
-	private String version = "0.94";
+	private String version = "0.95";
 	public Logger log = Logger.getLogger("Minecraft");
 	
 	public MinecraftBotConfiguration config;

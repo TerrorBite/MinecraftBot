@@ -119,9 +119,7 @@ public class MinecraftBotConfiguration {
 			plugin.log.severe("[MinecraftBot] Are some color options missing or misspelled?");
 			success = false;
 		}
-		
-		// Save any default values that didn't exist before
-		plugin.saveConfig();
+
 	}
 	public boolean isGood() {
 		return success;

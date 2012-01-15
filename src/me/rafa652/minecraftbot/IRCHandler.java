@@ -181,11 +181,11 @@ public class IRCHandler extends PircBot {
 	
 	
 	public void sendMessage(String message) {
-		// We already know what the target channel is.
+		// Overriding because we already know what the target channel is.
 		super.sendMessage(channel, message);
 	}
 	public String userlist() {
-		// User list on a string
+		// Returns a list of users on IRC.
 		User list[] = super.getUsers(channel);
 		String nicks = channel + ":";
 		
@@ -215,7 +215,7 @@ public class IRCHandler extends PircBot {
 			Player p[] = plugin.getServer().getOnlinePlayers();
 			String o;
 			int n = p.length;
-			o = "There " + (n==1?"is ":"are ") + p + " player" + (n==1?"s":"") + "connected" + (n==0?".":":");
+			o = "There " + (n==1?"is ":"are ") + p + " player" + (n==1?"s":"") + " connected" + (n==0?".":":");
 			for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
 			super.sendMessage(channel, o);
 			if (plugin.config.event_irc_chat)

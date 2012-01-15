@@ -71,8 +71,7 @@ public class IRCHandler extends PircBot {
 			
 			checkNick();
 			
-			if (key.isEmpty()) super.joinChannel(channel);
-			else super.joinChannel(channel, key);
+			joinChannel();
 
 			return true;
 		}
@@ -107,7 +106,12 @@ public class IRCHandler extends PircBot {
 			return;
 		}
 	}
-
+	public void joinChannel() {
+		// Overriding because there's only one channel to join
+		if (key.isEmpty()) super.joinChannel(channel);
+		else super.joinChannel(channel, key);
+	}
+	
 
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {
 		if (plugin.config.event_irc_chat == false) return;
@@ -142,8 +146,7 @@ public class IRCHandler extends PircBot {
 			// Self was kicked - attempt to rejoin.
 			
 			// wait 3 seconds here
-			if (key.isEmpty()) super.joinChannel(channel);
-			else super.joinChannel(channel, key);
+			joinChannel();
 		}
 		
 		if (plugin.config.event_irc_kick == false) return;

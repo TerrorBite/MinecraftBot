@@ -11,4 +11,20 @@ commands:
         usage: /names
     irc:
         description: Does a given IRC action
-        usage: /irc (op|deop|voice|devoice|kick|reconnect|rejoin|disconnect)
+        usage: /irc op|deop|voice|devoice|kick|connect|rejoin|disconnect
+permissions:
+    minecraftbot.*:
+        description: Gives access to all commands
+        children:
+            minecraftbot.op: true
+            minecraftbot.voice: true
+            minecraftbot.kick: true
+            minecraftbot.manage: true
+    minecraftbot.op:
+        description: Gives access to op and deop
+    minecraftbot.voice:
+        description: Gives access to voice and devoice
+    minecraftbot.kick:
+        description: Gives access to kick
+    minecraftbot.manage:
+        description: Gives access to connect, rejoin and disconnect

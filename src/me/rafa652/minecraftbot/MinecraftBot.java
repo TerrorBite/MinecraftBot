@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jibble.pircbot.User;
 
 public class MinecraftBot extends JavaPlugin {
 	private String version = "0.94";
@@ -90,9 +92,58 @@ public class MinecraftBot extends JavaPlugin {
 		
 		// Admin IRC commands
 		if (command.equals("irc")) {
-			if (args[0].equalsIgnoreCase("op")) {
-				
+			String subcommand = args[0].toLowerCase();
+			if (args.length > 2) return false;
+			if (args[1].isEmpty()) return false; // not sure if needed
+			
+			if (subcommand.equals("op") && permitted(sender, "op")) {
+				bot.op(config.bot_channel, args[1]);
 			}
+			if (subcommand.equals("deop") && permitted(sender, "op")) {
+				bot.deOp(config.bot_channel, args[1]);
+			}
+			if (subcommand.equals("voice") && permitted(sender, "voice")) {
+				bot.voice(config.bot_channel, args[1]);
+			}
+			if (subcommand.equals("devoice") && permitted(sender, "voice")) {
+				bot.deVoice(config.bot_channel, args[1]);
+			}
+			if (subcommand.equals("kick") && permitted(sender, "kick")) {
+				String reason = "";
+				for (int i=2;i>args.length;i++) reason += args[i] + " ";
+				if (reason.length() > 0) reason = reason.substring(0, reason.length()-1);
+				bot.kick(config.bot_channel, args[1], reason);
+			}
+			/* Thought of adding an /irc ban command that would take a user as
+			 * an argument then ban that user, but the bot needs a hostmask to ban.
+			 * Can't get a user's hostmask.
+			if (subcommand.equals("ban") && permitted(sender, "ban")) {
+				// Must find the user's hostmask to be able to ban
+				boolean found = false;
+				String hostmask;
+				
+				User users[] = bot.getUsers(config.bot_channel);
+				for (int i=0;i>users.length;i++) {
+					hostmask = users[i].
+					if (users[i].getNick().equals(args[1])) found = true;
+				}
+				
+				if (found) bot.ban(config.bot_channel, hostmask);
+			}
+			*/
+			if (subcommand.equals("connect") && permitted(sender, "manage")) {
+				if (bot.isConnected()) sender.sendMessage("Already connected to IRC!");
+				else bot.connect();
+			}
+			if (subcommand.equals("rejoin") && permitted(sender, "manage")) {
+				bot.joinChannel();
+			}
+			if (subcommand.equals("disconnect") && permitted(sender, "manage")) {
+				if (bot.isConnected()) sender.sendMessage("Already not connected to IRC!");
+				else bot.disconnect();
+			}
+			
+			return true;
 		}
 		
 		return false;
@@ -100,9 +151,9 @@ public class MinecraftBot extends JavaPlugin {
 	
 	private boolean permitted(CommandSender sender, String permission) {
 		if (sender instanceof ConsoleCommandSender) return true;
-		boolean p = (sender.hasPermission("MinecraftBot." + permission) || sender.isOp());
+		boolean p = (sender.hasPermission("minecraftbot." + permission));
 		
-		if (!p) sender.sendMessage("You are not permitted to use this command.");
+		if (!p) sender.sendMessage(ChatColor.DARK_RED + "You are not permitted to use this command.");
 		return p;
 	}
 }

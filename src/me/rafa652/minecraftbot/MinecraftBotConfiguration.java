@@ -88,6 +88,26 @@ public class MinecraftBotConfiguration {
 		event_irc_mode = config.getBoolean("event.irc.mode");
 		event_irc_topic = config.getBoolean("event.irc.topic");
 		
+		
+		// Check for errors
+		if (bot_nick == null || bot_nick.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] Configuration: Bot name is missing.");
+			success = false;
+		}
+		if (bot_server == null || bot_server.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] Configuration: The server to connect to is not defined.");
+			success = false;
+		}
+		if (bot_port > 65535 || bot_port < 0) {
+			plugin.log.severe("[MinecraftBot] Configuration: An invalid port number was specified.");
+			success = false;
+		}
+		if (bot_channel == null || bot_channel.isEmpty()) {
+			plugin.log.severe("[MinecraftBot] Configuration: The channel to join is not defined.");
+			success = false;
+		}
+		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
+		
 		try {
 			setColors(
 					config.getString("color.me"),
@@ -95,30 +115,10 @@ public class MinecraftBotConfiguration {
 					config.getString("color.kick"),
 					config.getString("color.death"));
 		} catch (Exception e) {
-			
-		// Check for errors
 			plugin.log.severe("[MinecraftBot] Could not load the color configuration properly.");
 			plugin.log.severe("[MinecraftBot] Are some color options missing or misspelled?");
 			success = false;
 		}
-		
-		if (bot_nick == null || bot_nick.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] Bot name is missing in the configuration.");
-			success = false;
-		}
-		if (bot_server == null || bot_server.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] The server to connect to is not defined in the configuration.");
-			success = false;
-		}
-		if (bot_port > 65535 || bot_port < 0) {
-			plugin.log.severe("[MinecraftBot] An invalid port number was specified in the configuration.");
-			success = false;
-		}
-		if (bot_channel == null || bot_channel.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] The channel to join is not defined in the configuration.");
-			success = false;
-		}
-		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
 		
 		// Save any default values that didn't exist before
 		plugin.saveConfig();
@@ -166,7 +166,7 @@ public class MinecraftBotConfiguration {
 		} 
 		catch (IOException e) 
 		{
-			plugin.log.severe("Failed to save config.yml - Check the plugin's data directory!");
+			plugin.log.severe("[MinecraftBot] Failed to save config.yml - Check the plugin's data directory!");
 		} 
 		catch (NullPointerException e) 
 		{

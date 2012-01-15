@@ -10,7 +10,15 @@
 
 package me.rafa652.minecraftbot;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class MinecraftBotConfiguration {
@@ -47,12 +55,15 @@ public class MinecraftBotConfiguration {
 	// It uses the plugin's logger to describe the errors.
 	private boolean success = true;
 	public MinecraftBotConfiguration(MinecraftBot plugin) {
+		// Set up the file
+		if (!checkFile(plugin)) {
+			success = false;
+			return;
+		}
 		FileConfiguration config = plugin.getConfig();
-		
 		config.options().copyDefaults(true);
 		
-		// Loading all config values
-		
+		// Load all values
 		bot_server = config.getString("server.server");
 		bot_port = config.getInt("server.port");
 		bot_serverpass = config.getString("server.password");
@@ -77,9 +88,6 @@ public class MinecraftBotConfiguration {
 		event_irc_mode = config.getBoolean("event.irc.mode");
 		event_irc_topic = config.getBoolean("event.irc.topic");
 		
-		// save defaults from included config.yml
-		plugin.saveConfig();
-		
 		try {
 			setColors(
 					config.getString("color.me"),
@@ -88,9 +96,9 @@ public class MinecraftBotConfiguration {
 					config.getString("color.death"));
 		} catch (Exception e) {
 			
-		// Now checking to see if the config's right
+		// Check for errors
 			plugin.log.severe("[MinecraftBot] Could not load the color configuration properly.");
-			plugin.log.severe("[MinecraftBot] Are some colors missing or misspelled?");
+			plugin.log.severe("[MinecraftBot] Are some color options missing or misspelled?");
 			success = false;
 		}
 		
@@ -112,10 +120,60 @@ public class MinecraftBotConfiguration {
 		}
 		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
 		
+		// Save any default values that didn't exist before
+		plugin.saveConfig();
 	}
 	public boolean isGood() {
 		return success;
 	}
+	private boolean checkFile(MinecraftBot plugin) {
+		// Checks if the config file exists. If not, creates it.
+		// Returns false if an error occured.
+    	try {
+    		if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
+    		plugin.getConfig().load(new File(plugin.getDataFolder(), "config.yml"));
+    	} catch (FileNotFoundException e) {
+			plugin.log.info("[MinecraftBot] No config file found. Creating a default configuration file.");
+			plugin.log.info("[MinecraftBot] You must edit this file before being able to use this plugin.");
+			saveFile(plugin);
+			return false;
+		} catch (IOException e) {
+			plugin.log.severe("[MinecraftBot] IOException while loading config! Check if config.yml or the plugins folder is writable.");
+			return false;
+		} catch (InvalidConfigurationException e) {
+			plugin.log.severe("[MinecraftBot] Configuration is invalid. Double check your syntax. (And remove any tab characters)");
+			return false;
+		}
+		return true;
+	}
+	private void saveFile(MinecraftBot plugin) {
+		try
+		{
+			File conf = new File(plugin.getDataFolder(), "config.yml");
+			
+			InputStream is = this.getClass().getResourceAsStream("/config.yml");
+			if (!conf.exists())
+				conf.createNewFile();
+			OutputStream os = new FileOutputStream(conf);
+			
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = is.read(buf)) > 0)
+				os.write(buf, 0, len);
+
+			is.close();
+			os.close();
+		} 
+		catch (IOException e) 
+		{
+			plugin.log.severe("Failed to save config.yml - Check the plugin's data directory!");
+		} 
+		catch (NullPointerException e) 
+		{
+			plugin.log.severe("[MinecraftBot] Could not find the default config.yml! Is it in the .jar?");
+		}
+	}
+		
 	
 // Colors ---------------------------------------
 	private int color_irc_me;

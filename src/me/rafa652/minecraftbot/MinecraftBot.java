@@ -6,6 +6,7 @@ import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
@@ -50,7 +51,6 @@ public class MinecraftBot extends JavaPlugin {
 			if (!bot.connect()) pm.disablePlugin(this);
 			// Now only IRCHandler sends info to the logger
 		} else {
-			log.severe("[MinecraftBot] Configuration failed to load.");
 			pm.disablePlugin(this);
 		}
 	}
@@ -64,7 +64,8 @@ public class MinecraftBot extends JavaPlugin {
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
-		if (cmd.getName().equalsIgnoreCase("me")) {
+		String command = cmd.getName().toLowerCase();
+		if (command.equals("me")) {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Only players can use this command.");
 				return true;
@@ -82,11 +83,26 @@ public class MinecraftBot extends JavaPlugin {
 			
 			return true;
 		}
-		if (cmd.getName().equalsIgnoreCase("names")) {
+		if (command.equals("names")) {
 			sender.sendMessage(bot.userlist());
 			return true;
 		}
 		
+		// Admin IRC commands
+		if (command.equals("irc")) {
+			if (args[0].equalsIgnoreCase("op")) {
+				
+			}
+		}
+		
 		return false;
+	}
+	
+	private boolean permitted(CommandSender sender, String permission) {
+		if (sender instanceof ConsoleCommandSender) return true;
+		boolean p = (sender.hasPermission("MinecraftBot." + permission) || sender.isOp());
+		
+		if (!p) sender.sendMessage("You are not permitted to use this command.");
+		return p;
 	}
 }

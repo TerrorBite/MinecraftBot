@@ -9,24 +9,6 @@ commands:
     names:
         description: Displays the users on the IRC channel
         usage: /names
-    op:
-        description: Gives mode +o to a person on IRC
-        usage: /op nick
-    deop:
-        description: Gives mode -o to a person on IRC
-        usage: /deop nick
-    voice:
-        description: Gives mode +v to a person on IRC
-        usage: /voice nick
-    devoice:
-        description: Gives mode -v to a person on IRC
-        usage: /devoice nick
-    kick:
-        description: Kicks someone on IRC (the bot must be op)
-        usage: /kick nick [reason]
-    reconnect:
-        description: Attempts to reconnect to IRC
-        usage: /reconnect
-    rejoin:
-        description: Attempts to join the IRC channel set in the configuration file
-        usage: /rejoin
+    irc:
+        description: Does a given IRC action
+        usage: /irc (op|deop|voice|devoice|kick|reconnect|rejoin|disconnect)

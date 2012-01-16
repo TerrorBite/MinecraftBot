@@ -56,6 +56,7 @@ public class MinecraftBot extends JavaPlugin {
 				log(0, "will now call itself " + config.bot_nick);
 
 			bot = new IRCHandler(this, config);
+			bot.connect();
 		} else {
 			pm.disablePlugin(this);
 		}

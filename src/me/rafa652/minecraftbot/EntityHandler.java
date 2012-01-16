@@ -14,16 +14,19 @@ public class EntityHandler extends EntityListener {
 
 	public static MinecraftBot plugin;
 	
-	final String cd; // color for death or kick
+	// Values from config
+	private String cd; // color for death
+	private boolean event_mc_death;
 
-	public EntityHandler(MinecraftBot instance) {
+	public EntityHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
 		
-		cd = plugin.config.getIRCColor(ColorContext.Death);
+		cd = config.getIRCColor(ColorContext.Death);
+		event_mc_death = config.event_mc_death;
 	}
 
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (plugin.config.event_mc_death == false) return;
+		if (event_mc_death == false) return;
 		
 		if (event instanceof PlayerDeathEvent) {
 			PlayerDeathEvent death = (PlayerDeathEvent)event;

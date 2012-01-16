@@ -14,10 +14,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	private String version = "0.96";
-	public Logger log = Logger.getLogger("Minecraft");
+	public final String version = "0.96";
+	private Logger log = Logger.getLogger("Minecraft");
 	
-	public MinecraftBotConfiguration config;
 	public IRCHandler bot;
 	
 	// Not instantiating yet because they use config
@@ -25,16 +24,26 @@ public class MinecraftBot extends JavaPlugin {
 	private EntityHandler entityListener;
 	private ServerConsoleHandler serverListener;
 	
+	// Values from config
+	private boolean event_mc_chat;
+	private String icm; // IRC Color Me
+	private ChatColor mcm; // MC Color Me
+	
 	public void onEnable() {
-		log.info("[MinecraftBot] v" + version + " loaded.");
+		log(0, "v" + version + " loaded.");
 		PluginManager pm = getServer().getPluginManager();
 		
-		config = new MinecraftBotConfiguration(this);
+		MinecraftBotConfiguration config = new MinecraftBotConfiguration(this);
 		
+		// If config works, get everything started
 		if (config.isGood()) {
-			playerListener = new PlayerChatHandler(this);
-			entityListener = new EntityHandler(this);
-			serverListener = new ServerConsoleHandler(this);
+			playerListener = new PlayerChatHandler(this, config);
+			entityListener = new EntityHandler(this, config);
+			serverListener = new ServerConsoleHandler(this, config);
+			
+			event_mc_chat = config.event_mc_chat;
+			icm = config.getIRCColor(ColorContext.Me);
+			mcm = config.getChatColor(ColorContext.Me);
 			
 			pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
@@ -44,13 +53,9 @@ public class MinecraftBot extends JavaPlugin {
 			pm.registerEvent(Event.Type.SERVER_COMMAND, serverListener, Event.Priority.Monitor, this);
 		
 			if (!config.bot_nick.equals("MinecraftBot")) // avoid redundancy
-				log.info("[MinecraftBot] will now call itself " + config.bot_nick);
+				log(0, "will now call itself " + config.bot_nick);
 
-			bot = new IRCHandler(this);
-			
-			// If failed to connect, disable plugin
-			if (!bot.connect()) pm.disablePlugin(this);
-			// Now only IRCHandler sends info to the logger
+			bot = new IRCHandler(this, config);
 		} else {
 			pm.disablePlugin(this);
 		}
@@ -61,7 +66,7 @@ public class MinecraftBot extends JavaPlugin {
 			bot.disconnect();
 			bot.dispose();
 		}
-		log.info("[MinecraftBot] v" + version + " disabled.");
+		log(0, "v" + version + " disabled.");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
@@ -72,15 +77,15 @@ public class MinecraftBot extends JavaPlugin {
 				return true;
 			}
 			
-			if (config.event_mc_chat == false) return true; // MC chat turned off in config
+			if (event_mc_chat == false) return true; // MC chat turned off in config
 			Player player = (Player)sender;
 			String message = "* " + player.getDisplayName(); // x03 (IRC color) followed by 6 (purple)
 			for (int i=0; i<args.length; i++) message += " " + args[i];
 			
 			// To IRC
-			bot.sendMessage(config.getIRCColor(ColorContext.Me) + message);
+			bot.sendMessage(icm + message);
 			// To Minecraft
-			sender.getServer().broadcastMessage(config.getChatColor(ColorContext.Me) + message);
+			sender.getServer().broadcastMessage(mcm + message);
 			
 			return true;
 		}
@@ -101,22 +106,22 @@ public class MinecraftBot extends JavaPlugin {
 			if (subcommand.equals("op")) {
 				if (!permitted(sender, "op")) return true;
 				if (showusage) sender.sendMessage("/op nick");
-				else bot.op(config.bot_channel, args[1]);
+				else bot.op(bot.getChannel(), args[1]);
 			}
 			else if (subcommand.equals("deop")) {
 				if (!permitted(sender, "op")) return true;
 				if (showusage) sender.sendMessage("/deop nick");
-				else bot.deOp(config.bot_channel, args[1]);
+				else bot.deOp(bot.getChannel(), args[1]);
 			}
 			else if (subcommand.equals("voice")) {
 				if (!permitted(sender, "voice")) return true;
 				if (showusage) sender.sendMessage("/voice nick");
-				else bot.voice(config.bot_channel, args[1]);
+				else bot.voice(bot.getChannel(), args[1]);
 			}
 			else if (subcommand.equals("devoice")) {
 				if (!permitted(sender, "voice")) return true;
 				if (showusage) sender.sendMessage("/devoice nick");
-				else bot.deVoice(config.bot_channel, args[1]);
+				else bot.deVoice(bot.getChannel(), args[1]);
 			}
 			else if (subcommand.equals("kick")) {
 				if (!permitted(sender, "kick")) return true;
@@ -125,7 +130,7 @@ public class MinecraftBot extends JavaPlugin {
 					String reason = "";
 					for (int i=2;i<args.length;i++) reason += args[i] + " ";
 					if (reason.length() > 0) reason = reason.substring(0, reason.length()-1);
-					bot.kick(config.bot_channel, args[1], reason);
+					bot.kick(bot.getChannel(), args[1], reason);
 				}
 			}
 			else if (subcommand.equals("connect")) {
@@ -156,5 +161,22 @@ public class MinecraftBot extends JavaPlugin {
 		
 		if (!p) sender.sendMessage(ChatColor.RED + "You are not permitted to use this command.");
 		return p;
+	}
+	
+	/**
+	 * Sends to logger. Prepends [MinecraftBot] or its current nick to it.
+	 * @param type 1 for warning, 2 for severe. Anything else will be info
+	 * @param message The message to send to the log
+	 */
+	public void log(int type, String message) {
+		String l;
+		if (bot != null && bot.getNick() != null) l = bot.getNick();
+		else l = "MinecraftBot";
+		
+		l = "[" + l + "] " + message;
+		
+		if (type == 1) log.warning(l);
+		else if (type == 2) log.severe(l);
+		else log.info(l);
 	}
 }

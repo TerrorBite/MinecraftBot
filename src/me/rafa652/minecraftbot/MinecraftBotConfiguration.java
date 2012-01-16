@@ -6,8 +6,6 @@
  * Better than making a confusing mess in MinecraftBot's onEnable().
  */
 
-// To do: Add support with EntityHandler, IRCHandler, MinecraftBot, PlayerChatHandler, ServerConsoleHandler
-
 package me.rafa652.minecraftbot;
 
 import java.io.File;
@@ -22,6 +20,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class MinecraftBotConfiguration {
+	private MinecraftBot plugin;
 
 // IRC bot values -------------------------------
 	public String bot_server;
@@ -54,7 +53,9 @@ public class MinecraftBotConfiguration {
 	// Constructor sets success to false if there's an error
 	// It uses the plugin's logger to describe the errors.
 	private boolean success = true;
-	public MinecraftBotConfiguration(MinecraftBot plugin) {
+	public MinecraftBotConfiguration(MinecraftBot instance) {
+		plugin = instance;
+		
 		// Set up the file
 		if (!checkFile(plugin)) {
 			success = false;
@@ -91,19 +92,19 @@ public class MinecraftBotConfiguration {
 		
 		// Check for errors
 		if (bot_nick == null || bot_nick.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] Configuration: Bot name is missing.");
+			plugin.log(2, "Configuration: Bot name is missing.");
 			success = false;
 		}
 		if (bot_server == null || bot_server.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] Configuration: The server to connect to is not defined.");
+			plugin.log(2, "Configuration: The server to connect to is not defined.");
 			success = false;
 		}
 		if (bot_port > 65535 || bot_port < 0) {
-			plugin.log.severe("[MinecraftBot] Configuration: An invalid port number was specified.");
+			plugin.log(2, "Configuration: An invalid port number was specified.");
 			success = false;
 		}
 		if (bot_channel == null || bot_channel.isEmpty()) {
-			plugin.log.severe("[MinecraftBot] Configuration: The channel to join is not defined.");
+			plugin.log(2, "Configuration: The channel to join is not defined.");
 			success = false;
 		}
 		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
@@ -115,8 +116,8 @@ public class MinecraftBotConfiguration {
 					config.getString("color.kick"),
 					config.getString("color.death"));
 		} catch (Exception e) {
-			plugin.log.severe("[MinecraftBot] Could not load the color configuration properly.");
-			plugin.log.severe("[MinecraftBot] Are some color options missing or misspelled?");
+			plugin.log(2, "Could not load the color configuration properly.");
+			plugin.log(2, "Are some color options missing or misspelled?");
 			success = false;
 		}
 
@@ -131,15 +132,15 @@ public class MinecraftBotConfiguration {
     		if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
     		plugin.getConfig().load(new File(plugin.getDataFolder(), "config.yml"));
     	} catch (FileNotFoundException e) {
-			plugin.log.info("[MinecraftBot] No config file found. Creating a default configuration file.");
-			plugin.log.info("[MinecraftBot] You must edit this file before being able to use this plugin.");
+			plugin.log(0, "No config file found. Creating a default configuration file.");
+			plugin.log(0, "You must edit this file before being able to use this plugin.");
 			saveFile(plugin);
 			return false;
 		} catch (IOException e) {
-			plugin.log.severe("[MinecraftBot] IOException while loading config! Check if config.yml or the plugins folder is writable.");
+			plugin.log(2, "IOException while loading config! Check if config.yml or the plugins folder is writable.");
 			return false;
 		} catch (InvalidConfigurationException e) {
-			plugin.log.severe("[MinecraftBot] Configuration is invalid. Double check your syntax. (And remove any tab characters)");
+			plugin.log(2, "Configuration is invalid. Double check your syntax. (And remove any tab characters)");
 			return false;
 		}
 		return true;
@@ -164,11 +165,11 @@ public class MinecraftBotConfiguration {
 		} 
 		catch (IOException e) 
 		{
-			plugin.log.severe("[MinecraftBot] Failed to save config.yml - Check the plugin's data directory!");
+			plugin.log(2, "Failed to save config.yml - Check the plugin's data directory!");
 		} 
 		catch (NullPointerException e) 
 		{
-			plugin.log.severe("[MinecraftBot] Could not find the default config.yml! Is it in the .jar?");
+			plugin.log(2, "Could not find the default config.yml! Is it in the .jar?");
 		}
 	}
 		

@@ -12,32 +12,41 @@ public class PlayerChatHandler extends PlayerListener {
 	
 	public static MinecraftBot plugin;
 	
-	final String ce; // color for event
-	final String ck; // color for kick
+	// Values from config
+	private String ce; // color for event
+	private String ck; // color for kick
+	private boolean event_mc_chat;
+	private boolean event_mc_join;
+	private boolean event_mc_leave;
+	private boolean event_mc_kick;
 	
-	public PlayerChatHandler(MinecraftBot instance) {
+	public PlayerChatHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
 		
-		ce = plugin.config.getIRCColor(ColorContext.Event);
-		ck = plugin.config.getIRCColor(ColorContext.Kick);
+		ce = config.getIRCColor(ColorContext.Event);
+		ck = config.getIRCColor(ColorContext.Kick);
+		event_mc_chat = config.event_mc_chat;
+		event_mc_join = config.event_mc_join;
+		event_mc_leave = config.event_mc_leave;
+		event_mc_kick = config.event_mc_kick;
 	}
 	
 	public void onPlayerChat(PlayerChatEvent event) {
 		if (event.isCancelled()) return;
-		if (plugin.config.event_mc_chat == false) return;
+		if (event_mc_chat == false) return;
 		plugin.bot.sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
 	}
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (plugin.config.event_mc_join == false) return;
+		if (event_mc_join == false) return;
 		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " joined the game");
 	}
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		if (plugin.config.event_mc_leave == false) return;
+		if (event_mc_leave == false) return;
 		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " left the game");
 	}
 	public void onPlayerKick(PlayerKickEvent event) {
 		if (event.isCancelled()) return;
-		if (plugin.config.event_mc_kick == false) return;
+		if (event_mc_kick == false) return;
 		plugin.bot.sendMessage(ck + "* " + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
 	}
 }

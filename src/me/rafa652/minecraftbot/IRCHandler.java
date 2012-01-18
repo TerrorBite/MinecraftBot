@@ -233,7 +233,7 @@ public class IRCHandler extends PircBot {
 			Player p[] = plugin.getServer().getOnlinePlayers();
 			String o;
 			int n = p.length;
-			o = "There " + (n==1?"is ":"are ") + p + " player" + (n==1?"s":"") + " connected" + (n==0?".":":");
+			o = "There " + (n==1?"is ":"are ") + n + " player" + (n==1?"":"s") + " connected" + (n==0?".":":");
 			for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
 			super.sendMessage(channel, o);
 			if (event_irc_chat)

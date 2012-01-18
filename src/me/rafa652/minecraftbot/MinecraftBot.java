@@ -2,13 +2,10 @@ package me.rafa652.minecraftbot;
 
 import java.util.logging.Logger;
 
-import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,17 +14,11 @@ public class MinecraftBot extends JavaPlugin {
 	public final String version = "0.96";
 	private Logger log = Logger.getLogger("Minecraft");
 	
-	public IRCHandler bot;
-	
 	// Not instantiating yet because they use config
+	public IRCHandler bot;
 	private PlayerChatHandler playerListener;
 	private EntityHandler entityListener;
 	private ServerConsoleHandler serverListener;
-	
-	// Values from config
-	private boolean event_mc_chat;
-	private String icm; // IRC Color Me
-	private ChatColor mcm; // MC Color Me
 	
 	public void onEnable() {
 		log(0, "v" + version + " loaded.");
@@ -41,16 +32,13 @@ public class MinecraftBot extends JavaPlugin {
 			entityListener = new EntityHandler(this, config);
 			serverListener = new ServerConsoleHandler(this, config);
 			
-			event_mc_chat = config.event_mc_chat;
-			icm = config.getIRCColor(ColorContext.Me);
-			mcm = config.getChatColor(ColorContext.Me);
-			
 			pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.PLAYER_KICK, playerListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Monitor, this);
 			pm.registerEvent(Event.Type.SERVER_COMMAND, serverListener, Event.Priority.Monitor, this);
+			pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Event.Priority.Highest, this);
 		
 			if (!config.bot_nick.equals("MinecraftBot")) // avoid redundancy
 				log(0, "will now call itself " + config.bot_nick);
@@ -72,24 +60,8 @@ public class MinecraftBot extends JavaPlugin {
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
 		String command = cmd.getName().toLowerCase();
-		if (command.equals("me")) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage("Only players can use this command.");
-				return true;
-			}
-			
-			if (event_mc_chat == false) return true; // MC chat turned off in config
-			Player player = (Player)sender;
-			String message = "* " + player.getDisplayName(); // x03 (IRC color) followed by 6 (purple)
-			for (int i=0; i<args.length; i++) message += " " + args[i];
-			
-			// To IRC
-			bot.sendMessage(icm + message);
-			// To Minecraft
-			sender.getServer().broadcastMessage(mcm + message);
-			
-			return true;
-		}
+
+		// Get player list
 		if (command.equals("names")) {
 			sender.sendMessage(bot.userlist());
 			return true;
@@ -171,8 +143,9 @@ public class MinecraftBot extends JavaPlugin {
 	 */
 	public void log(int type, String message) {
 		String l;
-		if (bot != null && bot.getNick() != null) l = bot.getNick();
-		else l = "MinecraftBot";
+		if (bot == null) l = "MinecraftBot";
+		else if (!bot.isConnected()) l = "MinecraftBot";
+		else l = bot.getNick();
 		
 		l = "[" + l + "] " + message;
 		

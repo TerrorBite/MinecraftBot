@@ -55,8 +55,9 @@ public class IRCHandler extends PircBot {
 		key = config.bot_key;
 		nickpass = config.bot_nickpass;
 		
-		super.setLogin("MinecraftBot");
-		super.setVersion("MinecraftBot v" + plugin.version + "; Using PircBot 1.5.0");
+		// Set some info
+		super.setLogin(nick);
+		super.setVersion("MinecraftBot v" + plugin.version);
 		super.setAutoNickChange(true);
 	}
 	

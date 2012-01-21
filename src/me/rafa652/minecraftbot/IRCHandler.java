@@ -96,7 +96,7 @@ public class IRCHandler extends PircBot {
 
 			return true;
 		}
-		plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter /reconnect to try again.");
+		plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter '/irc reconnect' to try again.");
 		return false;
 	}
 	public void onDisconnect() {
@@ -106,7 +106,7 @@ public class IRCHandler extends PircBot {
 		// Check to see whether this was the given nick.
 		// If yes, identify. If not, ghost. Or... just don't do anything if no nickpass exists.
 		if (nickpass.isEmpty()) {
-			plugin.log(1, "The nick \"" + nick + "\" appears to be taken. The bot is now known as " + super.getNick());
+			plugin.log(1, "\"" + nick + "\" appears to be taken. Nick is now " + super.getNick() + ".");
 			nick = super.getNick();
 			return;
 		}
@@ -122,7 +122,7 @@ public class IRCHandler extends PircBot {
 		super.changeNick(nick);
 		// wait 2 seconds here
 		if (!nick.equals(super.getNick())) {
-			plugin.log(1, "Failed to reclaim nick. This bot is now known as" + super.getNick());
+			plugin.log(1, "Failed to reclaim nick. Nick is now" + super.getNick() + ".");
 			return;
 		}
 	}
@@ -200,7 +200,6 @@ public class IRCHandler extends PircBot {
 		// Short name to keep lines short
 		return line;
 	}
-	
 	
 	
 	public void sendMessage(String message) {

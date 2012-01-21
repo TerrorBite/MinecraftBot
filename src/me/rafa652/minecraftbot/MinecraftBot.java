@@ -11,7 +11,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	public final String version = "0.96";
+	public final String version = "0.97";
 	private Logger log = Logger.getLogger("Minecraft");
 	
 	// Not instantiating yet because they use config
@@ -137,17 +137,12 @@ public class MinecraftBot extends JavaPlugin {
 	}
 	
 	/**
-	 * Sends to logger. Prepends [MinecraftBot] or its current nick to it.
-	 * @param type 1 for warning, 2 for severe. Anything else will be info
+	 * Sends to logger. Prepends [MinecraftBot] to it.
+	 * @param type 1 for warning, 2 for severe. Anything else will be info.
 	 * @param message The message to send to the log
 	 */
 	public void log(int type, String message) {
-		String l;
-		if (bot == null) l = "MinecraftBot";
-		else if (!bot.isConnected()) l = "MinecraftBot";
-		else l = bot.getNick();
-		
-		l = "[" + l + "] " + message;
+		String l = "[MinecraftBot] " + message;
 		
 		if (type == 1) log.warning(l);
 		else if (type == 2) log.severe(l);

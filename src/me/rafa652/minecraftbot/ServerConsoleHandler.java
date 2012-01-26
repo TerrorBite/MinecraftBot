@@ -1,9 +1,11 @@
 package me.rafa652.minecraftbot;
 
-import org.bukkit.event.server.ServerListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerCommandEvent;
 
-public class ServerConsoleHandler extends ServerListener {
+public class ServerConsoleHandler implements Listener {
 	public static MinecraftBot plugin; 
 	
 	// Values from config
@@ -14,7 +16,7 @@ public class ServerConsoleHandler extends ServerListener {
 		event_mc_server = config.event_mc_server;
 	}
 	
-	@Override
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onServerCommand(ServerCommandEvent event) {
 		if (event_mc_server == false) return;
 		String check = event.getCommand().toLowerCase();

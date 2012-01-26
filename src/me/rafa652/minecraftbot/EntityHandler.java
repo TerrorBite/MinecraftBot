@@ -6,11 +6,13 @@ package me.rafa652.minecraftbot;
 //import org.bukkit.event.entity.EntityDamageEvent;
 import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-public class EntityHandler extends EntityListener {
+public class EntityHandler implements Listener {
 
 	public static MinecraftBot plugin;
 	
@@ -25,6 +27,7 @@ public class EntityHandler extends EntityListener {
 		event_mc_death = config.event_mc_death;
 	}
 
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event_mc_death == false) return;
 		

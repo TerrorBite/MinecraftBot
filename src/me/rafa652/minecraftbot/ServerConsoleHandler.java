@@ -21,7 +21,7 @@ public class ServerConsoleHandler implements Listener {
 		if (event_mc_server == false) return;
 		String check = event.getCommand().toLowerCase();
 		
-		if(check.startsWith("say ")) {
+		if(check.startsWith("say ") || check.startsWith("/say ")) {
 			String msg = event.getCommand().split("\\s+", 2)[1];
 			plugin.bot.sendMessage("<*Console> " + msg);
 		}

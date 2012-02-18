@@ -2,7 +2,6 @@ package me.rafa652.minecraftbot;
 
 import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -19,9 +18,8 @@ public class PlayerChatHandler implements Listener {
 	// Values from config
 	private String ce; // color for event
 	private String ck; // color for kick
-	private String icm; // IRC Color Me
-	private ChatColor mcm; // MC Color Me
 	private boolean event_mc_chat;
+	private boolean event_mc_me;
 	private boolean event_mc_join;
 	private boolean event_mc_leave;
 	private boolean event_mc_kick;
@@ -31,9 +29,8 @@ public class PlayerChatHandler implements Listener {
 		
 		ce = config.getIRCColor(ColorContext.Event);
 		ck = config.getIRCColor(ColorContext.Kick);
-		icm = config.getIRCColor(ColorContext.Me);
-		mcm = config.getChatColor(ColorContext.Me);
 		event_mc_chat = config.event_mc_chat;
+		event_mc_me = config.event_mc_me;
 		event_mc_join = config.event_mc_join;
 		event_mc_leave = config.event_mc_leave;
 		event_mc_kick = config.event_mc_kick;
@@ -71,19 +68,28 @@ public class PlayerChatHandler implements Listener {
 		// This is Highest because it can modify (cancel) the event
 		// Monitor priority events apparently aren't supposed to modify anything
 		if (event.isCancelled()) return;
-		if (event_mc_chat == false) return;
+		if (event_mc_me == false) return;
 		
-		String args[] = event.getMessage().split(" ");
+		if (!event.getPlayer().hasPermission("minecraftbot.me")) {
+			event.getPlayer().sendMessage("hi");
+			return;
+		}
 		
 		// Third person /me
-		if (args.length > 0 && args[0].equalsIgnoreCase("/me")) {
+		if (event.getMessage().toLowerCase().startsWith("/me ")) {
+			String c = event.getMessage();
+			if (c.length() < 3) {
+				event.setCancelled(true);
+				return;
+			}
 			String message = "* " + event.getPlayer().getDisplayName();
-			for (int i=1; i<args.length; i++) message += " " + args[i];
+			message += c.substring(3); // starts at the space after /me
 			
-			plugin.bot.sendMessage(icm + message); // To IRC
-			plugin.getServer().broadcastMessage(mcm + message); // To Minecraft
+			plugin.bot.sendMessage(message); // To IRC
+			plugin.getServer().broadcastMessage(message); // To Minecraft
 			
 			event.setCancelled(true);
 		}
 	}
+	
 }

@@ -4,18 +4,19 @@ import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
-public class IRCHandler extends PircBot {
+public class IRCHandler extends PircBot implements Runnable {
 	public static MinecraftBot plugin;
 	
 	// Values from config
 	private final ChatColor ce; // color for event
 	private final ChatColor ck; // color for kick
-	private final ChatColor cm; // color for /me
 	
 	private boolean event_irc_chat;
+	private boolean event_irc_me;
 	private boolean event_irc_join;
 	private boolean event_irc_part;
 	private boolean event_irc_quit;
@@ -32,14 +33,16 @@ public class IRCHandler extends PircBot {
 	private String key;
 	private String nickpass;
 	
+	private boolean busy = false;
+	
 	public IRCHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
 		
 		// Load all the config
 		ce = config.getChatColor(ColorContext.Event);
 		ck = config.getChatColor(ColorContext.Kick);
-		cm = config.getChatColor(ColorContext.Me);
 		event_irc_chat = config.event_irc_chat;
+		event_irc_me = config.event_irc_me;
 		event_irc_join = config.event_irc_join;
 		event_irc_part = config.event_irc_part;
 		event_irc_quit = config.event_irc_quit;
@@ -61,10 +64,21 @@ public class IRCHandler extends PircBot {
 		super.setAutoNickChange(true);
 	}
 	
-	public boolean connect() {
-		// Attempts to connect. Returns false on failure.
+	public synchronized void connect() {
+		// Connect method moved to run()
+		
+		// Honestly, not sure if the next two lines are needed.
+		if (busy) return;
+		busy = true;
+				
+		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, 10);
+	}
+	
+	@Override
+	public synchronized void run() {		
+		// Attempts to connect.
 		int attempt = 0;
-		int retry = 10; // Times to attempt connecting
+		int retries = 2; // Times to attempt connecting, minus 1
 		
 		super.setName(nick);
 		
@@ -74,35 +88,39 @@ public class IRCHandler extends PircBot {
 		// If anyone looking at this code knows how to have it wait
 		// and wants to add that, go right ahead.
 		
-		while (retry > 0) {
+		while (attempt < retries) {
+			attempt++;
 			try {
-				attempt++;
+				if (isConnected()) break; // If it's already working, stop.
 				plugin.log(0, "Connecting to " + server + "... (Attempt " + attempt + ")");
-				if (serverpass.isEmpty())
-					super.connect(server, port);
-				else
-					super.connect(server, port, serverpass);
+				if (serverpass.isEmpty()) super.connect(server, port);
+				else super.connect(server, port, serverpass);
 				plugin.log(0, "Connected to server.");
+				
+				checkNick();
+				joinChannel();
+				break;
+			} catch (NickAlreadyInUseException e) { // ignore this exception
 			} catch (Exception e) {
-				plugin.log(1, e.getMessage());
-				retry--;
-				// wait 5 seconds here
+				plugin.log(1, "Failed to connect: " + e.getMessage());
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				continue;
 			}
-			
-			checkNick();
-			
-			joinChannel();
-
-			return true;
 		}
-		plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter '/irc reconnect' to try again.");
-		return false;
+		if (!isConnected())
+			plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter '/irc connect' to try again.");
+		
+		busy = false;
 	}
+	
 	public void onDisconnect() {
 		plugin.log(0, "Disconnected.");
 	}
-	private void checkNick() {
+	private synchronized void checkNick() {
 		// Check to see whether this was the given nick.
 		// If yes, identify. If not, ghost. Or... just don't do anything if no nickpass exists.
 		if (nickpass.isEmpty()) {
@@ -117,10 +135,18 @@ public class IRCHandler extends PircBot {
 		
 		plugin.log(0, "Nick is taken. Attempting to reclaim...");
 		super.sendMessage("NickServ", "ghost " + nick + " " + nickpass);
-		// wait 3 seconds here
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		super.changeNick(nick);
-		// wait 2 seconds here
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if (!nick.equals(super.getNick())) {
 			plugin.log(1, "Failed to reclaim nick. Nick is now" + super.getNick() + ".");
 			return;
@@ -139,8 +165,8 @@ public class IRCHandler extends PircBot {
 		plugin.getServer().broadcastMessage("<#" + sender + "> " + c(message));
 	}
 	public void onAction(String sender, String login, String hostnick, String target, String action) {
-		if (event_irc_chat == false) return;
-		plugin.getServer().broadcastMessage(cm + "* #" + sender + " " + c(action));
+		if (event_irc_me == false) return;
+		plugin.getServer().broadcastMessage("* #" + sender + " " + c(action));
 	}
 	public void onJoin(String channel, String sender, String login, String hostnick) {
 		if (event_irc_join == false) return;
@@ -164,8 +190,6 @@ public class IRCHandler extends PircBot {
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
 		if (recipientNick.equals(super.getNick())) {
 			// Self was kicked - attempt to rejoin.
-			
-			// wait 3 seconds here
 			joinChannel();
 		}
 		
@@ -179,21 +203,9 @@ public class IRCHandler extends PircBot {
 		if (!changed) return; // Don't want the original topic
 		plugin.getServer().broadcastMessage(ce + "* #" + setBy + " changed the topic to: " + c(topic));
 	}
-	public void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
+	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
 		if (event_irc_mode == false) return;
-		plugin.getServer().broadcastMessage("* #" + sourceNick + " gave channel operator status to #" + recipient);
-	}
-	public void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		if (event_irc_mode == false) return;
-		plugin.getServer().broadcastMessage("* #" + sourceNick + " removed channel operator status from #" + recipient);
-	}
-	public void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		if (event_irc_mode == false) return;
-		plugin.getServer().broadcastMessage("* #" + sourceNick + " gave voice to #" + recipient);
-	}
-	public void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {
-		if (event_irc_mode == false) return;
-		plugin.getServer().broadcastMessage("* #" + sourceNick + " took voice from #" + recipient);
+		plugin.getServer().broadcastMessage("* #" + sourceNick + " set mode " + mode);
 	}
 	private String c(String line) {
 		// TODO IRC colors translate to Minecraft colors here
@@ -243,4 +255,5 @@ public class IRCHandler extends PircBot {
 		
 		return false;
 	}
+	
 }

@@ -33,12 +33,14 @@ public class MinecraftBotConfiguration {
 // Event display values -------------------------
 	public boolean event_mc_server;
 	public boolean event_mc_chat;
+	public boolean event_mc_me;
 	public boolean event_mc_join;
 	public boolean event_mc_leave;
 	public boolean event_mc_kick;
 	public boolean event_mc_death;
 	
 	public boolean event_irc_chat;
+	public boolean event_irc_me;
 	public boolean event_irc_join;
 	public boolean event_irc_part;
 	public boolean event_irc_quit;
@@ -75,12 +77,14 @@ public class MinecraftBotConfiguration {
 		
 		event_mc_server = config.getBoolean("event.mc.server");
 		event_mc_chat = config.getBoolean("event.mc.chat");
+		event_mc_me = config.getBoolean("event.mc.me");
 		event_mc_join = config.getBoolean("event.mc.join");
 		event_mc_leave = config.getBoolean("event.mc.leave");
 		event_mc_kick = config.getBoolean("event.mc.kick");
 		event_mc_death = config.getBoolean("event.mc.death");
 		
 		event_irc_chat = config.getBoolean("event.irc.chat");
+		event_irc_me = config.getBoolean("event.irc.me");
 		event_irc_join = config.getBoolean("event.irc.join");
 		event_irc_part = config.getBoolean("event.irc.part");
 		event_irc_quit = config.getBoolean("event.irc.quit");
@@ -175,23 +179,20 @@ public class MinecraftBotConfiguration {
 		
 	
 // Colors ---------------------------------------
-	private int color_irc_me;
 	private int color_irc_event;
 	private int color_irc_kick;
 	private int color_irc_death;
-	private ChatColor color_mc_me;
 	private ChatColor color_mc_event;
 	private ChatColor color_mc_kick;
 	private ChatColor color_mc_death;
 	
 	private enum Color {black, darkblue, green, red,
 		purple, yellow, darkaqua, teal, aqua, blue, darkgray, gray, darkgrey, grey, white}
-	public enum ColorContext {Me, Event, Kick, Death}
+	public enum ColorContext {Event, Kick, Death}
 	
 	private void setColors(String me, String event, String kick, String death) throws Exception {
 		// This handles the colors from the configuration
 		// It should throw an IllegalArgumentException if the color is not valid.
-		setColors(ColorContext.Me, Color.valueOf(me.toLowerCase()));
 		setColors(ColorContext.Event, Color.valueOf(event.toLowerCase()));
 		setColors(ColorContext.Kick, Color.valueOf(kick.toLowerCase()));
 		setColors(ColorContext.Death, Color.valueOf(death.toLowerCase()));
@@ -236,10 +237,6 @@ public class MinecraftBotConfiguration {
 		
 		// Values to their proper places
 		switch (context) {
-		case Me:
-			color_irc_me = i;
-			color_mc_me = m;
-			break;
 		case Event:
 			color_irc_event = i;
 			color_mc_event = m;
@@ -256,8 +253,6 @@ public class MinecraftBotConfiguration {
 	public String getIRCColor(ColorContext context) {
 		String color = "\u0003"; // IRC color code
 		switch (context) {
-		case Me:
-			return color + color_irc_me;
 		case Event:
 			return color + color_irc_event;
 		case Kick:
@@ -270,8 +265,6 @@ public class MinecraftBotConfiguration {
 	
 	public ChatColor getChatColor(ColorContext context) {
 		switch (context) {
-		case Me:
-			return color_mc_me;
 		case Event:
 			return color_mc_event;
 		case Kick:

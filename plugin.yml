@@ -1,25 +1,18 @@
 name: MinecraftBot
 author: Rafa652
 main: me.rafa652.minecraftbot.MinecraftBot
-version: 0.97
+version: 0.98
 commands:
-    me:
-        description: Sends an action, equivalent to IRC's /me
-        usage: /me action
     names:
         description: Displays the users on the IRC channel
         usage: /names
+    n:
+        description: Displays the users on the IRC channel
+        usage: /n
     irc:
         description: Does a given IRC action
         usage: /irc op|deop|voice|devoice|kick|connect|rejoin|disconnect
 permissions:
-    minecraftbot.*:
-        description: Gives access to all commands
-        children:
-            minecraftbot.op: true
-            minecraftbot.voice: true
-            minecraftbot.kick: true
-            minecraftbot.manage: true
     minecraftbot.op:
         description: Gives access to op and deop
     minecraftbot.voice:
@@ -28,3 +21,13 @@ permissions:
         description: Gives access to kick
     minecraftbot.manage:
         description: Gives access to connect, rejoin and disconnect
+    minecraftbot.me:
+        description: Anyone using /me will have the text show up on IRC
+        default: true
+    minecraftbot.*:
+        description: Gives access to all commands
+        children:
+            minecraftbot.op: true
+            minecraftbot.voice: true
+            minecraftbot.kick: true
+            minecraftbot.manage: true

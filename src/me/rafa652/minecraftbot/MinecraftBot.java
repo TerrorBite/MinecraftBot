@@ -10,7 +10,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	public final String version = "0.97";
+	public final String version = "0.98";
 	private Logger log = Logger.getLogger("Minecraft");
 	
 	// Not instantiating yet because they use config
@@ -18,6 +18,7 @@ public class MinecraftBot extends JavaPlugin {
 	private PlayerChatHandler playerListener;
 	private EntityHandler entityListener;
 	private ServerConsoleHandler serverListener;
+	
 	
 	public void onEnable() {
 		log(0, "v" + version + " loaded.");
@@ -57,7 +58,7 @@ public class MinecraftBot extends JavaPlugin {
 		String command = cmd.getName().toLowerCase();
 
 		// Get player list
-		if (command.equals("names")) {
+		if (command.equals("names") || command.equals("n")) {
 			sender.sendMessage(bot.userlist());
 			return true;
 		}

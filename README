@@ -34,6 +34,5 @@ Before this plugin can be considered complete, it needs to be usable as a basic 
 Features missing until it reaches v1.0:
 -Passing IRC colors in messages to Minecraft
 -Showing a few more mode changes
---More meaningful messages for some modes and a generic message for the rest ("user has set +mode")
 -Some more /irc commands, maybe for nick changes
 --Note: Can't do /irc ban due to an API limitation. No way to get a given user's hostmask.

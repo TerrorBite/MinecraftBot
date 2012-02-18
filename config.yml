@@ -44,9 +44,6 @@ color:
   #List of usable colors:
   #black, darkblue, green, red, purple, yellow, teal, aqua, blue, darkgray, gray, white
   
-  #Color used when someone does /me
-  me: 'purple'
-  
   #Color used for events (joins, quits, kicks, etc)
   event: 'teal'
   
@@ -63,6 +60,7 @@ event:
   mc:
     server: true
     chat: true
+    me: true
     join: true
     leave: true
     kick: true
@@ -72,6 +70,7 @@ event:
   #Events from IRC to show in Minecraft:
   irc:
     chat: true
+    me: true
     join: true
     part: true
     quit: true

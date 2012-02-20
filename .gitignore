@@ -3,9 +3,3 @@ bin
 .settings
 .classpath
 .project
-
-#Bukkit API jar
-bukkit*.jar
-
-#PircBot
-src/org/jibble

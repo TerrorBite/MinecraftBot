@@ -40,26 +40,30 @@ public class PlayerChatHandler implements Listener {
 	public void onPlayerChat(PlayerChatEvent event) {
 		if (event.isCancelled()) return;
 		if (event_mc_chat == false) return;
-		plugin.bot.sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
+		String playername = Color.toIRC(event.getPlayer().getDisplayName()); // In case of colorful names
+		plugin.bot.sendMessage("<" + playername + "> " + event.getMessage());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event_mc_join == false) return;
-		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " joined the game");
+		String playername = Color.toIRC(event.getPlayer().getDisplayName());
+		plugin.bot.sendMessage(ce + "* " + playername + " joined the game");
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		if (event_mc_leave == false) return;
-		plugin.bot.sendMessage(ce + "* " + event.getPlayer().getDisplayName() + " left the game");
+		String playername = Color.toIRC(event.getPlayer().getDisplayName());
+		plugin.bot.sendMessage(ce + "* " + playername + " left the game");
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerKick(PlayerKickEvent event) {
 		if (event.isCancelled()) return;
 		if (event_mc_kick == false) return;
-		plugin.bot.sendMessage(ck + "* " + event.getPlayer().getDisplayName() + " was kicked from the game: " + event.getReason());
+		String playername = Color.toIRC(event.getPlayer().getDisplayName());
+		plugin.bot.sendMessage(ck + "* " + playername + " was kicked from the game: " + event.getReason());
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -71,7 +75,6 @@ public class PlayerChatHandler implements Listener {
 		if (event_mc_me == false) return;
 		
 		if (!event.getPlayer().hasPermission("minecraftbot.me")) {
-			event.getPlayer().sendMessage("hi");
 			return;
 		}
 		
@@ -82,7 +85,8 @@ public class PlayerChatHandler implements Listener {
 				event.setCancelled(true);
 				return;
 			}
-			String message = "* " + event.getPlayer().getDisplayName();
+			String playername = Color.toIRC(event.getPlayer().getDisplayName());
+			String message = "* " + playername;
 			message += c.substring(3); // starts at the space after /me
 			
 			plugin.bot.sendMessage(message); // To IRC

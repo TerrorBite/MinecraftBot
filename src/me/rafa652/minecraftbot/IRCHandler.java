@@ -8,6 +8,7 @@ import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
+// Handles the IRC connection and everything coming from IRC
 public class IRCHandler extends PircBot implements Runnable {
 	public static MinecraftBot plugin;
 	
@@ -121,6 +122,8 @@ public class IRCHandler extends PircBot implements Runnable {
 		plugin.log(0, "Disconnected.");
 	}
 	private synchronized void checkNick() {
+		// ONLY call if it's in a thread.
+		
 		// Check to see whether this was the given nick.
 		// If yes, identify. If not, ghost. Or... just don't do anything if no nickpass exists.
 		if (nickpass.isEmpty()) {
@@ -152,8 +155,8 @@ public class IRCHandler extends PircBot implements Runnable {
 			return;
 		}
 	}
+	
 	public void joinChannel() {
-		// Overriding because there's only one channel to join
 		if (key.isEmpty()) super.joinChannel(channel);
 		else super.joinChannel(channel, key);
 	}
@@ -162,11 +165,11 @@ public class IRCHandler extends PircBot implements Runnable {
 	public void onMessage(String channel, String sender, String login, String hostnick, String message) {
 		if (event_irc_chat == false) return;
 		if (isCommand(sender, message)) return; 
-		plugin.getServer().broadcastMessage("<#" + sender + "> " + c(message));
+		plugin.getServer().broadcastMessage("<#" + sender + "> " + Color.toMC(message));
 	}
 	public void onAction(String sender, String login, String hostnick, String target, String action) {
 		if (event_irc_me == false) return;
-		plugin.getServer().broadcastMessage("* #" + sender + " " + c(action));
+		plugin.getServer().broadcastMessage("* #" + sender + " " + Color.toMC(action));
 	}
 	public void onJoin(String channel, String sender, String login, String hostnick) {
 		if (event_irc_join == false) return;
@@ -185,7 +188,7 @@ public class IRCHandler extends PircBot implements Runnable {
 		if (event_irc_quit == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
-		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + c(message));
+		plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + Color.toMC(message));
 	}
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
 		if (recipientNick.equals(super.getNick())) {
@@ -196,21 +199,16 @@ public class IRCHandler extends PircBot implements Runnable {
 		if (event_irc_kick == false) return;
 		String message = "";
 		if (!reason.isEmpty()) message = ": " + reason;
-		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + c(message));
+		plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + Color.toMC(message));
 	}
 	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
 		if (event_irc_topic == false) return;
 		if (!changed) return; // Don't want the original topic
-		plugin.getServer().broadcastMessage(ce + "* #" + setBy + " changed the topic to: " + c(topic));
+		plugin.getServer().broadcastMessage(ce + "* #" + setBy + " changed the topic to: " + Color.toMC(topic));
 	}
 	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
 		if (event_irc_mode == false) return;
 		plugin.getServer().broadcastMessage("* #" + sourceNick + " set mode " + mode);
-	}
-	private String c(String line) {
-		// TODO IRC colors translate to Minecraft colors here
-		// Short name to keep lines short
-		return line;
 	}
 	
 	

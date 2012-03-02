@@ -61,7 +61,7 @@ public class IRCHandler extends PircBot implements Runnable {
 		
 		// Set some info
 		super.setLogin(nick);
-		super.setVersion("MinecraftBot v" + plugin.version);
+		super.setVersion("MinecraftBot v" + plugin.version + " - https://github.com/Rafa652/MinecraftBot");
 		super.setAutoNickChange(true);
 	}
 	
@@ -79,15 +79,9 @@ public class IRCHandler extends PircBot implements Runnable {
 	public synchronized void run() {		
 		// Attempts to connect.
 		int attempt = 0;
-		int retries = 2; // Times to attempt connecting, minus 1
+		int retries = 4; // Times to attempt connecting, minus 1
 		
 		super.setName(nick);
-		
-		// Limitations with bukkit and/or myself have forced
-		// me to just have the plugin connect again and again.
-		// No waiting between reconnects.
-		// If anyone looking at this code knows how to have it wait
-		// and wants to add that, go right ahead.
 		
 		while (attempt < retries) {
 			attempt++;
@@ -126,39 +120,41 @@ public class IRCHandler extends PircBot implements Runnable {
 		
 		// Check to see whether this was the given nick.
 		// If yes, identify. If not, ghost. Or... just don't do anything if no nickpass exists.
-		if (nickpass.isEmpty()) {
-			plugin.log(1, "\"" + nick + "\" appears to be taken. Nick is now " + super.getNick() + ".");
-			nick = super.getNick();
-			return;
-		}
 		if (nick.equals(super.getNick())) {
-			super.identify(nickpass);
+			if (!nickpass.isEmpty()) this.identify(nickpass);
+			return;	
+		}
+		
+		if (nickpass.isEmpty()) {
+			plugin.log(1, "\"" + nick + "\" appears to be taken. Current nick is now " + super.getNick() + ".");
 			return;
 		}
 		
-		plugin.log(0, "Nick is taken. Attempting to reclaim...");
-		super.sendMessage("NickServ", "ghost " + nick + " " + nickpass);
+		// nickpass does exist - going to use it
+		
+		plugin.log(0, "\"" + nick + "\" is taken. Attempting to reclaim...");
+		this.sendMessage("NickServ", "ghost " + nick + " " + nickpass);
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		super.changeNick(nick);
+		this.changeNick(nick);
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		if (!nick.equals(super.getNick())) {
-			plugin.log(1, "Failed to reclaim nick. Nick is now" + super.getNick() + ".");
+			plugin.log(1, "Failed to reclaim nick. Current nick is " + super.getNick() + ".");
 			return;
 		}
 	}
 	
 	public void joinChannel() {
-		if (key.isEmpty()) super.joinChannel(channel);
-		else super.joinChannel(channel, key);
+		if (key.isEmpty()) joinChannel(channel);
+		else joinChannel(channel, key);
 	}
 	
 

@@ -30,6 +30,7 @@ public class MinecraftBotConfiguration {
 	public String bot_channel;
 	public String bot_key;
 	public String bot_nickpass;
+	public String bot_quitmessage;
 // Event display values -------------------------
 	public boolean event_mc_server;
 	public boolean event_mc_chat;
@@ -74,6 +75,7 @@ public class MinecraftBotConfiguration {
 		bot_key = config.getString("channel.key");
 		bot_nick = config.getString("bot.nick");
 		bot_nickpass = config.getString("bot.nickpass");
+		bot_quitmessage = config.getString("bot.quitmessage");
 		
 		event_mc_server = config.getBoolean("event.mc.server");
 		event_mc_chat = config.getBoolean("event.mc.chat");

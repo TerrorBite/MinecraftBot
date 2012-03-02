@@ -38,6 +38,8 @@ bot:
   #to be used, enter it here:
   nickpass: ''
 
+  #Optional: The message shown when the bot disconnects from IRC. Default is blank.
+  quitmessage: ''
 
 #Colors (all required):
 color:

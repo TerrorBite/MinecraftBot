@@ -10,7 +10,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	public final String version = "0.98";
+	public final String version = "1.00";
 	private Logger log = Logger.getLogger("Minecraft");
 	
 	// Not instantiating yet because they use config
@@ -19,6 +19,8 @@ public class MinecraftBot extends JavaPlugin {
 	private EntityHandler entityListener;
 	private ServerConsoleHandler serverListener;
 	
+	// Configuration values
+	private String bot_quitmessage;
 	
 	public void onEnable() {
 		log(0, "v" + version + " loaded.");
@@ -31,13 +33,11 @@ public class MinecraftBot extends JavaPlugin {
 			playerListener = new PlayerChatHandler(this, config);
 			entityListener = new EntityHandler(this, config);
 			serverListener = new ServerConsoleHandler(this, config);
+			bot_quitmessage = config.bot_quitmessage;
 			
 			pm.registerEvents(playerListener, this);
 			pm.registerEvents(entityListener, this);
 			pm.registerEvents(serverListener, this);
-		
-			if (!config.bot_nick.equals("MinecraftBot")) // avoid redundancy
-				log(0, "will now call itself " + config.bot_nick);
 
 			bot = new IRCHandler(this, config);
 			bot.connect();
@@ -48,7 +48,7 @@ public class MinecraftBot extends JavaPlugin {
 	
 	public void onDisable() {
 		if (bot != null) {
-			bot.disconnect();
+			bot.quitServer(bot_quitmessage);
 			bot.dispose();
 		}
 		log(0, "v" + version + " disabled.");
@@ -109,12 +109,19 @@ public class MinecraftBot extends JavaPlugin {
 			}
 			else if (subcommand.equals("rejoin")) {
 				if (!permitted(sender, "manage")) return true;
-				bot.joinChannel();
+				if (!bot.isConnected()) sender.sendMessage("Not connected to IRC!");
+				else bot.joinChannel();
 			}
 			else if (subcommand.equals("disconnect")) {
 				if (!permitted(sender, "manage")) return true;
-				if (!bot.isConnected()) sender.sendMessage("Already not connected to IRC!");
-				else bot.disconnect();
+				if (!bot.isConnected()) sender.sendMessage("Not connected to IRC!");
+				else {
+					String quitmsg = "";
+					for (int i=2; i<args.length; i++)
+						quitmsg += args[i] + " ";
+					// Use default if quit message is blank
+					bot.quitServer((quitmsg.isEmpty()?bot_quitmessage:quitmsg.substring(0, quitmsg.length()-1)));
+				}
 			}
 			else return false; // to show /irc usage
 			
@@ -138,6 +145,7 @@ public class MinecraftBot extends JavaPlugin {
 	 * @param message The message to send to the log
 	 */
 	public void log(int type, String message) {
+		// TODO figure out how to send some info to all ops as a "CONSOLE" message
 		String l = "[MinecraftBot] " + message;
 		
 		if (type == 1) log.warning(l);

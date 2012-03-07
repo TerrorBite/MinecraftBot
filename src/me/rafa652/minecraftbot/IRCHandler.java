@@ -61,7 +61,7 @@ public class IRCHandler extends PircBot implements Runnable {
 		
 		// Set some info
 		super.setLogin(nick);
-		super.setVersion("MinecraftBot v" + plugin.version + " - https://github.com/Rafa652/MinecraftBot");
+		super.setVersion("MinecraftBot v" + plugin.VERSION + " - https://github.com/Rafa652/MinecraftBot");
 		super.setAutoNickChange(true);
 	}
 	
@@ -71,8 +71,9 @@ public class IRCHandler extends PircBot implements Runnable {
 		// Honestly, not sure if the next two lines are needed.
 		if (busy) return;
 		busy = true;
-				
-		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, 10);
+		
+		// Starting immediately				
+		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, 0);
 	}
 	
 	@Override

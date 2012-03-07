@@ -10,7 +10,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	public final String version = "1.00";
+	public final String VERSION = "1.01";
 	private Logger log = Logger.getLogger("Minecraft");
 	
 	// Not instantiating yet because they use config
@@ -23,7 +23,6 @@ public class MinecraftBot extends JavaPlugin {
 	private String bot_quitmessage;
 	
 	public void onEnable() {
-		log(0, "v" + version + " loaded.");
 		PluginManager pm = getServer().getPluginManager();
 		
 		MinecraftBotConfiguration config = new MinecraftBotConfiguration(this);
@@ -51,7 +50,6 @@ public class MinecraftBot extends JavaPlugin {
 			bot.quitServer(bot_quitmessage);
 			bot.dispose();
 		}
-		log(0, "v" + version + " disabled.");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {

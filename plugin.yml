@@ -1,7 +1,8 @@
 name: MinecraftBot
 author: Rafa652
 main: me.rafa652.minecraftbot.MinecraftBot
-version: 1.00
+load: STARTUP
+version: 1.01
 commands:
     names:
         description: Displays the users on the IRC channel

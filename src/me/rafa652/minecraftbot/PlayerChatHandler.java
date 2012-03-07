@@ -48,14 +48,14 @@ public class PlayerChatHandler implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if (event_mc_join == false) return;
 		String playername = Color.toIRC(event.getPlayer().getDisplayName());
-		plugin.bot.sendMessage(ce + "* " + playername + " joined the game");
+		plugin.bot.sendMessage(ce + "* " + playername + ce + " joined the game");
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		if (event_mc_leave == false) return;
 		String playername = Color.toIRC(event.getPlayer().getDisplayName());
-		plugin.bot.sendMessage(ce + "* " + playername + " left the game");
+		plugin.bot.sendMessage(ce + "* " + playername + ce + " left the game");
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -63,7 +63,7 @@ public class PlayerChatHandler implements Listener {
 		if (event.isCancelled()) return;
 		if (event_mc_kick == false) return;
 		String playername = Color.toIRC(event.getPlayer().getDisplayName());
-		plugin.bot.sendMessage(ck + "* " + playername + " was kicked from the game: " + event.getReason());
+		plugin.bot.sendMessage(ck + "* " + playername + ck + " was kicked from the game: " + event.getReason());
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)

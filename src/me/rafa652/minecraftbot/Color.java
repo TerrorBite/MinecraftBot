@@ -45,12 +45,28 @@ public enum Color {
 		this.mc = mc;
 	}
 	
+	/**
+	 * Translates Minecraft color codes to IRC color codes.
+	 * @param line The line from Minecraft
+	 * @return A line with IRC color codes, if there were codes in the original line.
+	 * Adds a \x0F (normal) character at the end of the line to prevent colors from
+	 * "leaking" into the rest of the string. Keep this in mind if the entire string is
+	 * supposed to have a color.
+	 */
 	public static String toIRC(final String line) {
 		String msg = new String(line);
 		for (Color c : Color.values())
 			msg = msg.replaceAll(c.mc, c.irc);
 		return msg + "\u000f"; // Colors shouldn't "leak" into the rest of the string
 	}
+	
+	/**
+	 * Translates IRC color codes to IRC color codes.
+	 * Background color codes are removed, as well as codes Minecraft doesn't
+	 * understand (bold, underline, etc).
+	 * @param line The line from IRC
+	 * @return A line with Minecraft color codes, if there were codes in the original line.
+	 */
 	public static String toMC(final String line) {
 		String msg = fix(line);
 		for (Color c : Color.values())
@@ -72,7 +88,6 @@ public enum Color {
 		// I spent three hours looking for an alternative. Regular expressions don't seen to work.
 		// Code from other IRC clients that deal with this are almost unreadable or too complicated
 		// to just copy over.
-
 		// Consider that it took three hours until I gave up trying to look for an "easy way"
 		// to do this and it took me 15 minutes to figure out how to do it the "hard way"... 
 		boolean found = false;

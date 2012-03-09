@@ -1,7 +1,5 @@
 package me.rafa652.minecraftbot;
 
-import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,8 +25,8 @@ public class PlayerChatHandler implements Listener {
 	public PlayerChatHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
 		
-		ce = config.getIRCColor(ColorContext.Event);
-		ck = config.getIRCColor(ColorContext.Kick);
+		ce = config.color_irc_event;
+		ck = config.color_irc_kick;
 		event_mc_chat = config.event_mc_chat;
 		event_mc_me = config.event_mc_me;
 		event_mc_join = config.event_mc_join;
@@ -69,8 +67,7 @@ public class PlayerChatHandler implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		// Highest priority events are called before Monitor priority events
-		// This is Highest because it can modify (cancel) the event
-		// Monitor priority events apparently aren't supposed to modify anything
+		// This is Highest because it can cancel this event
 		if (event.isCancelled()) return;
 		if (event_mc_me == false) return;
 		

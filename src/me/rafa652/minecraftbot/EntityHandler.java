@@ -1,11 +1,5 @@
 package me.rafa652.minecraftbot;
 
-// Following three imports are used only in commented-out code.
-//import java.util.logging.Level;
-//import org.bukkit.entity.Player;
-//import org.bukkit.event.entity.EntityDamageEvent;
-import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -23,7 +17,7 @@ public class EntityHandler implements Listener {
 	public EntityHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
 		
-		cd = config.getIRCColor(ColorContext.Death);
+		cd = config.color_irc_death;
 		event_mc_death = config.event_mc_death;
 	}
 

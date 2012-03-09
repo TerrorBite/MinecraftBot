@@ -1,8 +1,5 @@
 package me.rafa652.minecraftbot;
 
-import me.rafa652.minecraftbot.MinecraftBotConfiguration.ColorContext;
-
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
@@ -13,8 +10,8 @@ public class IRCHandler extends PircBot implements Runnable {
 	public static MinecraftBot plugin;
 	
 	// Values from config
-	private final ChatColor ce; // color for event
-	private final ChatColor ck; // color for kick
+	private final String ce; // color for event
+	private final String ck; // color for kick
 	
 	private boolean event_irc_chat;
 	private boolean event_irc_me;
@@ -40,8 +37,8 @@ public class IRCHandler extends PircBot implements Runnable {
 		plugin = instance;
 		
 		// Load all the config
-		ce = config.getChatColor(ColorContext.Event);
-		ck = config.getChatColor(ColorContext.Kick);
+		ce = config.color_mc_event;
+		ck = config.color_mc_kick;
 		event_irc_chat = config.event_irc_chat;
 		event_irc_me = config.event_irc_me;
 		event_irc_join = config.event_irc_join;

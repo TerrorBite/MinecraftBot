@@ -20,6 +20,7 @@ public enum Color {
 	GREEN       ("\u000303", "§2"),
 	RED         ("\u000304", "§c"),
 	BROWN       ("\u000305", "§4"), // using MC dark red
+	DARK_RED    ("\u000305", "§4"), // duplicate
 	PURPLE      ("\u000306", "§5"),
 	ORANGE      ("\u000307", "§6"), // using MC gold
 	YELLOW      ("\u000308", "§e"),

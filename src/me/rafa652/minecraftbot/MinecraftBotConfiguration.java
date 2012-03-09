@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -111,15 +110,18 @@ public class MinecraftBotConfiguration {
 			plugin.log(2, "Configuration: An invalid port number was specified.");
 			success = false;
 		}
+		
+		
 		if (bot_channel == null || bot_channel.isEmpty()) {
 			plugin.log(2, "Configuration: The channel to join is not defined.");
 			success = false;
 		}
-		else { if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel; }
+		else {
+			if (!bot_channel.startsWith("#")) bot_channel = "#" + bot_channel;
+		}
 		
 		try {
 			setColors(
-					config.getString("color.me"),
 					config.getString("color.event"),
 					config.getString("color.kick"),
 					config.getString("color.death"));
@@ -183,99 +185,25 @@ public class MinecraftBotConfiguration {
 		
 	
 // Colors ---------------------------------------
-	private int color_irc_event;
-	private int color_irc_kick;
-	private int color_irc_death;
-	private ChatColor color_mc_event;
-	private ChatColor color_mc_kick;
-	private ChatColor color_mc_death;
+	public String color_irc_event;
+	public String color_irc_kick;
+	public String color_irc_death;
+	public String color_mc_event;
+	public String color_mc_kick;
+	public String color_mc_death;
 	
-	private enum Color {black, darkblue, green, red,
-		purple, yellow, darkaqua, teal, aqua, blue, darkgray, gray, darkgrey, grey, white}
-	public enum ColorContext {Event, Kick, Death}
-	
-	private void setColors(String me, String event, String kick, String death) throws Exception {
-		// This handles the colors from the configuration
-		// It should throw an IllegalArgumentException if the color is not valid.
-		setColors(ColorContext.Event, Color.valueOf(event.toLowerCase()));
-		setColors(ColorContext.Kick, Color.valueOf(kick.toLowerCase()));
-		setColors(ColorContext.Death, Color.valueOf(death.toLowerCase()));
-	}
-	private void setColors(ColorContext context, Color color) {
-		// This translates and stores the colors in their right places
+	private void setColors(String event, String kick, String death) throws IllegalArgumentException {
+		// This handles the colors from the configuration and sets them to the proper values
+		// It should throw an IllegalArgumentException if the color given is not valid.
+		Color cevent = Color.valueOf(event.toUpperCase());
+		Color ckick = Color.valueOf(kick.toUpperCase());
+		Color cdeath = Color.valueOf(death.toUpperCase());
 		
-		// Must initialize these or else this won't compile
-		int i = 1;
-		ChatColor m = ChatColor.BLACK;
-		
-		// Color to actual values
-		switch (color) {
-		case black:
-			i = 1; m = ChatColor.BLACK; break;
-		case darkblue:
-			i = 2; m = ChatColor.DARK_BLUE; break;
-		case green:
-			i = 3; m = ChatColor.GREEN; break;
-		case red:
-			i = 4; m = ChatColor.RED; break;
-		case purple:
-			i = 6; m = ChatColor.DARK_PURPLE; break;
-		case yellow:
-			i = 8; m = ChatColor.YELLOW; break;
-		case darkaqua:
-		case teal:
-			i = 10; m = ChatColor.DARK_AQUA; break;
-		case aqua:
-			i = 11; m = ChatColor.AQUA; break;
-		case blue:
-			i = 12; m = ChatColor.BLUE; break;
-		case darkgray:
-		case darkgrey:
-			i = 14; m = ChatColor.DARK_GRAY; break;
-		case gray:
-		case grey:
-			i = 15; m = ChatColor.GRAY; break;
-		case white:
-			i = 0; m = ChatColor.WHITE; break;
-		}
-		
-		// Values to their proper places
-		switch (context) {
-		case Event:
-			color_irc_event = i;
-			color_mc_event = m;
-			break;
-		case Kick:
-			color_irc_kick = i;
-			color_mc_kick = m;
-		case Death:
-			color_irc_death = i;
-			color_mc_death = m;
-		}
-	}
-	
-	public String getIRCColor(ColorContext context) {
-		String color = "\u0003"; // IRC color code
-		switch (context) {
-		case Event:
-			return color + color_irc_event;
-		case Kick:
-			return color + color_irc_kick;
-		case Death:
-			return color + color_irc_death;
-		}
-		return color + "01";
-	}
-	
-	public ChatColor getChatColor(ColorContext context) {
-		switch (context) {
-		case Event:
-			return color_mc_event;
-		case Kick:
-			return color_mc_kick;
-		case Death:
-			return color_mc_death;
-		}
-		return ChatColor.WHITE;
+		color_irc_event = cevent.irc;
+		color_mc_event = cevent.mc;
+		color_irc_kick = ckick.irc;
+		color_mc_kick = ckick.mc;
+		color_irc_death = cdeath.irc;
+		color_mc_death = cdeath.mc;
 	}
 }

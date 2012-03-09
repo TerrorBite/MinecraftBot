@@ -155,10 +155,12 @@ public class MinecraftBot extends JavaPlugin {
 		else log.info(l);
 		
 		if (event_mc_opinfo) {
+			// gray color
 			l = Color.GRAY.mc + l;
 			
 			for (Player p : getServer().getOnlinePlayers())
-				if (p.isOp()) p.sendMessage(l);
+				if (p.isOp() || p.hasPermission("minecraftbot.manage"))
+					p.sendMessage(l);
 		}
 	}
 }

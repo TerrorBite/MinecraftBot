@@ -7,7 +7,6 @@ import org.jibble.pircbot.Colors;
 
 /**
  * Representation of a color code
- * @author Rafa652
  */
 public enum Color {
 	// IRC values based on mIRC's documentation

@@ -15,9 +15,6 @@ public class MinecraftBot extends JavaPlugin {
 	
 	// Not instantiating yet because they use config
 	public IRCHandler bot;
-	private PlayerChatHandler playerListener;
-	private EntityHandler entityListener;
-	private ServerConsoleHandler serverListener;
 	
 	// Configuration values
 	private String bot_quitmessage;
@@ -30,16 +27,10 @@ public class MinecraftBot extends JavaPlugin {
 		
 		// If config works, get everything started
 		if (config.isGood()) {
-			playerListener = new PlayerChatHandler(this, config);
-			entityListener = new EntityHandler(this, config);
-			serverListener = new ServerConsoleHandler(this, config);
-			
 			bot_quitmessage = config.bot_quitmessage;
 			event_mc_opinfo = config.event_mc_opinfo;
 			
-			pm.registerEvents(playerListener, this);
-			pm.registerEvents(entityListener, this);
-			pm.registerEvents(serverListener, this);
+			pm.registerEvents(new MCHandler(this, config), this);
 
 			bot = new IRCHandler(this, config);
 			bot.connect();

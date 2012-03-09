@@ -5,7 +5,10 @@ import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
-// Handles the IRC connection and everything coming from IRC
+/**
+ * This class handles the connection to the IRC server and all the events that happen on it.
+ * It may send some of these events to Minecraft.
+ */
 public class IRCHandler extends PircBot implements Runnable {
 	public static MinecraftBot plugin;
 	

@@ -60,6 +60,7 @@ color:
 event:
   #Events from Minecraft to show in IRC:
   mc:
+    #server: Message entered using the /say server command
     server: true
     chat: true
     me: true
@@ -67,7 +68,8 @@ event:
     leave: true
     kick: true
     death: true
-    #server: The message displayed using the /say server command
+    #opinfo: If true, sends MinecraftBot log messages to all ops
+    opinfo: true
   
   #Events from IRC to show in Minecraft:
   irc:

@@ -39,6 +39,7 @@ public class MinecraftBotConfiguration {
 	public boolean event_mc_leave;
 	public boolean event_mc_kick;
 	public boolean event_mc_death;
+	public boolean event_mc_opinfo;
 	
 	public boolean event_irc_chat;
 	public boolean event_irc_me;
@@ -84,6 +85,7 @@ public class MinecraftBotConfiguration {
 		event_mc_leave = config.getBoolean("event.mc.leave");
 		event_mc_kick = config.getBoolean("event.mc.kick");
 		event_mc_death = config.getBoolean("event.mc.death");
+		event_mc_opinfo = config.getBoolean("event.mc.opinfo");
 		
 		event_irc_chat = config.getBoolean("event.irc.chat");
 		event_irc_me = config.getBoolean("event.irc.me");

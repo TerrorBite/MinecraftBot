@@ -2,10 +2,10 @@ package me.rafa652.minecraftbot;
 
 import java.util.logging.Logger;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +21,7 @@ public class MinecraftBot extends JavaPlugin {
 	
 	// Configuration values
 	private String bot_quitmessage;
+	private boolean event_mc_opinfo;
 	
 	public void onEnable() {
 		PluginManager pm = getServer().getPluginManager();
@@ -32,7 +33,9 @@ public class MinecraftBot extends JavaPlugin {
 			playerListener = new PlayerChatHandler(this, config);
 			entityListener = new EntityHandler(this, config);
 			serverListener = new ServerConsoleHandler(this, config);
+			
 			bot_quitmessage = config.bot_quitmessage;
+			event_mc_opinfo = config.event_mc_opinfo;
 			
 			pm.registerEvents(playerListener, this);
 			pm.registerEvents(entityListener, this);
@@ -47,6 +50,7 @@ public class MinecraftBot extends JavaPlugin {
 	
 	public void onDisable() {
 		if (bot != null) {
+			bot.attempt_reconnect = false;
 			bot.quitServer(bot_quitmessage);
 			bot.dispose();
 		}
@@ -118,6 +122,7 @@ public class MinecraftBot extends JavaPlugin {
 					for (int i=2; i<args.length; i++)
 						quitmsg += args[i] + " ";
 					// Use default if quit message is blank
+					bot.attempt_reconnect = false;
 					bot.quitServer((quitmsg.isEmpty()?bot_quitmessage:quitmsg.substring(0, quitmsg.length()-1)));
 				}
 			}
@@ -133,21 +138,27 @@ public class MinecraftBot extends JavaPlugin {
 		if (sender instanceof ConsoleCommandSender) return true;
 		boolean p = (sender.hasPermission("minecraftbot." + permission));
 		
-		if (!p) sender.sendMessage(ChatColor.RED + "You are not permitted to use this command.");
+		if (!p) sender.sendMessage(Color.RED.mc + "You are not permitted to use this command.");
 		return p;
 	}
 	
 	/**
-	 * Sends to logger. Prepends [MinecraftBot] to it.
+	 * Sends to logger and in-game ops. Prepends [MinecraftBot] to it.
 	 * @param type 1 for warning, 2 for severe. Anything else will be info.
 	 * @param message The message to send to the log
 	 */
 	public void log(int type, String message) {
-		// TODO figure out how to send some info to all ops as a "CONSOLE" message
 		String l = "[MinecraftBot] " + message;
 		
 		if (type == 1) log.warning(l);
 		else if (type == 2) log.severe(l);
 		else log.info(l);
+		
+		if (event_mc_opinfo) {
+			l = Color.GRAY.mc + l;
+			
+			for (Player p : getServer().getOnlinePlayers())
+				if (p.isOp()) p.sendMessage(l);
+		}
 	}
 }

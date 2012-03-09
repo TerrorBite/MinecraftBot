@@ -34,7 +34,7 @@ public class IRCHandler extends PircBot implements Runnable {
 	private String key;
 	private String nickpass;
 	
-	private boolean busy = false;
+	public boolean attempt_reconnect = true;
 	
 	public IRCHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
 		plugin = instance;
@@ -67,10 +67,6 @@ public class IRCHandler extends PircBot implements Runnable {
 	
 	public synchronized void connect() {
 		// Connect method moved to run()
-		
-		// Honestly, not sure if the next two lines are needed.
-		if (busy) return;
-		busy = true;
 		
 		// Starting immediately				
 		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, 0);
@@ -109,12 +105,6 @@ public class IRCHandler extends PircBot implements Runnable {
 		}
 		if (!isConnected())
 			plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter '/irc connect' to try again.");
-		
-		busy = false;
-	}
-	
-	public void onDisconnect() {
-		plugin.log(0, "Disconnected.");
 	}
 	private synchronized void checkNick() {
 		// ONLY call if it's in a thread.
@@ -150,6 +140,17 @@ public class IRCHandler extends PircBot implements Runnable {
 		if (!nick.equals(super.getNick())) {
 			plugin.log(1, "Failed to reclaim nick. Current nick is " + super.getNick() + ".");
 			return;
+		}
+	}
+	
+	public void onDisconnect() {
+		if (attempt_reconnect) {
+			plugin.log(2, "Disconnected. Will attempt to reconnect.");
+			connect();
+		}
+		else {
+			plugin.log(0, "Disconnected.");
+			attempt_reconnect = true;
 		}
 	}
 	

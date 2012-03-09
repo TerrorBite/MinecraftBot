@@ -124,4 +124,11 @@ public enum Color {
 		
 		return line;
 	}
+	
+	/**
+	 * This shouldn't be used this way. Use (enum name).mc or .irc instead.
+	 */
+	public String toString() {
+		return "You should not be using toString() on me.";
+	}
 }

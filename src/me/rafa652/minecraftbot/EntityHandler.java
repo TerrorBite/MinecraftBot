@@ -33,7 +33,16 @@ public class EntityHandler implements Listener {
 		
 		if (event instanceof PlayerDeathEvent) {
 			PlayerDeathEvent death = (PlayerDeathEvent)event;
-			plugin.bot.sendMessage(cd + "* "+ death.getDeathMessage());
+			
+			// Get death message. Split it apart to re-add the death color after the name
+			String deathmessage[] = Color.toIRC(death.getDeathMessage()).split("\\s+");
+			String sendmessage = cd + " * ";
+			for (int i=0; i<deathmessage.length; i++) {
+				sendmessage += deathmessage[i] + " ";
+				if (i==0) sendmessage += cd;
+			}
+			
+			plugin.bot.sendMessage(sendmessage);
 		}
 
 		// The following code was never used, and is incomplete and probably buggy.

@@ -1,32 +1,6 @@
 MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.
 It uses the PircBot API (http://www.jibble.org/pircbot.php) to connect to and interact with IRC.
 
-Basic list of features
-
-From Minecraft, it displays:
--Regular chat messages
--3rd person (/me) messages, which this plugin adds support for
--Players joining
--Players leaving
--Players being kicked
--Player death messages
--Server messages (console 'say' command)
-
-From IRC, it displays:
--Normal messages
--3rd person (/me) messages
--Joins
--Parts (no part messages due to API limitation)
--Kicks
--Nick changes
--Common mode changes (op/deop, voice/devoice)
--Topic changes
--Quits
-
-Commands available:
--!players in IRC
--/irc op and /irc deop (Permission: 'minecraftbot.op')
--/irc voice and /irc devoice (Permission: 'minecraftbot.voice')
--/irc kick (Permission: 'minecraftbot.kick')
--/irc connect, rejoin, disconnect (Permission: 'minecraftbot.manage')
--/me (Permission: 'minecraftbot.me' true by default)
+More info
+-Bukkit forums: http://forums.bukkit.org/threads/65448/
+-BukkitDev: http://dev.bukkit.org/server-mods/irc-minecraftbot/

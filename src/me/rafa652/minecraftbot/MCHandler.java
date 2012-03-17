@@ -46,13 +46,12 @@ public class MCHandler implements Listener {
 		event_mc_death = config.event_mc_death;
 	}
 	
-	// Handles the server /say command
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onServerCommand(ServerCommandEvent event) {
 		if (event_mc_server == false) return;
 		String check = event.getCommand().toLowerCase();
 		
-		if(check.startsWith("say ") || check.startsWith("/say ")) {
+		if(check.startsWith("say ")) {
 			String msg = event.getCommand().split("\\s+", 2)[1];
 			plugin.bot.sendMessage("<*Console> " + msg);
 		}
@@ -61,7 +60,25 @@ public class MCHandler implements Listener {
 		// command which is similar to the console /say.
 		else if(check.startsWith("broadcast ")) {
 			String msg = event.getCommand().split("\\s+", 2)[1];
-			plugin.bot.sendMessage("{Broadcast} " + msg);
+			plugin.bot.sendMessage("<*Broadcast> " + msg);
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+		// Third person /me
+		if (event.getMessage().toLowerCase().startsWith("/me")) {
+			if (event_mc_me == false) return;
+			if (!event.getPlayer().hasPermission("minecraftbot.me")) return;
+
+			String playername = event.getPlayer().getDisplayName();
+			String message = "* " + playername;
+			try {
+				message += " " + event.getMessage().substring(4); // cuts off space after /me
+				plugin.bot.sendMessage(Color.toIRC(message));
+			}
+			catch (IndexOutOfBoundsException e) {/* ignore blank messages */}
+			
 		}
 	}
 	
@@ -91,34 +108,6 @@ public class MCHandler implements Listener {
 		if (event_mc_kick == false) return;
 		String playername = Color.toIRC(event.getPlayer().getDisplayName());
 		plugin.bot.sendMessage(ck + "* " + playername + ck + " was kicked from the game: " + event.getReason());
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		// Highest priority events are called before Monitor priority events
-		// This is Highest because it can cancel this event
-		if (event_mc_me == false) return;
-		
-		if (!event.getPlayer().hasPermission("minecraftbot.me")) {
-			return;
-		}
-		
-		// Third person /me
-		if (event.getMessage().toLowerCase().startsWith("/me ")) {
-			String c = event.getMessage();
-			if (c.length() < 3) {
-				event.setCancelled(true);
-				return;
-			}
-			String playername = Color.toIRC(event.getPlayer().getDisplayName());
-			String message = "* " + playername;
-			message += c.substring(3); // starts at the space after /me
-			
-			plugin.bot.sendMessage(message); // To IRC
-			plugin.getServer().broadcastMessage(message); // To Minecraft
-			
-			event.setCancelled(true);
-		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)

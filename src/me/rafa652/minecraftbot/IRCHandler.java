@@ -61,7 +61,8 @@ public class IRCHandler extends PircBot implements Runnable {
 		
 		// Set some info
 		super.setLogin(nick);
-		super.setVersion("MinecraftBot v" + plugin.VERSION + " - https://github.com/Rafa652/MinecraftBot");
+		super.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() + 
+				" - https://github.com/Rafa652/MinecraftBot");
 		super.setAutoNickChange(true);
 	}
 	

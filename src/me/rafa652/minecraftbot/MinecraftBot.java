@@ -10,7 +10,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-	public final String VERSION = "1.02"; // should look for a way to get it from plugin.yml
 	private Logger log = Logger.getLogger("Minecraft");
 	
 	// Not instantiating yet because they use config

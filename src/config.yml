@@ -1,0 +1,87 @@
+#MinecraftBot configuration
+#Not all required values are filled in. You must at least
+#fill in server.server and channel.channel, otherwise the
+#plugin will not start.
+
+#Server info:
+server:
+  #Required: The IRC server to connect to.
+  #Example: irc.esper.net
+  server: ''
+  
+  #Required: The port to connect to on the IRC server.
+  #It is 6667 on most servers. This plugin does not support SSL.
+  port: 6667
+  
+  #Optional: The password required to connect to the server.
+  #Most likely, you won't need to do anything here.
+  #This is NOT the channel or nick password!
+  password: ''
+  
+
+#Channel info:
+channel:
+  #Required: The name of the channel to connect to.
+  channel: ''
+
+  #Optional: The key (channel password) required to enter the channel.
+  key: ''
+  
+
+#Bot options:  
+bot:
+  #Required: The bot's nick. You may change this to anything you want.
+  nick: 'MinecraftBot'
+  
+  #Optional:
+  #If this nick is registered with NickServ and needs a password
+  #to be used, enter it here:
+  nickpass: ''
+
+  #Optional: The message shown when the bot disconnects from IRC. Default is blank.
+  quitmessage: ''
+
+#Colors (all required):
+color:
+  #List of usable colors:
+  #white, black, blue, green, red, brown, purple, orange, yellow, light_green,
+  #teal, cyan, light_blue, pink, gray, light_gray, normal
+  #(grey can be used instead of gray - same with light_grey)
+  
+  #Color used for events (joins, quits, kicks, etc)
+  event: 'teal'
+  
+  #Color used when a player is kicked
+  kick: 'red'
+  
+  #Color used when a player dies
+  death: 'red'
+  
+
+#Events to pay attention to (all values are required):
+event:
+  #Events from Minecraft to show in IRC:
+  mc:
+    #server: Message entered using the /say server command
+    server: true
+    chat: true
+    me: true
+    join: true
+    leave: true
+    kick: true
+    death: true
+    #opinfo: If true, sends MinecraftBot log messages to
+    #all ops and/or those that have the 'minecraftbot.manage' permission
+    opinfo: true
+  
+  #Events from IRC to show in Minecraft:
+  irc:
+    chat: true
+    me: true
+    join: true
+    part: true
+    quit: true
+    kick: true
+    nick: true
+    mode: true
+    topic: true

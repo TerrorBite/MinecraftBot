@@ -85,3 +85,24 @@ event:
     nick: true
     mode: true
     topic: true
+
+#Message formatting
+format:
+  #Only two values may be used once in a formatting string
+  # %name% is replaced with the IRC nick or player's name
+  # %message% is replaced with the rest of the message
+  
+  #From Minecraft to IRC
+  irc:    '<%name%> %message%'
+  irc_me: '* %name% %message%'
+  
+  #From IRC to Minecraft
+  mc:    '#> <%name%> %message%'
+  mc_me: '#> * %name% %message%'
+  
+  #Special messages such as Minecraft or IRC joins, deaths, etc. use the '_me' formatting
+  
+  #If you wish to add color codes, they must be manually typed in.
+  #You may enter either IRC or Minecraft color codes in either field.
+  #The color codes will be automatically 'translated' to the proper values when used.
+  

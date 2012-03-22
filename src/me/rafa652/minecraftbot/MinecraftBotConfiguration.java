@@ -43,6 +43,12 @@ public class MinecraftBotConfiguration {
     public boolean event_irc_nick;
     public boolean event_irc_mode;
     public boolean event_irc_topic;
+// Formatting strings ---------------------------
+    public String format_irc;
+    public String format_irc_me;
+    public String format_mc;
+    public String format_mc_me;
+    // TODO get these values
     
 // Colors need to be accessed using the methods further below.
     
@@ -90,6 +96,10 @@ public class MinecraftBotConfiguration {
         event_irc_mode = config.getBoolean("event.irc.mode");
         event_irc_topic = config.getBoolean("event.irc.topic");
         
+        format_irc = config.getString("format.irc");
+        format_irc_me = config.getString("format.irc_me");
+        format_mc = config.getString("format.mc");
+        format_mc_me = config.getString("format.mc_me");
         
         // Check for errors
         if (bot_nick == null || bot_nick.isEmpty()) {

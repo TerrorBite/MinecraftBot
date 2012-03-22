@@ -1,7 +1,6 @@
 package me.rafa652.minecraftbot;
 
 import java.util.logging.Logger;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -10,15 +9,17 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftBot extends JavaPlugin {
-    private Logger log = Logger.getLogger("Minecraft");
+    private static final Logger log = Logger.getLogger("Minecraft");
     
     // Not instantiating yet because they use config
     public IRCHandler bot;
+    public SendLine send;
     
     // Configuration values
     private String bot_quitmessage;
     private boolean event_mc_opinfo;
     
+    @Override
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
         
@@ -31,6 +32,7 @@ public class MinecraftBot extends JavaPlugin {
             
             pm.registerEvents(new MCHandler(this, config), this);
 
+            send = new SendLine(this, config);
             bot = new IRCHandler(this, config);
             bot.connect();
         } else {
@@ -38,6 +40,7 @@ public class MinecraftBot extends JavaPlugin {
         }
     }
     
+    @Override
     public void onDisable() {
         if (bot != null) {
             bot.attempt_reconnect = false;
@@ -46,6 +49,7 @@ public class MinecraftBot extends JavaPlugin {
         }
     }
     
+    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
         String command = cmd.getName().toLowerCase();
 

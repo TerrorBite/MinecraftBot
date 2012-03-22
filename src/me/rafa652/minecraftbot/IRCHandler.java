@@ -1,5 +1,6 @@
 package me.rafa652.minecraftbot;
 
+import me.rafa652.minecraftbot.SendLine.EventType;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
@@ -13,9 +14,6 @@ public class IRCHandler extends PircBot implements Runnable {
     public static MinecraftBot plugin;
     
     // Values from config
-    private final String ce; // color for event
-    private final String ck; // color for kick
-    
     private boolean event_irc_chat;
     private boolean event_irc_me;
     private boolean event_irc_join;
@@ -39,9 +37,6 @@ public class IRCHandler extends PircBot implements Runnable {
     public IRCHandler(MinecraftBot instance, MinecraftBotConfiguration config) {
         plugin = instance;
         
-        // Load all the config
-        ce = config.color_mc_event;
-        ck = config.color_mc_kick;
         event_irc_chat = config.event_irc_chat;
         event_irc_me = config.event_irc_me;
         event_irc_join = config.event_irc_join;
@@ -138,12 +133,11 @@ public class IRCHandler extends PircBot implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (!nick.equals(super.getNick())) {
+        if (!nick.equals(super.getNick()))
             plugin.log(1, "Failed to reclaim nick. Current nick is " + super.getNick() + ".");
-            return;
-        }
     }
     
+    @Override
     public void onDisconnect() {
         if (attempt_reconnect) {
             plugin.log(2, "Disconnected. Will attempt to reconnect.");
@@ -161,53 +155,61 @@ public class IRCHandler extends PircBot implements Runnable {
     }
     
 
+    @Override
     public void onMessage(String channel, String sender, String login, String hostnick, String message) {
         if (event_irc_chat == false) return;
         if (isCommand(sender, message)) return; 
-        plugin.getServer().broadcastMessage("<#" + sender + "> " + Color.toMC(message));
+        plugin.send.chatToMC(sender, message);
     }
+    @Override
     public void onAction(String sender, String login, String hostnick, String target, String action) {
         if (event_irc_me == false) return;
-        plugin.getServer().broadcastMessage("* #" + sender + " " + Color.toMC(action));
+        if (target.equals(getNick())) return; // sent to us - ignore
+        plugin.send.meToMC(sender, action);
     }
+    @Override
     public void onJoin(String channel, String sender, String login, String hostnick) {
         if (event_irc_join == false) return;
-        plugin.getServer().broadcastMessage(ce + "* #" + sender + " joined " + channel);
+        plugin.send.eventToMC(EventType.Event, sender, "joined " + channel);
     }
+    @Override
     public void onNickChange(String oldNick, String login, String hostnick, String newNick) {
         if (event_irc_nick == false) return;
-        plugin.getServer().broadcastMessage(ce + "* #" + oldNick + " is now known as #" + newNick);
+        plugin.send.eventToIRC(EventType.Event, oldNick, "is now known as " + newNick);
     }
+    @Override
     public void onPart(String channel, String sender, String login, String hostnick) {
         if (event_irc_part == false) return;
-        // Can't pass the leave reason to here because PircBot doesn't support it.
-        plugin.getServer().broadcastMessage(ce + "* #" + sender + " left " + channel);
+        // Note: PircBot can't get the part reason
+        plugin.send.eventToMC(EventType.Event, sender, "left " + channel);
     }
+    @Override
     public void onQuit(String sourceNick, String sourceLogin, String sourceHostnick, String reason) {
         if (event_irc_quit == false) return;
         String message = "";
         if (!reason.isEmpty()) message = ": " + reason;
-        plugin.getServer().broadcastMessage(ce + "* #" + sourceNick + " quit IRC" + Color.toMC(message));
+        plugin.send.eventToMC(EventType.Event, sourceNick, "quit IRC" + message);
     }
+    @Override
     public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-        if (recipientNick.equals(super.getNick())) {
-            // Self was kicked - attempt to rejoin.
-            joinChannel();
-        }
+        if (recipientNick.equals(super.getNick()))
+            plugin.log(1, "Bot was kicked from the channel. Enter '/irc rejoin' to have it join again.");
         
         if (event_irc_kick == false) return;
         String message = "";
         if (!reason.isEmpty()) message = ": " + reason;
-        plugin.getServer().broadcastMessage(ck + "* #" + recipientNick + " was kicked by #" + kickerNick + Color.toMC(message));
+        plugin.send.eventToMC(EventType.Kick, recipientNick, "was kicked by " + kickerNick + message);
     }
+    @Override
     public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
         if (event_irc_topic == false) return;
         if (!changed) return; // Don't want the original topic
-        plugin.getServer().broadcastMessage(ce + "* #" + setBy + " changed the topic to: " + Color.toMC(topic));
+        plugin.send.eventToMC(EventType.Event, setBy, "set the topic to: " + topic);
     }
+    @Override
     public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
         if (event_irc_mode == false) return;
-        plugin.getServer().broadcastMessage("* #" + sourceNick + " set mode " + mode);
+        plugin.send.eventToMC(EventType.Event, sourceNick, "set mode " + mode);
     }
     
     
@@ -246,7 +248,7 @@ public class IRCHandler extends PircBot implements Runnable {
             for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
             super.sendMessage(channel, o);
             if (event_irc_chat)
-                plugin.getServer().broadcastMessage(ce + "* #" + sender + " asked for the player list");
+                plugin.send.eventToMC(EventType.Event, sender, "asked for the player list");
             return true;
         }
         

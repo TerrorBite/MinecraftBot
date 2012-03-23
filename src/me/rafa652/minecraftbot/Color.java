@@ -33,8 +33,19 @@ public enum Color {
     GREY        ("\u000314", "7"), // duplicate
     LIGHT_GRAY  ("\u000315", "8"),
     LIGHT_GREY  ("\u000315", "8"), // duplicate
-    RESET       ("\u0003",   "f"), // color code on its own usually means the color ends here  
-    NORMAL      ("\u000f",   "f"); // There is no "normal" code on MC, so using white.
+    
+    // Control codes
+    BOLD        ("\u0002",   "l"),
+    RANDOM      ("",         "k"), // No corresponding code in IRC
+    STRIKE      ("",         "m"), // ^this
+    UNDERLINE   ("\u001f",   "n"),
+    ITALIC      ("\u0016",   "o"),
+    REVERSE     ("\u0016",   "o"), // duplicate, reverses in mIRC
+    NORMAL      ("\u000f",   "r"),
+    RESET       ("\u000f",   "r"), // duplicate
+    
+    // Extra
+    C_RESET       ("\u0003",   "f"); // color code on its own usually means the color ends here  
     
     public final String irc; // IRC control code and color value
     public final String mc; // Minecraft two-character color code
@@ -54,8 +65,9 @@ public enum Color {
      */
     public static String toIRC(final String line) {
         String msg = line;
-        for (Color c : Color.values())
+        for (Color c : Color.values()) {
             msg = msg.replaceAll(c.mc, c.irc);
+        }
         return msg + "\u000f"; // Colors shouldn't "leak" into the rest of the string
     }
     
@@ -68,8 +80,12 @@ public enum Color {
      */
     public static String toMC(final String line) {
         String msg = fix(line);
-        for (Color c : Color.values())
+        for (Color c : Color.values()) {
+            // skipping because of blank IRC values
+            if (c == Color.STRIKE) continue; 
+            if (c == Color.RANDOM) continue; 
             msg = msg.replaceAll(c.irc, c.mc);
+        }
         return Colors.removeFormattingAndColors(msg); // and finally get rid of everything else
     }
     

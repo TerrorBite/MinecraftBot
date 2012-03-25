@@ -1,6 +1,6 @@
 package me.rafa652.minecraftbot;
 
-import me.rafa652.minecraftbot.SendLine.EventType;
+import me.rafa652.minecraftbot.Relayer.EventType;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
@@ -165,7 +165,7 @@ public class IRCHandler extends PircBot implements Runnable {
     public void onAction(String sender, String login, String hostnick, String target, String action) {
         if (event_irc_me == false) return;
         if (target.equals(getNick())) return; // sent to us - ignore
-        plugin.send.meToMC(sender, action);
+        plugin.send.actionToMC(sender, action);
     }
     @Override
     public void onJoin(String channel, String sender, String login, String hostnick) {
@@ -175,7 +175,7 @@ public class IRCHandler extends PircBot implements Runnable {
     @Override
     public void onNickChange(String oldNick, String login, String hostnick, String newNick) {
         if (event_irc_nick == false) return;
-        plugin.send.eventToIRC(EventType.Event, oldNick, "is now known as " + newNick);
+        plugin.send.eventToMC(EventType.Event, oldNick, "is now known as " + newNick);
     }
     @Override
     public void onPart(String channel, String sender, String login, String hostnick) {

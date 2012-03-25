@@ -1,6 +1,6 @@
 package me.rafa652.minecraftbot;
 
-import me.rafa652.minecraftbot.SendLine.EventType;
+import me.rafa652.minecraftbot.Relayer.EventType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -64,7 +64,7 @@ public class MCHandler implements Listener {
 
             try {
                 // cuts off space after /me
-                plugin.send.meToIRC(event.getPlayer().getDisplayName(), event.getMessage().substring(4));
+                plugin.send.actionToIRC(event.getPlayer().getDisplayName(), event.getMessage().substring(4));
             }
             catch (IndexOutOfBoundsException e) {
                 // ignore blank messages

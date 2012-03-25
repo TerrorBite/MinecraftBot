@@ -13,7 +13,7 @@ public class MinecraftBot extends JavaPlugin {
     
     // Not instantiating yet because they use config
     public IRCHandler bot;
-    public SendLine send;
+    public Relayer send;
     
     // Configuration values
     private String bot_quitmessage;
@@ -32,7 +32,7 @@ public class MinecraftBot extends JavaPlugin {
             
             pm.registerEvents(new MCHandler(this, config), this);
 
-            send = new SendLine(this, config);
+            send = new Relayer(this, config);
             bot = new IRCHandler(this, config);
             bot.connect();
         } else {
@@ -132,7 +132,7 @@ public class MinecraftBot extends JavaPlugin {
         if (sender instanceof ConsoleCommandSender) return true;
         boolean p = (sender.hasPermission("minecraftbot." + permission));
         
-        if (!p) sender.sendMessage(Color.RED.mc + "You are not permitted to use this command.");
+        if (!p) sender.sendMessage(Formatting.RED + "You are not permitted to use this command.");
         return p;
     }
     
@@ -150,7 +150,7 @@ public class MinecraftBot extends JavaPlugin {
         
         if (event_mc_opinfo) {
             // gray color
-            l = Color.GRAY.mc + l;
+            l = Formatting.GRAY + l;
             
             for (Player p : getServer().getOnlinePlayers())
                 if (p.isOp() || p.hasPermission("minecraftbot.manage"))

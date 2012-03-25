@@ -5,39 +5,40 @@ import java.util.regex.Pattern;
 import org.jibble.pircbot.Colors;
 
 /**
- * Representation of a color code
+ * Representation of a formatting code
  */
-public enum Color {
+public enum Formatting {
     // IRC values based on mIRC's documentation
     // http://www.mirc.com/colors.html
     // I used the closest color possible for Minecraft
-    WHITE       ("\u000300", "f"),
-    BLACK       ("\u000301", "0"),
-    DARK_BLUE   ("\u000302", "1"),
-    BLUE        ("\u000302", "1"), // duplicate
-    GREEN       ("\u000303", "2"),
-    RED         ("\u000304", "c"),
-    BROWN       ("\u000305", "4"), // using MC dark red
-    DARK_RED    ("\u000305", "4"), // duplicate
-    PURPLE      ("\u000306", "5"),
-    ORANGE      ("\u000307", "6"), // using MC gold
-    YELLOW      ("\u000308", "e"),
-    LIGHT_GREEN ("\u000309", "a"),
-    TEAL        ("\u000310", "b"), // Using MC aqua
-    AQUA        ("\u000310", "b"), // duplicate
-    LIGHT_CYAN  ("\u000311", "b"), // using MC aqua
-    CYAN        ("\u000311", "b"), // duplicate
-    LIGHT_BLUE  ("\u000312", "9"),
-    PINK        ("\u000313", "d"),
-    GRAY        ("\u000314", "7"),
-    GREY        ("\u000314", "7"), // duplicate
-    LIGHT_GRAY  ("\u000315", "8"),
-    LIGHT_GREY  ("\u000315", "8"), // duplicate
+    WHITE       ("00", "f"),
+    BLACK       ("01", "0"),
+    DARK_BLUE   ("02", "1"),
+    BLUE        ("02", "1"), // duplicate
+    GREEN       ("03", "2"),
+    RED         ("04", "c"),
+    BROWN       ("05", "4"), // using MC dark red
+    DARK_RED    ("05", "4"), // duplicate
+    PURPLE      ("06", "5"),
+    ORANGE      ("07", "6"), // using MC gold
+    YELLOW      ("08", "e"),
+    LIGHT_GREEN ("09", "a"),
+    TEAL        ("10", "b"), // Using MC aqua
+    AQUA        ("10", "b"), // duplicate
+    LIGHT_CYAN  ("11", "b"), // using MC aqua
+    CYAN        ("11", "b"), // duplicate
+    LIGHT_BLUE  ("12", "9"),
+    PINK        ("13", "d"),
+    GRAY        ("14", "7"),
+    GREY        ("14", "7"), // duplicate
+    LIGHT_GRAY  ("15", "8"),
+    LIGHT_GREY  ("15", "8"), // duplicate
     
     // Control codes
     BOLD        ("\u0002",   "l"),
     RANDOM      ("",         "k"), // No corresponding code in IRC
-    STRIKE      ("",         "m"), // ^this
+    MAGIC       ("",         "k"), // duplicate
+    STRIKE      ("",         "m"), // No corresponding code in IRC either
     UNDERLINE   ("\u001f",   "n"),
     ITALIC      ("\u0016",   "o"),
     REVERSE     ("\u0016",   "o"), // duplicate, reverses in mIRC
@@ -50,9 +51,11 @@ public enum Color {
     public final String irc; // IRC control code and color value
     public final String mc; // Minecraft two-character color code
 
-    private Color(String irc, String mc) {
-        this.irc = irc;
-        this.mc = "\u00A7" + mc; // section symbol added before value
+    private Formatting(String irc, String mc) {
+        if (irc.length() > 0 && Character.isDigit(irc.charAt(0)))
+            this.irc = '\u0003' + irc; // this is a color code
+        else this.irc = irc; // this is blank or a different control code
+        this.mc = '\u00A7' + mc; // section symbol added before value
     }
     
     /**
@@ -65,7 +68,7 @@ public enum Color {
      */
     public static String toIRC(final String line) {
         String msg = line;
-        for (Color c : Color.values()) {
+        for (Formatting c : Formatting.values()) {
             msg = msg.replaceAll(c.mc, c.irc);
         }
         return msg + "\u000f"; // Colors shouldn't "leak" into the rest of the string
@@ -78,12 +81,10 @@ public enum Color {
      * @param line The line from IRC
      * @return A line with Minecraft color codes, if there were codes in the original line.
      */
-    public static String toMC(final String line) {
+    public static String toMC(String line) {
         String msg = fix(line);
-        for (Color c : Color.values()) {
-            // skipping because of blank IRC values
-            if (c == Color.STRIKE) continue; 
-            if (c == Color.RANDOM) continue; 
+        for (Formatting c : Formatting.values()) {
+            if (c.irc.equals("")) continue;
             msg = msg.replaceAll(c.irc, c.mc);
         }
         return Colors.removeFormattingAndColors(msg); // and finally get rid of everything else
@@ -103,8 +104,7 @@ public enum Color {
         // I spent three hours looking for an alternative. Regular expressions don't seen to work.
         // Code from other IRC clients that deal with this are almost unreadable or too complicated
         // to just copy over.
-        // Consider that it took three hours until I gave up trying to look for an "easy way"
-        // to do this and it took me 15 minutes to figure out how to do it the "hard way"... 
+        // If someone knows a nicer way to do this, let me know.
         boolean found = false;
         int i=-1;
         do {
@@ -138,5 +138,11 @@ public enum Color {
         } while (i<line.length()-1);
         
         return line;
+    }
+    
+    @Override
+    public final String toString() {
+        // Color codes are translated before being sent to IRC anyway.
+        return mc;
     }
 }

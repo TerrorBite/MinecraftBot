@@ -190,25 +190,19 @@ public class MinecraftBotConfiguration {
         
     
 // Colors ---------------------------------------
-    public String color_irc_event;
-    public String color_irc_kick;
-    public String color_irc_death;
-    public String color_mc_event;
-    public String color_mc_kick;
-    public String color_mc_death;
+    public String color_event;
+    public String color_kick;
+    public String color_death;
     
     private void setColors(String event, String kick, String death) throws IllegalArgumentException {
         // This handles the colors from the configuration and sets them to the proper values
         // It should throw an IllegalArgumentException if the color given is not valid.
-        Color cevent = Color.valueOf(event.toUpperCase());
-        Color ckick = Color.valueOf(kick.toUpperCase());
-        Color cdeath = Color.valueOf(death.toUpperCase());
+        Formatting cevent = Formatting.valueOf(event.toUpperCase());
+        Formatting ckick = Formatting.valueOf(kick.toUpperCase());
+        Formatting cdeath = Formatting.valueOf(death.toUpperCase());
         
-        color_irc_event = cevent.irc;
-        color_mc_event = cevent.mc;
-        color_irc_kick = ckick.irc;
-        color_mc_kick = ckick.mc;
-        color_irc_death = cdeath.irc;
-        color_mc_death = cdeath.mc;
+        color_event = cevent.mc;
+        color_kick = ckick.mc;
+        color_death = cdeath.mc;
     }
 }

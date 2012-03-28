@@ -1,4 +1,4 @@
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
 import java.util.logging.Logger;
 import org.bukkit.command.Command;

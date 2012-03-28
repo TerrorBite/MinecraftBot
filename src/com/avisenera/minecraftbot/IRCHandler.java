@@ -1,6 +1,6 @@
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
-import me.rafa652.minecraftbot.Relayer.EventType;
+import com.avisenera.minecraftbot.Relayer.EventType;
 import org.bukkit.entity.Player;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
@@ -68,9 +68,16 @@ public class IRCHandler extends PircBot implements Runnable {
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this, 0);
     }
     
+    // A way to prevent the run method from running more than once at a time
+    private boolean connecting = false;
+    
     @Override
-    public synchronized void run() {        
+    public void run() {
         // Attempts to connect.
+        
+        if (connecting) return;
+        connecting = true;
+        
         int attempt = 0;
         int retries = 4; // Times to attempt connecting, minus 1
         
@@ -99,15 +106,18 @@ public class IRCHandler extends PircBot implements Runnable {
                 continue;
             }
         }
+        
         if (!isConnected())
             plugin.log(2, "Failed to connect after " + attempt + " attempts. Enter '/irc connect' to try again.");
+        
+        connecting = false;
     }
     private synchronized void checkNick() {
         // ONLY call if it's in a thread.
         
         // Check to see whether this was the given nick.
         // If yes, identify. If not, ghost. Or... just don't do anything if no nickpass exists.
-        if (nick.equals(super.getNick())) {
+        if (nick.equalsIgnoreCase(super.getNick())) {
             if (!nickpass.isEmpty()) this.identify(nickpass);
             return;    
         }
@@ -117,7 +127,7 @@ public class IRCHandler extends PircBot implements Runnable {
             return;
         }
         
-        // nickpass does exist - going to use it
+        // nickpass exists - going to use it
         
         plugin.log(0, "\"" + nick + "\" is taken. Attempting to reclaim...");
         this.sendMessage("NickServ", "ghost " + nick + " " + nickpass);

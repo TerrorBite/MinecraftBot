@@ -1,4 +1,4 @@
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
 /**
  * Any message going one way or the other goes through this class first.

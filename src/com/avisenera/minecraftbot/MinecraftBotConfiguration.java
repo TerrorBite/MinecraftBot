@@ -6,7 +6,7 @@
  * Better than making a confusing mess in MinecraftBot's onEnable().
  */
 
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
 import java.io.*;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -48,7 +48,6 @@ public class MinecraftBotConfiguration {
     public String format_irc_me;
     public String format_mc;
     public String format_mc_me;
-    // TODO get these values
     
 // Colors need to be accessed using the methods further below.
     

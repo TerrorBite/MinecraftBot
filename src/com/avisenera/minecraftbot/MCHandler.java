@@ -1,6 +1,6 @@
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
-import me.rafa652.minecraftbot.Relayer.EventType;
+import com.avisenera.minecraftbot.Relayer.EventType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

@@ -1,4 +1,4 @@
-package me.rafa652.minecraftbot;
+package com.avisenera.minecraftbot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

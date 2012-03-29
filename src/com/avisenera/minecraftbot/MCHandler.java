@@ -4,7 +4,6 @@ import com.avisenera.minecraftbot.Relayer.EventType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -99,16 +98,16 @@ public class MCHandler implements Listener {
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onEntityDeath(EntityDeathEvent event) {
+    public void onPlayerDeath(PlayerDeathEvent event) {
         if (event_mc_death == false) return;
         
-        if (event instanceof PlayerDeathEvent) {
-            PlayerDeathEvent death = (PlayerDeathEvent)event;
-            
-            // Get death message. Split it apart to re-add the death color after the name
-            String deathmessage[] = death.getDeathMessage().split("\\s+", 2);
-            
-            plugin.send.eventToIRC(EventType.Death, deathmessage[0], deathmessage[1]);
-        }
+        String dm = event.getDeathMessage();
+        
+        // Check if death message is null or blank - it means it was disabled
+        if (dm == null || dm.isEmpty()) return;
+        
+        // Get death message. Split it apart to re-add the death color after the name
+        String deathmessage[] = dm.split("\\s+", 2);
+        plugin.send.eventToIRC(EventType.Death, deathmessage[0], deathmessage[1]);
     }
 }

@@ -1,108 +1,88 @@
 #MinecraftBot configuration
-#Not all required values are filled in. You must at least
-#fill in server.server and channel.channel, otherwise the
-#plugin will not start.
+#The default values have been filled in for you, but not all required values were filled in.
+#To use this plugin, you must at least add a server and a channel.
 
-#Server info:
-server:
-  #Required: The IRC server to connect to.
-  #Example: irc.esper.net
+connection:
+#IRC connection settings
+  #server: The name of the IRC server. Example: irc.esper.net
   server: ''
+  #server_password: Optional. It's very likely that you won't have to change this.
+  server_password: ''
+  #server_port: The port of the IRC server. Typically 6667. This plugin does not support SSL.
+  server_port: 6667
   
-  #Required: The port to connect to on the IRC server.
-  #It is 6667 on most servers. This plugin does not support SSL.
-  port: 6667
-  
-  #Optional: The password required to connect to the server.
-  #Most likely, you won't need to do anything here.
-  #This is NOT the channel or nick password!
-  password: ''
-  
-
-#Channel info:
-channel:
-  #Required: The name of the channel to connect to.
-  channel: ''
-
-  #Optional: The key (channel password) required to enter the channel.
-  key: ''
-  
-
-#Bot options:  
-bot:
-  #Required: The bot's nick. You may change this to anything you want.
+  #nick: The nickname for the bot to use. You may change this to anything.
   nick: 'MinecraftBot'
-  
-  #Optional:
-  #If this nick is registered with NickServ and needs a password
-  #to be used, enter it here:
-  nickpass: ''
+  #nick_password: Optional. The password used to authenticate with NickServ.
+  #This password will also be used to attempt to take back the nick using 'ghost' if needed.
+  nick_password: ''
 
-  #Optional: The message shown when the bot disconnects from IRC. Default is blank.
-  quitmessage: ''
-
-#Colors (all required):
-color:
-  #List of usable colors:
-  #white, black, blue, green, red, brown, purple, orange, yellow, light_green,
-  #teal, cyan, light_blue, pink, gray, light_gray, normal
-  #(grey can be used instead of gray - same with light_grey)
-  
-  #Color used for events (joins, quits, kicks, etc)
-  event: 'teal'
-  
-  #Color used when a player is kicked
-  kick: 'red'
-  
-  #Color used when a player dies
-  death: 'red'
-  
-
-#Events to pay attention to (all values are required):
-event:
-  #Events from Minecraft to show in IRC:
-  mc:
-    #server: Message entered using the /say server command
+relay:
+#Message relaying settings
+  #The following are events from IRC (or the plugin) that will be sent to Minecraft
+  to_irc:
+    #server: If true, sends messages sent by the "say" console command
     server: true
+    #chat: This include regular chat messages and /me messages.
+    #To block /me messages, you must use a plugin that blocks people from using the command.
     chat: true
-    me: true
     join: true
     leave: true
     kick: true
     death: true
-    #opinfo: If true, sends MinecraftBot log messages to
-    #all ops and/or those that have the 'minecraftbot.manage' permission
-    opinfo: true
-  
-  #Events from IRC to show in Minecraft:
-  irc:
+    
+  #The following are events from IRC (or the plugin) that will be sent to Minecraft
+  to_irc:
+    #plugin_log: If true, sends the log messages this plugin generates to MC server
+    #ops or those with the 'minecraftbot.manage' permission
+    plugin_log: true
     chat: true
-    me: true
     join: true
     part: true
     quit: true
     kick: true
-    nick: true
-    mode: true
-    topic: true
+    nick_change: true
+    mode_change: true
+    topic_change: true
 
-#Message formatting
-format:
-  #Only two values may be used once in a formatting string
-  # %name% is replaced with the IRC nick or player's name
-  # %message% is replaced with the rest of the message
-  
-  #From Minecraft to IRC
-  irc:    '<%name%> %message%'
-  irc_me: '* %name% %message%'
-  
-  #From IRC to Minecraft
-  mc:    '#> <%name%> %message%'
-  mc_me: '#> * %name% %message%'
-  
-  #Special messages such as Minecraft or IRC joins, deaths, etc. use the '_me' formatting
-  
-  #If you wish to add color codes, they must be manually typed in.
-  #You may enter either IRC or Minecraft color codes in either field.
-  #The color codes will be automatically 'translated' to the proper values when used.
-  
+line_formatting:
+#You may edit how each line sent by this plugin looks like.
+#This plugin does not change how chat is formatted in Minecraft. This is done by other plugins.
+
+#You may enter either IRC or Minecraft color codes into any field.
+#The color codes will be automatically 'translated' to the proper values when used.
+#For a list of color codes, go to: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
+#Replace the & in that article with the section symbol: §
+
+#If you are adding a color to an entire line, keep in mind that the color is reset
+#after using a variable. See the default values for examples.
+
+#Depending on the event, there will be different variables available. The default
+#values use all the variables available for the event.
+
+  #For messages sent to IRC
+  to_irc:
+    chat:   '<%name%> %message'
+    #action: A /me message
+    action: '* %name% %message'
+    join:   '§b* %name%§b has joined the game'
+    leave:  '§b* %name%§b has left the game'
+    kick:   '§c* %name%§c has been kicked (%reason%§c)'
+    # The death message cannot be customized as well due to a Bukkit limitation.
+    # %name% is also available for this event.
+    death:  '§c* %message%'
+    
+  #For messages sent to Minecraft
+  to_minecraft:
+    chat:   '#> <%name%> %message%'
+    action: '#> * %name% %message%'
+    join:   '#> §b* %name%§b has joined %channel%'
+    # At the moment, part messages can't be displayed
+    part:   '#> §b* %name%§b has left %channel%'
+    quit:   '#> §b* %name%§b has quit IRC (%reason%)'
+    kick:   '#> §c* %kicker%§c has kicked %name%§c (%reason%§c)'
+    nick_change:  '#> §b* %oldname%§b is now known as %name%'
+    mode_change:  '#> §b* %name%§b set mode: %mode%'
+    topic_change: '#> §b* %name%§b changed the topic to: §r%topic%'
+    
+    

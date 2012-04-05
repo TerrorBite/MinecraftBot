@@ -2,6 +2,7 @@ package com.avisenera.minecraftbot;
 
 import java.io.*;
 import java.util.EnumMap;
+import java.util.Map;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -18,8 +19,6 @@ public class Configuration {
     private boolean valid = false;
     
     private EnumMap<Keys.connection, String> connection;
-    private EnumMap<Keys.relay_to_irc, Boolean> relay_to_irc;
-    private EnumMap<Keys.relay_to_minecraft, Boolean> relay_to_minecraft;
     private EnumMap<Keys.line_to_irc, String> line_to_irc;
     private EnumMap<Keys.line_to_minecraft, String> line_to_minecraft;
 
@@ -41,18 +40,12 @@ public class Configuration {
         if (config == null) return false;
         
         EnumMap<Keys.connection, String> new_c = new EnumMap<Keys.connection, String>(Keys.connection.class);
-        EnumMap<Keys.relay_to_irc, Boolean> new_rti = new EnumMap<Keys.relay_to_irc, Boolean>(Keys.relay_to_irc.class);
-        EnumMap<Keys.relay_to_minecraft, Boolean> new_rtm = new EnumMap<Keys.relay_to_minecraft, Boolean>(Keys.relay_to_minecraft.class);
         EnumMap<Keys.line_to_irc, String> new_lti = new EnumMap<Keys.line_to_irc, String>(Keys.line_to_irc.class);
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
-        boolean accept = true;
+        boolean accepted = true;
         
         for (Keys.connection c : Keys.connection.values())
             new_c.put(c, config.getString("connection."+c));
-        for (Keys.relay_to_irc c : Keys.relay_to_irc.values())
-            new_rti.put(c, config.getBoolean("relay.to_irc."+c));
-        for (Keys.relay_to_minecraft c : Keys.relay_to_minecraft.values())
-            new_rtm.put(c, config.getBoolean("relay.to_minecraft."+c));
         for (Keys.line_to_irc c : Keys.line_to_irc.values())
             new_lti.put(c, config.getString("line_formatting.to_irc."+c));
         for (Keys.line_to_minecraft c : Keys.line_to_minecraft.values())
@@ -63,31 +56,30 @@ public class Configuration {
         scheck = new_c.get(Keys.connection.server);
         if (scheck == null || scheck.isEmpty()) {
             plugin.log(2, "The server to connect to is not defined.");
-            accept = false;
+            accepted = false;
         }
         scheck = new_c.get(Keys.connection.server_port);
         try {
             int icheck = Integer.parseInt(scheck);
             if (icheck > 65535 || icheck < 1) {
                 plugin.log(2, "An invalid port number was defined in the configuration file.");
-                accept = false;
+                accepted = false;
             }
         } catch (NumberFormatException e) {
             plugin.log(2, "An invalid port number was defined in the configuration file.");
-            accept = false;
+            accepted = false;
         }
         
-        if (accept) {
+        if (accepted) {
             connection = new_c;
-            relay_to_irc = new_rti;
-            relay_to_minecraft = new_rtm;
             line_to_irc = new_lti;
             line_to_minecraft = new_ltm;
-            valid = true;
             plugin.log(0, "Configuration has been loaded.");
+            
+            valid = true;
         }
         
-        return valid;
+        return accepted;
     }
     
     /**
@@ -103,23 +95,11 @@ public class Configuration {
      * @param value Equivalent to config.getString("connection.(value)")
      */
     public String connection(Keys.connection value) {
-        return connection.get(value);
-    }
-    
-    /**
-     * Returns the given relay setting in the configuration file.
-     * @param value Equivalent to config.getBoolean("relay.to_irc.(value)")
-     */
-    public boolean relay_to_irc(Keys.relay_to_irc value) {
-        return relay_to_irc.get(value).booleanValue();
-    }
-    
-    /**
-     * Returns the given relay setting in the configuration file.
-     * @param value Equivalent to config.getBoolean("relay.to_minecraft.(value)")
-     */
-    public boolean relay_to_minecraft(Keys.relay_to_minecraft value) {
-        return relay_to_minecraft.get(value).booleanValue();
+        if (!valid) return "";
+        
+        String rv = connection.get(value);
+        if (rv == null) return "";
+        else return rv;
     }
     
     /**
@@ -127,7 +107,11 @@ public class Configuration {
      * @param value Equivalent to config.getString("line_formatting.to_irc.(value)")
      */
     public String line_to_irc(Keys.line_to_irc value) {
-        return line_to_irc.get(value);
+        if (!valid) return "";
+        
+        String rv = line_to_irc.get(value);
+        if (rv == null) return "";
+        else return rv;
     }
     
     /**
@@ -135,7 +119,11 @@ public class Configuration {
      * @param value Equivalent to config.getString("line_formatting.to_irc.(value)")
      */
     public String line_to_minecraft(Keys.line_to_minecraft value) {
-        return line_to_minecraft.get(value);
+        if (!valid) return "";
+        
+        String rv = line_to_minecraft.get(value);
+        if (rv == null) return "";
+        else return rv;
     }
     
     /**
@@ -188,5 +176,21 @@ public class Configuration {
         {
             plugin.log(2, "Could not find the default config.yml! Is it in the .jar?");
         }
+    }
+    
+    public void test() {
+        for (Keys.connection v : Keys.connection.values()) {
+            bm(v.name(), connection(v));
+        }
+        for (Keys.line_to_irc v : Keys.line_to_irc.values()) {
+            bm(v.name(), line_to_irc(v));
+        }
+        for (Keys.line_to_minecraft v : Keys.line_to_minecraft.values()) {
+            bm(v.name(), line_to_minecraft(v));
+        }        
+    }
+    
+    private void bm(String key, String content) {
+        plugin.getServer().broadcastMessage(key + " => "+content);
     }
 }

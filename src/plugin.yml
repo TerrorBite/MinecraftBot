@@ -1,7 +1,7 @@
 name: MinecraftBot
 author: Rafa652
 main: com.avisenera.minecraftbot.MinecraftBot
-load: STARTUP
+load: POSTWORLD
 version: 2.0.0
 commands:
     names:
@@ -15,12 +15,12 @@ commands:
         usage: /irc say|do|me|nick|op|deop|voice|devoice|kick
     minecraftbot:
         description: Manages the plugin and IRC connection
-        usage: /minecraftbot connect|disconnect|rejoin|reload
+        usage: /minecraftbot connect|disconnect|join|part|reload
 permissions:
     minecraftbot.op:
-        description: Equivalent to having op on IRC. Allows use of the /irc command.
+        description: Allows use of the /irc command. Equivalent to having +o in IRC.
     minecraftbot.manage:
-        description: Gives access to the /minecraftbot command. Also sends plugin messages.
+        description: Gives access to the /minecraftbot command. See also send_log_to_ops in config.yml
     minecraftbot.*:
         description: Gives access to all commands
         children:

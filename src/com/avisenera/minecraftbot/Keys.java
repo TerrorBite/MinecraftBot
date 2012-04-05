@@ -8,16 +8,8 @@ public class Keys {
     private Keys() {}
     
     public enum connection {
-        server, server_password, server_port, nick, nick_password, quit_message
-    }
-    
-    public enum relay_to_irc {
-        server, chat, join, leave, kick, death
-    }
-    
-    public enum relay_to_minecraft {
-        plugin_log, chat, join, part, quit, kick,
-        nick_change, mode_change, topic_change
+        server, server_password, server_port, channel, nick,
+        nick_password, quit_message, send_log_to_ops
     }
     
     public enum line_to_irc {

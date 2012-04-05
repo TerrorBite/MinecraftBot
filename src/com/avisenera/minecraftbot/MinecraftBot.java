@@ -1,6 +1,8 @@
 package com.avisenera.minecraftbot;
 
 import java.util.logging.Logger;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,9 +19,9 @@ public class MinecraftBot extends JavaPlugin {
     @Override
     public void onEnable() {
         config = new Configuration(this);
+        ircListener = new IRCListener(this, config);
         playerListener = new PlayerListener(this, config);
         commandListener = new CommandListener(this, config);
-        ircListener = new IRCListener(this, config);
         
         send = new LineSender(this, config, ircListener);
         
@@ -49,9 +51,15 @@ public class MinecraftBot extends JavaPlugin {
         else if (level == 2) logger.severe(message);
         else logger.info(message);
         
-        if (!config.relay_to_minecraft(Keys.relay_to_minecraft.plugin_log))
+        if (config.connection(Keys.connection.send_log_to_ops).equalsIgnoreCase("true"))
             for (Player p : this.getServer().getOnlinePlayers())
                 if (p.hasPermission("minecraftbot.manage"))
                     p.sendMessage(Formatting.GRAY + message);
+    }
+    
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
+        config.test();
+        return false;
     }
 }

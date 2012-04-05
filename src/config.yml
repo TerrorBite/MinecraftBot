@@ -1,21 +1,24 @@
 #MinecraftBot configuration
 #The default values have been filled in for you, but not all required values were filled in.
-#To use this plugin, you must at least add a server and a channel.
+#Based on the default file, you must add to the server and nick fields before being able to use this plugin.
 
 connection:
 #IRC connection settings
-  #server: The name of the IRC server. Example: irc.esper.net
+  #server: Required. The name of the IRC server. Example: irc.esper.net
   server: ''
   #server_password: Optional. It's very likely that you won't have to change this.
   server_password: ''
   #server_port: The port of the IRC server. Typically 6667. This plugin does not support SSL.
   server_port: 6667
   
-  #nick: The nickname for the bot to use. You may change this to anything.
+  #nick: Required. The nickname for the bot to use. You may set this to anything.
   nick: 'MinecraftBot'
   #nick_password: Optional. The password used to authenticate with NickServ.
   #This password will also be used to attempt to take back the nick using 'ghost' if needed.
   nick_password: ''
+  
+  #quit_message: The default quit message used when the bot quits IRC. May be left blank.
+  quit_message: "See you later."
 
 relay:
 #Message relaying settings
@@ -32,7 +35,7 @@ relay:
     death: true
     
   #The following are events from IRC (or the plugin) that will be sent to Minecraft
-  to_irc:
+  to_minecraft:
     #plugin_log: If true, sends the log messages this plugin generates to MC server
     #ops or those with the 'minecraftbot.manage' permission
     plugin_log: true
@@ -60,7 +63,7 @@ line_formatting:
 #Depending on the event, there will be different variables available. The default
 #values use all the variables available for the event.
 
-  #For messages sent to IRC
+  #For messages sent to IRC from Minecraft
   to_irc:
     chat:   '<%name%> %message'
     #action: A /me message
@@ -72,7 +75,7 @@ line_formatting:
     # %name% is also available for this event.
     death:  '§c* %message%'
     
-  #For messages sent to Minecraft
+  #For messages sent to Minecraft from IRC
   to_minecraft:
     chat:   '#> <%name%> %message%'
     action: '#> * %name% %message%'

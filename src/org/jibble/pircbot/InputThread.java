@@ -115,8 +115,7 @@ public class InputThread extends Thread {
             // Just assume the socket was already closed.
         }
 
-        if (!_disposed) {
-            _bot.log("*** Disconnected.");        
+        if (!_disposed) {    
             _isConnected = false;
             _bot.onDisconnect();
         }

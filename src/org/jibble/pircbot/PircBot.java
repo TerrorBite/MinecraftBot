@@ -138,7 +138,6 @@ public abstract class PircBot implements ReplyConstants {
         
         // Connect to the server.
         Socket socket =  new Socket(hostname, port);
-        this.log("*** Connected to server.");
         
         _inetAddress = socket.getLocalAddress();
         
@@ -208,8 +207,6 @@ public abstract class PircBot implements ReplyConstants {
             this.setNick(nick);
             
         }
-        
-        this.log("*** Logged onto server.");
         
         // This makes the socket timeout on read operations after 5 minutes.
         // Maybe in some future version I will let the user change this at runtime.
@@ -839,32 +836,6 @@ public abstract class PircBot implements ReplyConstants {
 
 
     /**
-     * Adds a line to the log.  This log is currently output to the standard
-     * output and is in the correct format for use by tools such as pisg, the
-     * Perl IRC Statistics Generator.  You may override this method if you wish
-     * to do something else with log entries.
-     * Each line in the log begins with a number which
-     * represents the logging time (as the number of milliseconds since the
-     * epoch).  This timestamp and the following log entry are separated by
-     * a single space character, " ".  Outgoing messages are distinguishable
-     * by a log entry that has ">>>" immediately following the space character
-     * after the timestamp.  DCC events use "+++" and warnings about unhandled
-     * Exceptions and Errors use "###".
-     *  <p>
-     * This implementation of the method will only cause log entries to be
-     * output if the PircBot has had its verbose mode turned on by calling
-     * setVerbose(true);
-     * 
-     * @param line The line to add to the log.
-     */
-    public void log(String line) {
-        if (_verbose) {
-            System.out.println(System.currentTimeMillis() + " " + line);
-        }
-    }
-
-
-    /**
      * This method handles events when any line of text arrives from the server,
      * then calling the appropriate method in the PircBot.  This method is
      * protected and only called by the InputThread for this instance.
@@ -874,8 +845,6 @@ public abstract class PircBot implements ReplyConstants {
      * @param line The raw line of text from the server.
      */
     protected void handleLine(String line) {
-        this.log(line);
-
         // Check for server pings.
         if (line.startsWith("PING ")) {
             // Respond to the ping and return immediately.

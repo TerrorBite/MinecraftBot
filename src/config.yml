@@ -39,11 +39,10 @@ line_formatting:
 #List of Minecraft color codes: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
 #Replace the & with the section symbol: §
 
-#If you are adding a color to an entire line, keep in mind that the color is reset
-#after using a variable. See the default values for examples.
+#Words that are surrounded by % signs may be used as variables. See the bottom of this file for more details.
 
-#Depending on the event, there will be different variables available. The default
-#values use all the variables available for the event.
+#If you are adding a color to an entire line, keep in mind that the color is reset after using a variable.
+#See the default values for examples on how to keep one color for the entire line.
 
 #If a formatting line is blank, it is considered disabled and no message will be sent.
 
@@ -51,9 +50,9 @@ line_formatting:
   to_irc:
     #server: Messages sent by the "say" console command
     server: '<*Server> %message%'
-    chat:   '<%name%> %message'
+    chat:   '<%name%> %message%'
     #action: A /me message
-    action: '* %name% %message'
+    action: '* %name% %message%'
     join:   '§b* %name%§b has joined the game'
     leave:  '§b* %name%§b has left the game'
     kick:   '§c* %name%§c has been kicked (%reason%§c)'
@@ -73,5 +72,12 @@ line_formatting:
     nick_change:  '#> §b* %oldname%§b is now known as %name%'
     mode_change:  '#> §b* %name%§b set mode: %mode%'
     topic_change: '#> §b* %name%§b changed the topic to: §r%topic%'
-    
-    
+
+#Some words surrounded by % signs are considered to be variables. When the lines are read by the
+#plugin, the variables are replaced by some other value. The variables available per each line are different.
+#The default line formatting values use all available variables for that specific line.
+#
+#There are some variables that are able to get data from other plugins:
+#  %faction% - Faction name; Requires the Factions plugin and for the line to have a %name% variable
+
+#If you want more variables, feel free to post a request on the forums (or a pull request on github).

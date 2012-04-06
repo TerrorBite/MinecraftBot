@@ -1,5 +1,7 @@
-package com.avisenera.minecraftbot;
+package com.avisenera.minecraftbot.configuration;
 
+import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MinecraftBot;
 import java.io.*;
 import java.util.EnumMap;
 import org.bukkit.configuration.InvalidConfigurationException;

@@ -1,5 +1,9 @@
 package com.avisenera.minecraftbot;
 
+import com.avisenera.minecraftbot.configuration.Configuration;
+import com.avisenera.minecraftbot.listeners.IRCListener;
+import com.avisenera.minecraftbot.listeners.PlayerListener;
+import com.avisenera.minecraftbot.listeners.CommandListener;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,6 +30,12 @@ public class MinecraftBot extends JavaPlugin {
         boolean goodconfig = config.reload();
         if (goodconfig) {
             // TODO start the IRC bot, register listeners
+            
+            getServer().getPluginManager().registerEvents(playerListener, this);
+            getCommand("irc").setExecutor(commandListener);
+            getCommand("minecraftbot").setExecutor(commandListener);
+            
+            
         } else {
             // figure out how to make only the reload command work
         }

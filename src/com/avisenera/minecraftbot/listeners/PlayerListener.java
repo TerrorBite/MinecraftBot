@@ -1,5 +1,8 @@
-package com.avisenera.minecraftbot;
+package com.avisenera.minecraftbot.listeners;
 
+import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MinecraftBot;
+import com.avisenera.minecraftbot.message.MCMessage;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,7 +20,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onServerCommand(ServerCommandEvent event) {
         String check = event.getCommand().toLowerCase();
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         
         if(check.startsWith("say ")) {
             msg.message = event.getCommand().split("\\s+", 2)[1];
@@ -37,7 +40,7 @@ public class PlayerListener implements Listener {
         // The command /me can't be registered normally, so it's handled here instead
         if (event.getMessage().toLowerCase().startsWith("/me")) {
             try {
-                Message msg = new Message();
+                MCMessage msg = new MCMessage();
                 msg.name = event.getPlayer().getDisplayName();
                 msg.message = event.getMessage().substring(4); // cuts off space after /me
                 plugin.send.toIRC(Keys.line_to_irc.action, msg);
@@ -51,7 +54,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(PlayerChatEvent event) {
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         
         msg.name = event.getPlayer().getDisplayName();
         msg.message = event.getMessage();
@@ -60,7 +63,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         
         msg.name = event.getPlayer().getDisplayName();
         plugin.send.toIRC(Keys.line_to_irc.join, msg);
@@ -68,7 +71,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         
         msg.name = event.getPlayer().getDisplayName();
         plugin.send.toIRC(Keys.line_to_irc.leave, msg);
@@ -76,7 +79,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerKick(PlayerKickEvent event) {
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         msg.name = event.getPlayer().getDisplayName();
         msg.reason = event.getReason();
         
@@ -89,7 +92,7 @@ public class PlayerListener implements Listener {
         String dm = event.getDeathMessage();
         if (dm == null || dm.isEmpty()) return;
         
-        Message msg = new Message();
+        MCMessage msg = new MCMessage();
         msg.message = dm;
         plugin.send.toIRC(Keys.line_to_irc.death, msg);
     }

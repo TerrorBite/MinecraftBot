@@ -1,9 +1,14 @@
 package com.avisenera.minecraftbot;
 
+import com.avisenera.minecraftbot.configuration.Configuration;
+import com.avisenera.minecraftbot.listeners.IRCListener;
+import com.avisenera.minecraftbot.message.IRCMessage;
+import com.avisenera.minecraftbot.message.MCMessage;
+import com.avisenera.minecraftbot.message.Message;
+
 /**
  * This class is in charge of sending messages one way or the other.
- * It should be the only class here that uses Bukkit's broadcastMessage()
- * and IRCListener's sendMessage().
+ * This should be the only class here that uses Bukkit's broadcastMessage() and IRCListener's sendMessage().
  */
 public class LineSender {
     private MinecraftBot plugin;
@@ -21,11 +26,11 @@ public class LineSender {
      * @param format The formatting line to use
      * @param message Object containing message values
      */
-    public void toIRC(Keys.line_to_irc format, Message message) {
+    public void toIRC(Keys.line_to_irc format, MCMessage message) {
         String formatting = config.line_to_irc(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToIRC(Message.applyFormatting(formatting, message));
+        this.rawToIRC(Message.applyFormatting(plugin, formatting, message));
     }
     
     /**
@@ -43,11 +48,11 @@ public class LineSender {
      * @param format The formatting line to use
      * @param message Object containing message values
      */
-    public void toMinecraft(Keys.line_to_minecraft format, Message message) {
+    public void toMinecraft(Keys.line_to_minecraft format, IRCMessage message) {
         String formatting = config.line_to_minecraft(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToIRC(Message.applyFormatting(formatting, message));
+        this.rawToIRC(Message.applyFormatting(plugin, formatting, message));
     }
     /**
      * Sends a message directly to Minecraft chat.

@@ -9,7 +9,11 @@ public class Keys {
     
     public enum connection {
         server, server_password, server_port, channel, nick,
-        nick_password, quit_message, send_log_to_ops
+        nick_password, quit_message
+    }
+    
+    public enum settings {
+        ping_developer, send_log_to_ops
     }
     
     public enum line_to_irc {

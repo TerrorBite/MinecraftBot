@@ -2,7 +2,7 @@ name: MinecraftBot
 author: Rafa652
 main: com.avisenera.minecraftbot.MinecraftBot
 load: POSTWORLD
-version: 2.0.0
+version: 2.0.0-pre
 commands:
     names:
         description: Displays the users on the IRC channel

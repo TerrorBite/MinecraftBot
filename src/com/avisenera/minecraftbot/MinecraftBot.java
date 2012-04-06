@@ -1,9 +1,8 @@
 package com.avisenera.minecraftbot;
 
-import com.avisenera.minecraftbot.configuration.Configuration;
+import com.avisenera.minecraftbot.listeners.CommandListener;
 import com.avisenera.minecraftbot.listeners.IRCListener;
 import com.avisenera.minecraftbot.listeners.PlayerListener;
-import com.avisenera.minecraftbot.listeners.CommandListener;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,27 +28,28 @@ public class MinecraftBot extends JavaPlugin {
         
         boolean goodconfig = config.reload();
         if (goodconfig) {
-            // TODO start the IRC bot, register listeners
+            // Maybe send a bit of data
+            if (config.settings(Keys.settings.ping_developer).equalsIgnoreCase("true"))
+                MetricsSender.send("CB_"+getServer().getBukkitVersion(), this.getDescription().getVersion());
             
+            // Get everything started
             getServer().getPluginManager().registerEvents(playerListener, this);
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
-            
-            
         } else {
-            // figure out how to make only the reload command work
+            log(2, "Error loading the configuration. Reload the plugin to try again.");
+            getServer().getPluginManager().disablePlugin(this);
         }
     }
     
     @Override
     public void onDisable() {
-        String qm;
-        qm = config.connection(Keys.connection.quit_message);
-        if (qm == null) qm = "";
+        String qm = config.settings(Keys.settings.quit_message);
         
         ircListener.autoreconnect = false;
         ircListener.quitServer(qm);
-        ircListener.dispose();
+        try {ircListener.dispose();}
+        catch (Exception e) {/*Exception is thrown if the IRC threads haven't started*/}
     }
     
     public void log(int level, String message) {
@@ -59,7 +59,7 @@ public class MinecraftBot extends JavaPlugin {
         else if (level == 2) logger.severe(message);
         else logger.info(message);
         
-        if (config.connection(Keys.connection.send_log_to_ops).equalsIgnoreCase("true"))
+        if (config.settings(Keys.settings.send_log_to_ops).equalsIgnoreCase("true"))
             for (Player p : this.getServer().getOnlinePlayers())
                 if (p.hasPermission("minecraftbot.manage"))
                     p.sendMessage(Formatting.GRAY + message);

@@ -1,7 +1,7 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.MinecraftBot;
-import com.avisenera.minecraftbot.configuration.Configuration;
+import com.avisenera.minecraftbot.Configuration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

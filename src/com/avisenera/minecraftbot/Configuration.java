@@ -1,7 +1,5 @@
-package com.avisenera.minecraftbot.configuration;
+package com.avisenera.minecraftbot;
 
-import com.avisenera.minecraftbot.Keys;
-import com.avisenera.minecraftbot.MinecraftBot;
 import java.io.*;
 import java.util.EnumMap;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -20,6 +18,7 @@ public class Configuration {
     private boolean valid = false;
     
     private EnumMap<Keys.connection, String> connection;
+    private EnumMap<Keys.settings, String> settings;
     private EnumMap<Keys.line_to_irc, String> line_to_irc;
     private EnumMap<Keys.line_to_minecraft, String> line_to_minecraft;
 
@@ -41,12 +40,15 @@ public class Configuration {
         if (config == null) return false;
         
         EnumMap<Keys.connection, String> new_c = new EnumMap<Keys.connection, String>(Keys.connection.class);
+        EnumMap<Keys.settings, String> new_s = new EnumMap<Keys.settings, String>(Keys.settings.class);
         EnumMap<Keys.line_to_irc, String> new_lti = new EnumMap<Keys.line_to_irc, String>(Keys.line_to_irc.class);
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
         boolean accepted = true;
         
         for (Keys.connection c : Keys.connection.values())
             new_c.put(c, config.getString("connection."+c));
+        for (Keys.settings c : Keys.settings.values())
+            new_s.put(c, config.getString("settings."+c));
         for (Keys.line_to_irc c : Keys.line_to_irc.values())
             new_lti.put(c, config.getString("line_formatting.to_irc."+c));
         for (Keys.line_to_minecraft c : Keys.line_to_minecraft.values())
@@ -73,6 +75,7 @@ public class Configuration {
         
         if (accepted) {
             connection = new_c;
+            settings = new_s;
             line_to_irc = new_lti;
             line_to_minecraft = new_ltm;
             plugin.log(0, "Configuration has been loaded.");
@@ -84,14 +87,6 @@ public class Configuration {
     }
     
     /**
-     * Checks to see if this object is usable. It's usable when it has data in it.
-     * @return False if this object isn't holding any configuration values.
-     */
-    public boolean isValid() {
-        return valid;
-    }
-    
-    /**
      * Returns the given connection value in the configuration file.
      * @param value Equivalent to config.getString("connection.(value)")
      */
@@ -99,6 +94,18 @@ public class Configuration {
         if (!valid || value == null) return "";
         
         String rv = connection.get(value);
+        if (rv == null) return "";
+        else return rv;
+    }
+    
+    /**
+     * Returns the given settings value in the configuration file.
+     * @param value Equivalent to config.getString("settings.(value)")
+     */
+    public String settings(Keys.settings value) {
+        if (!valid || value == null) return "";
+        
+        String rv = settings.get(value);
         if (rv == null) return "";
         else return rv;
     }

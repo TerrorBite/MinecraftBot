@@ -1,6 +1,5 @@
 package com.avisenera.minecraftbot;
 
-import com.avisenera.minecraftbot.configuration.Configuration;
 import com.avisenera.minecraftbot.listeners.IRCListener;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import com.avisenera.minecraftbot.message.MCMessage;
@@ -30,16 +29,18 @@ public class LineSender {
         String formatting = config.line_to_irc(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToIRC(Message.applyFormatting(plugin, formatting, message));
+        this.rawToIRC(Message.applyFormatting(plugin, formatting, message), false);
     }
     
     /**
      * Sends a message directly to the IRC channel.
      * Skips all formatting except the control code translation.
      * @param msg The line to send to IRC
+     * @param boolean Is the message an action?
      */
-    public void rawToIRC(String msg) {
-        bot.sendMessage(msg);
+    public void rawToIRC(String msg, boolean action) {
+        if (action) bot.sendAction(msg);
+        else bot.sendMessage(msg);
     }
     
     /**
@@ -52,7 +53,7 @@ public class LineSender {
         String formatting = config.line_to_minecraft(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToIRC(Message.applyFormatting(plugin, formatting, message));
+        this.rawToMinecraft(Message.applyFormatting(plugin, formatting, message));
     }
     /**
      * Sends a message directly to Minecraft chat.

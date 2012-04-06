@@ -18,5 +18,9 @@ public class IRCListener extends PircBot implements Runnable {
     public void run() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    void sendMessage(String msg) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
     
 }

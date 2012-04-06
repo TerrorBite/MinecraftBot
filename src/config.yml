@@ -20,7 +20,7 @@ connection:
   #nick: Required. The nickname for the bot to use. You may set this to anything.
   nick: 'MinecraftBot'
   #nick_password: Optional. The password used to authenticate with NickServ.
-  #This password will also be used to attempt to take back the nick using 'ghost' if needed.
+  #This password will also be used to attempt ghosting through NickServ if necessary
   nick_password: ''
   
   #quit_message: The default quit message used when the bot quits IRC. May be left blank.
@@ -35,8 +35,8 @@ line_formatting:
 #This plugin does not edit the chat formatting in Minecraft.
 
 #You may enter either IRC or Minecraft color codes into any field.
-#The color codes will be automatically 'translated' to the proper values when used.
-#For a list of color codes, go to: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
+#The color codes will be automatically translated to the appropriate format.
+#List of Minecraft color codes: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
 #Replace the & with the section symbol: §
 
 #If you are adding a color to an entire line, keep in mind that the color is reset
@@ -50,7 +50,7 @@ line_formatting:
   #For messages sent to IRC from Minecraft
   to_irc:
     #server: Messages sent by the "say" console command
-    server: '<*%name%> %message%'
+    server: '<*Server> %message%'
     chat:   '<%name%> %message'
     #action: A /me message
     action: '* %name% %message'

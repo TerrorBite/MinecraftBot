@@ -13,7 +13,7 @@ public class Keys {
     }
     
     public enum line_to_irc {
-        chat, action, join, leave, kick, death
+        server, chat, action, join, leave, kick, death
     }
     
     public enum line_to_minecraft {

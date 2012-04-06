@@ -2,7 +2,6 @@ package com.avisenera.minecraftbot;
 
 import java.io.*;
 import java.util.EnumMap;
-import java.util.Map;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -95,7 +94,7 @@ public class Configuration {
      * @param value Equivalent to config.getString("connection.(value)")
      */
     public String connection(Keys.connection value) {
-        if (!valid) return "";
+        if (!valid || value == null) return "";
         
         String rv = connection.get(value);
         if (rv == null) return "";
@@ -107,7 +106,7 @@ public class Configuration {
      * @param value Equivalent to config.getString("line_formatting.to_irc.(value)")
      */
     public String line_to_irc(Keys.line_to_irc value) {
-        if (!valid) return "";
+        if (!valid || value == null) return "";
         
         String rv = line_to_irc.get(value);
         if (rv == null) return "";
@@ -119,7 +118,7 @@ public class Configuration {
      * @param value Equivalent to config.getString("line_formatting.to_irc.(value)")
      */
     public String line_to_minecraft(Keys.line_to_minecraft value) {
-        if (!valid) return "";
+        if (!valid || value == null) return "";
         
         String rv = line_to_minecraft.get(value);
         if (rv == null) return "";
@@ -176,21 +175,5 @@ public class Configuration {
         {
             plugin.log(2, "Could not find the default config.yml! Is it in the .jar?");
         }
-    }
-    
-    public void test() {
-        for (Keys.connection v : Keys.connection.values()) {
-            bm(v.name(), connection(v));
-        }
-        for (Keys.line_to_irc v : Keys.line_to_irc.values()) {
-            bm(v.name(), line_to_irc(v));
-        }
-        for (Keys.line_to_minecraft v : Keys.line_to_minecraft.values()) {
-            bm(v.name(), line_to_minecraft(v));
-        }        
-    }
-    
-    private void bm(String key, String content) {
-        plugin.getServer().broadcastMessage(key + " => "+content);
     }
 }

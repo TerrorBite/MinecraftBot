@@ -1,8 +1,6 @@
 package com.avisenera.minecraftbot;
 
 import java.util.logging.Logger;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,7 +18,7 @@ public class MinecraftBot extends JavaPlugin {
     public void onEnable() {
         config = new Configuration(this);
         ircListener = new IRCListener(this, config);
-        playerListener = new PlayerListener(this, config);
+        playerListener = new PlayerListener(this);
         commandListener = new CommandListener(this, config);
         
         send = new LineSender(this, config, ircListener);
@@ -55,11 +53,5 @@ public class MinecraftBot extends JavaPlugin {
             for (Player p : this.getServer().getOnlinePlayers())
                 if (p.hasPermission("minecraftbot.manage"))
                     p.sendMessage(Formatting.GRAY + message);
-    }
-    
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
-        config.test();
-        return false;
     }
 }

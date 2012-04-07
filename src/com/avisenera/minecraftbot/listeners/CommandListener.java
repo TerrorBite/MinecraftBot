@@ -47,7 +47,7 @@ public class CommandListener implements CommandExecutor {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
-                plugin.send.rawToIRC(fullmsg, false);
+                plugin.send.toIRC(fullmsg, false);
                 
                 // Need to send the same message to Minecraft chat
                 IRCMessage msg = new IRCMessage();
@@ -65,7 +65,7 @@ public class CommandListener implements CommandExecutor {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
-                plugin.send.rawToIRC(fullmsg, true);
+                plugin.send.toIRC(fullmsg, true);
                 
                 // Need to send the same message to Minecraft chat
                 IRCMessage msg = new IRCMessage();

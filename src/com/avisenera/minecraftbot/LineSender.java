@@ -29,18 +29,18 @@ public class LineSender {
         String formatting = config.line_to_irc(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToIRC(Message.applyFormatting(plugin, formatting, message), false);
+        this.toIRC(Message.applyFormatting(plugin, formatting, message), false);
     }
     
     /**
      * Sends a message directly to the IRC channel.
      * Skips all formatting except the control code translation.
      * @param msg The line to send to IRC
-     * @param boolean Is the message an action?
+     * @param isAction Is the message an action?
      */
-    public void rawToIRC(String msg, boolean action) {
+    public void toIRC(String msg, boolean isAction) {
         msg = Formatting.toIRC(msg);
-        if (action) bot.sendAction(msg);
+        if (isAction) bot.sendAction(msg);
         else bot.sendMessage(msg);
     }
     
@@ -54,14 +54,14 @@ public class LineSender {
         String formatting = config.line_to_minecraft(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
-        this.rawToMinecraft(Message.applyFormatting(plugin, formatting, message));
+        this.toMinecraft(Message.applyFormatting(plugin, formatting, message));
     }
     /**
      * Sends a message directly to Minecraft chat.
      * Skips all formatting except the control code translation.
      * @param msg The line to send to Minecraft
      */
-    public void rawToMinecraft(String msg) {
+    private void toMinecraft(String msg) {
         msg = Formatting.toMC(msg);
         plugin.getServer().broadcastMessage(Formatting.toMC(msg));
     }

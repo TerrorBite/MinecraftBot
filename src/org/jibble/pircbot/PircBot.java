@@ -1154,6 +1154,10 @@ public abstract class PircBot implements ReplyConstants {
                     // Half-operator
                     prefix = "%";
                 }
+                else if (nick.startsWith("&")) {
+                    // Protected
+                    prefix = "&";
+                }
                 nick = nick.substring(prefix.length());
                 this.addUser(channel, new User(prefix, nick));
             }

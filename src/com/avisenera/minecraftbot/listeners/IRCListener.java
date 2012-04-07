@@ -4,6 +4,7 @@ import com.avisenera.minecraftbot.Configuration;
 import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
+import org.bukkit.entity.Player;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
@@ -194,6 +195,8 @@ public class IRCListener extends PircBot implements Runnable {
         // There's the chance that some IRC op could force the bot to join another channel
         if (!channel.equalsIgnoreCase(c_channel)) return;
         
+        if (isCommand(sender, message)) return;
+        
         IRCMessage msg = new IRCMessage();
         msg.name = sender;
         msg.message = message;
@@ -276,5 +279,31 @@ public class IRCListener extends PircBot implements Runnable {
         msg.name = setBy;
         msg.topic = topic;
         plugin.send.toMinecraft(Keys.line_to_minecraft.topic_change, msg);
+    }
+
+    private boolean isCommand(String sender, String message) {
+        // Place IRC commands in here. Return true if it was a command.
+        // Returning true causes the line to disappear.
+        // Returning false causes the line to be shown in Minecraft.
+        
+        // Player list
+        if (message.toLowerCase().startsWith("!players")) {
+            Player p[] = plugin.getServer().getOnlinePlayers();
+            String o;
+            int n = p.length;
+            o = "There " + (n==1?"is ":"are ") + n + " player" + (n==1?"":"s") + " connected" + (n==0?".":":");
+            for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
+            sendMessage(o);
+            
+            // Notify Minecraft players that someone used this command
+            IRCMessage msg = new IRCMessage();
+            msg.name = sender;
+            msg.message = "asked for the player list";
+            plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+            
+            return true;
+        }
+        
+        return false;
     }
 }

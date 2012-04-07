@@ -1177,9 +1177,17 @@ public abstract class PircBot implements ReplyConstants {
                     // User is voiced in this channel.
                     prefix = "+";
                 }
-                else if (nick.startsWith(".")) {
-                    // Some wibbly status I've never seen before...
-                    prefix = ".";
+                else if (nick.startsWith("~")) {
+                    // Owner
+                    prefix = "~";
+                }
+                else if (nick.startsWith("%")) {
+                    // Half-op
+                    prefix = "%";
+                }
+                else if (nick.startsWith("&")) {
+                    // Protected
+                    prefix = "&";
                 }
                 nick = nick.substring(prefix.length());
                 this.addUser(channel, new User(prefix, nick));

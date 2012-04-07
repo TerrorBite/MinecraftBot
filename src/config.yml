@@ -50,7 +50,7 @@ line_formatting:
 #You may enter either IRC or Minecraft color codes into any field.
 #The color codes will be automatically translated to the appropriate format.
 #List of Minecraft color codes: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
-#Replace the & with the section symbol: Â§
+#Replace the & with the section symbol: §
 
 #Words that are surrounded by % signs may be used as variables. See the bottom of this file for more details.
 
@@ -66,31 +66,31 @@ line_formatting:
     chat:   '<%name%> %message%'
     #action: A /me message
     action: '* %name% %message%'
-    join:   'Â§b* %name%Â§b has joined the game'
-    leave:  'Â§b* %name%Â§b has left the game'
-    kick:   'Â§c* %name%Â§c has been kicked (%reason%Â§c)'
+    join:   '§b* %name%§b has joined the game'
+    leave:  '§b* %name%§b has left the game'
+    kick:   '§c* %name%§c has been kicked (%reason%§c)'
     # The death message cannot be customized as well due to a Bukkit limitation.
     # %name% is also available for this event.
-    death:  'Â§c* %message%'
+    death:  '§c* %message%'
     
   #For messages sent to Minecraft from IRC
   to_minecraft:
     chat:   '#> <%name%> %message%'
     action: '#> * %name% %message%'
-    join:   '#> Â§b* %name%Â§b has joined %channel%'
+    join:   '#> §b* %name%§b has joined %channel%'
     # At the moment, part messages can't be displayed
-    part:   '#> Â§b* %name%Â§b has left %channel%'
-    quit:   '#> Â§b* %name%Â§b has quit IRC (%reason%)'
-    kick:   '#> Â§c* %kicker%Â§c has kicked %name%Â§c (%reason%Â§c)'
-    nick_change:  '#> Â§b* %oldname%Â§b is now known as %name%'
-    mode_change:  '#> Â§b* %name%Â§b set mode: %mode%'
-    topic_change: '#> Â§b* %name%Â§b changed the topic to: Â§r%topic%'
+    part:   '#> §b* %name%§b has left %channel%'
+    quit:   '#> §b* %name%§b has quit IRC (%reason%)'
+    kick:   '#> §c* %kicker%§c has kicked %name%§c (%reason%§c)'
+    nick_change:  '#> §b* %oldname%§b is now known as %name%'
+    mode_change:  '#> §b* %name%§b set mode: %mode%'
+    topic_change: '#> §b* %name%§b changed the topic to: §r%topic%'
 
 #Some words surrounded by % signs are considered to be variables. When the lines are read by the
 #plugin, the variables are replaced by some other value. The variables available per each line are different.
 #The default line formatting values use all available variables for that specific line.
 #
 #There are some variables that are able to get data from other plugins:
-#  %faction% - Faction name; Requires the Factions plugin and for the line to have a %name% variable
+#  %faction% - Factions: Player's faction tag, works in to_irc lines
 
 #If you want more variables, feel free to send a request on the forums (or a pull request on github).

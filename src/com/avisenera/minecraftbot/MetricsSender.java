@@ -26,25 +26,21 @@ public class MetricsSender extends Thread {
     
     @Override
     public void run() {
-        // metrics.php: name parameter is what's being tracked, then
+        // metrics.php: name parameter in the URL is what is being tracked, then
         // the extra data is sent with a POST. in this case, 'server' and 'plugin'
         try {
-            System.out.println("Begin");
             URL url = new URL("http://random.avisenera.com/metrics.php?name=minecraftbot");
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
             
-            System.out.println("connection set");
             String post;
             post = URLEncoder.encode("server", "UTF-8") + "=" + URLEncoder.encode(cb_version, "UTF-8") + "&";
             post += URLEncoder.encode("plugin", "UTF-8") + "=" + URLEncoder.encode(mcb_version, "UTF-8");
-            System.out.println("post set: "+post);
+            
             OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
             out.write(post);
-            System.out.println("wrote to connection");
             out.flush();
             
-            // Must check for a response or else it doesn't work.
             // Nothing is done with the response data.
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             while (in.readLine() != null) {}

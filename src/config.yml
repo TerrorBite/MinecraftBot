@@ -84,7 +84,7 @@ line_formatting:
     kick:   '#> §c* %kicker%§c has kicked %name%§c (%reason%§c)'
     nick_change:  '#> §b* %oldname%§b is now known as %name%'
     mode_change:  '#> §b* %name%§b set mode: %mode%'
-    topic_change: '#> §b* %name%§b changed the topic to: §r%message%'
+    topic_change: '#> §b* %name%§b changed the topic to: §r%topic%'
 
 #Some words surrounded by % signs are considered to be variables. When the lines are read by the
 #plugin, the variables are replaced by some other value. The variables available per each line are different.

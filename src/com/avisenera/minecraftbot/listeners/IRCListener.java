@@ -263,7 +263,7 @@ public class IRCListener extends PircBot implements Runnable {
         
         IRCMessage msg = new IRCMessage();
         msg.name = sourceNick;
-        msg.message = mode;
+        msg.mode = mode;
         plugin.send.toMinecraft(Keys.line_to_minecraft.mode_change, msg);
     }
     
@@ -274,7 +274,7 @@ public class IRCListener extends PircBot implements Runnable {
         
         IRCMessage msg = new IRCMessage();
         msg.name = setBy;
-        msg.message = topic;
+        msg.topic = topic;
         plugin.send.toMinecraft(Keys.line_to_minecraft.topic_change, msg);
     }
 }

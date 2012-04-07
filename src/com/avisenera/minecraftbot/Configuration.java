@@ -35,7 +35,7 @@ public class Configuration {
      * the current configuration values are not changed.
      * @return False if an error occured.
      */
-    public boolean reload() {
+    public boolean load() {
         FileConfiguration config = getConfigFile(plugin);
         if (config == null) return false;
         
@@ -55,23 +55,38 @@ public class Configuration {
         
         boolean accepted = true;
         
-        // Checking for all required values
-        String scheck;
-        scheck = new_c.get(Keys.connection.server);
-        if (scheck == null || scheck.isEmpty()) {
-            plugin.log(2, "The server to connect to is not defined.");
-            accepted = false;
-        }
-        scheck = new_c.get(Keys.connection.server_port);
-        try {
-            int icheck = Integer.parseInt(scheck);
-            if (icheck > 65535 || icheck < 1) {
+        if (!valid) { // First time loading the config - must check for required values
+            // Checking for all required values
+            String scheck;
+            // Server name
+            scheck = new_c.get(Keys.connection.server);
+            if (scheck == null || scheck.isEmpty()) {
+                plugin.log(2, "The server to connect to is not defined.");
+                accepted = false;
+            }
+            // Server port
+            scheck = new_c.get(Keys.connection.server_port);
+            try {
+                int icheck = Integer.parseInt(scheck);
+                if (icheck > 65535 || icheck < 1) {
+                    plugin.log(2, "An invalid port number was defined in the configuration file.");
+                    accepted = false;
+                }
+            } catch (NumberFormatException e) {
                 plugin.log(2, "An invalid port number was defined in the configuration file.");
                 accepted = false;
             }
-        } catch (NumberFormatException e) {
-            plugin.log(2, "An invalid port number was defined in the configuration file.");
-            accepted = false;
+            // Channel name
+            scheck = new_c.get(Keys.connection.channel);
+            if (scheck == null || scheck.isEmpty()) {
+                plugin.log(2, "A channel was not defined in the configuration file.");
+                accepted = false;
+            }
+            // Fix channel name
+            if (!scheck.startsWith("#")) {
+                scheck = "#" + scheck;
+                new_c.put(Keys.connection.channel, scheck);
+            }
         }
         
         if (accepted) {

@@ -1,7 +1,9 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Configuration;
+import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
+import com.avisenera.minecraftbot.message.IRCMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,11 +41,17 @@ public class CommandListener implements CommandExecutor {
         String cmd = args[0].toLowerCase();
         
         if (cmd.equals("say")) {
-            if (args.length > 2) {
+            if (args.length > 1) {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
                 plugin.send.rawToIRC(fullmsg, false);
+                
+                // Need to send the same message to Minecraft chat
+                IRCMessage msg = new IRCMessage();
+                msg.name = bot.getNick();
+                msg.message = fullmsg;
+                plugin.send.toMinecraft(Keys.line_to_minecraft.chat, msg);
             } else {
                 sender.sendMessage("/irc say (message) - Sends a message directly to IRC");
             }
@@ -51,11 +59,17 @@ public class CommandListener implements CommandExecutor {
         }
         
         else if (cmd.equals("do")) {
-            if (args.length > 2) {
+            if (args.length > 1) {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
                 plugin.send.rawToIRC(fullmsg, true);
+                
+                // Need to send the same message to Minecraft chat
+                IRCMessage msg = new IRCMessage();
+                msg.name = bot.getNick();
+                msg.message = fullmsg;
+                plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
             } else {
                 sender.sendMessage("/irc do (action) - Sends an action directly to IRC");
             }
@@ -75,7 +89,7 @@ public class CommandListener implements CommandExecutor {
             if (args.length == 2) {
                 bot.deOp(args[1]);
             } else {
-                sender.sendMessage("/irc op (nick) - Sets mode -o to the given nick");
+                sender.sendMessage("/irc deop (nick) - Sets mode -o to the given nick");
             }
             return true;
         }
@@ -93,7 +107,7 @@ public class CommandListener implements CommandExecutor {
             if (args.length == 2) {
                 bot.deVoice(args[1]);
             } else {
-                sender.sendMessage("/irc voice (nick) - Sets mode -v to the given nick");
+                sender.sendMessage("/irc devoice (nick) - Sets mode -v to the given nick");
             }
             return true;
         }
@@ -116,7 +130,7 @@ public class CommandListener implements CommandExecutor {
     // The /minecraftbot command
     private boolean minecraftbot(CommandSender sender, String[] args) {
         if (!sender.hasPermission("minecraftbot.op")) return true;
-        if (args.length <= 1) return false;
+        if (args.length < 1) return false;
         
         String cmd = args[0].toLowerCase();
         
@@ -144,7 +158,7 @@ public class CommandListener implements CommandExecutor {
         }
         
         else if (cmd.equals("reload")) {
-            config.reload();
+            config.load();
             return true;
         }
         

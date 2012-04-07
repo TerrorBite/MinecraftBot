@@ -22,6 +22,7 @@ public class Message {
     public String kicker = "";
     public String oldname = "";
     public String mode = "";
+    public String topic = "";
     
     // External values come from the Hook class and may depend on the internal values
     
@@ -43,6 +44,7 @@ public class Message {
         fullmessage = fullmessage.replace("%kicker%", msg.kicker + Formatting.RESET);
         fullmessage = fullmessage.replace("%oldname%", msg.oldname + Formatting.RESET);
         fullmessage = fullmessage.replace("%mode%", msg.mode + Formatting.RESET);
+        fullmessage = fullmessage.replace("%topic%", msg.topic + Formatting.RESET);
         
         fullmessage = Hook.getVariable(p, fullmessage, msg);
         

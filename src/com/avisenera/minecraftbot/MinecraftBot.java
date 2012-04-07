@@ -20,24 +20,28 @@ public class MinecraftBot extends JavaPlugin {
     @Override
     public void onEnable() {
         config = new Configuration(this);
-        ircListener = new IRCListener(this, config);
-        playerListener = new PlayerListener(this);
-        commandListener = new CommandListener(this, config, ircListener);
-        
-        send = new LineSender(this, config, ircListener);
-        
-        boolean goodconfig = config.reload();
-        if (goodconfig) {
+
+        if (config.load()) { // If configuration properly loaded
+            
             // Maybe send a bit of data
             if (config.settings(Keys.settings.ping_developer).equalsIgnoreCase("true"))
                 MetricsSender.send("CB_"+getServer().getBukkitVersion(), this.getDescription().getVersion());
             
-            // Get everything started
+            // Initialize everything
+            ircListener = new IRCListener(this, config);
+            playerListener = new PlayerListener(this);
+            commandListener = new CommandListener(this, config, ircListener);
+            send = new LineSender(this, config, ircListener);
+            
+            // Register everything
             getServer().getPluginManager().registerEvents(playerListener, this);
             getCommand("n").setExecutor(commandListener);
             getCommand("names").setExecutor(commandListener);
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
+            
+            // Start the bot
+            ircListener.connect();
         } else {
             log(2, "Error loading the configuration. Reload the plugin to try again.");
             getServer().getPluginManager().disablePlugin(this);
@@ -46,12 +50,13 @@ public class MinecraftBot extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        String qm = config.settings(Keys.settings.quit_message);
-        
-        ircListener.autoreconnect = false;
-        ircListener.quitServer(qm);
-        try {ircListener.dispose();}
-        catch (Exception e) {/*Exception is thrown if the IRC threads haven't started*/}
+        if (ircListener != null) {
+            String qm = config.settings(Keys.settings.quit_message);
+            ircListener.autoreconnect = false;
+            ircListener.quitServer(qm);
+            try {ircListener.dispose();}
+            catch (Exception e) {/*Exception is thrown if the IRC threads haven't started*/}
+        }
     }
     
     public void log(int level, String message) {

@@ -39,6 +39,7 @@ public class LineSender {
      * @param boolean Is the message an action?
      */
     public void rawToIRC(String msg, boolean action) {
+        msg = Formatting.toIRC(msg);
         if (action) bot.sendAction(msg);
         else bot.sendMessage(msg);
     }
@@ -61,6 +62,7 @@ public class LineSender {
      * @param msg The line to send to Minecraft
      */
     public void rawToMinecraft(String msg) {
+        msg = Formatting.toMC(msg);
         plugin.getServer().broadcastMessage(Formatting.toMC(msg));
     }
 }

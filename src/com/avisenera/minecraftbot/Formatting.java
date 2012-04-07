@@ -2,7 +2,6 @@ package com.avisenera.minecraftbot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jibble.pircbot.Colors;
 
 /**
  * Representation of a formatting code
@@ -40,7 +39,7 @@ public enum Formatting {
     RESET       ("\u000f",   "r"), // duplicate
     
     // Extra
-    C_RESET       ("\u0003",   "f"); // color code on its own usually means the color ends here  
+    C_RESET     ("\u0003",   "r"); // color code on its own usually means the color ends here  
     
     public final String irc; // IRC control code and possibly color value
     public final String mc; // Minecraft two-character color code
@@ -67,7 +66,7 @@ public enum Formatting {
         for (Formatting c : Formatting.values()) {
             msg = msg.replaceAll(c.mc, c.irc);
         }
-        return msg + RESET.irc; // Colors shouldn't "leak" into the rest of the string
+        return msg; // Colors shouldn't "leak" into the rest of the string
     }
     
     /**
@@ -83,7 +82,7 @@ public enum Formatting {
             if (c.irc.equals("")) continue;
             msg = msg.replaceAll(c.irc, c.mc);
         }
-        return Colors.removeFormattingAndColors(msg); // and finally get rid of everything else
+        return msg; // and finally get rid of everything else
     }
     
     private static String fix(String line) {

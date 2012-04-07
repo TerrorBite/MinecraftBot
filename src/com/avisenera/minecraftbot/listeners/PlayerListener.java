@@ -41,6 +41,7 @@ public class PlayerListener implements Listener {
         if (event.getMessage().toLowerCase().startsWith("/me")) {
             try {
                 MCMessage msg = new MCMessage();
+                msg.player = event.getPlayer();
                 msg.name = event.getPlayer().getDisplayName();
                 msg.message = event.getMessage().substring(4); // cuts off space after /me
                 plugin.send.toIRC(Keys.line_to_irc.action, msg);
@@ -55,7 +56,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(PlayerChatEvent event) {
         MCMessage msg = new MCMessage();
-        
+        msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
         msg.message = event.getMessage();
         plugin.send.toIRC(Keys.line_to_irc.chat, msg);
@@ -64,7 +65,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         MCMessage msg = new MCMessage();
-        
+        msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
         plugin.send.toIRC(Keys.line_to_irc.join, msg);
     }
@@ -72,7 +73,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         MCMessage msg = new MCMessage();
-        
+        msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
         plugin.send.toIRC(Keys.line_to_irc.leave, msg);
     }
@@ -80,6 +81,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerKick(PlayerKickEvent event) {
         MCMessage msg = new MCMessage();
+        msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
         msg.reason = event.getReason();
         
@@ -93,6 +95,7 @@ public class PlayerListener implements Listener {
         if (dm == null || dm.isEmpty()) return;
         
         MCMessage msg = new MCMessage();
+        msg.player = event.getEntity();
         msg.message = dm;
         plugin.send.toIRC(Keys.line_to_irc.death, msg);
     }

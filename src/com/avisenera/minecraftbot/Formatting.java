@@ -2,7 +2,6 @@ package com.avisenera.minecraftbot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jibble.pircbot.Colors;
 
 /**
  * Representation of a formatting code
@@ -11,28 +10,22 @@ public enum Formatting {
     // IRC values based on mIRC's documentation
     // http://www.mirc.com/colors.html
     // I used the closest color possible for Minecraft
-    WHITE       ("00", "f"),
-    BLACK       ("01", "0"),
-    DARK_BLUE   ("02", "1"),
-    BLUE        ("02", "1"), // duplicate
-    GREEN       ("03", "2"),
-    RED         ("04", "c"),
-    BROWN       ("05", "4"), // using MC dark red
-    DARK_RED    ("05", "4"), // duplicate
-    PURPLE      ("06", "5"),
-    ORANGE      ("07", "6"), // using MC gold
-    YELLOW      ("08", "e"),
-    LIGHT_GREEN ("09", "a"),
-    TEAL        ("10", "b"), // Using MC aqua
-    AQUA        ("10", "b"), // duplicate
-    LIGHT_CYAN  ("11", "b"), // using MC aqua
-    CYAN        ("11", "b"), // duplicate
-    LIGHT_BLUE  ("12", "9"),
-    PINK        ("13", "d"),
-    GRAY        ("14", "7"),
-    GREY        ("14", "7"), // duplicate
-    LIGHT_GRAY  ("15", "8"),
-    LIGHT_GREY  ("15", "8"), // duplicate
+    WHITE       ("\u000300", "f"),
+    BLACK       ("\u000301", "0"),
+    DARK_BLUE   ("\u000302", "1"),
+    GREEN       ("\u000303", "2"),
+    RED         ("\u000304", "c"),
+    BROWN       ("\u000305", "4"), // using MC dark red
+    PURPLE      ("\u000306", "5"),
+    ORANGE      ("\u000307", "6"), // using MC gold
+    YELLOW      ("\u000308", "e"),
+    LIGHT_GREEN ("\u000309", "a"),
+    TEAL        ("\u000310", "b"), // Using MC aqua
+    LIGHT_CYAN  ("\u000311", "b"), // using MC aqua
+    LIGHT_BLUE  ("\u000312", "9"),
+    PINK        ("\u000313", "d"),
+    GRAY        ("\u000314", "7"),
+    LIGHT_GRAY  ("\u000315", "8"),
     
     // Control codes
     BOLD        ("\u0002",   "l"),
@@ -46,16 +39,18 @@ public enum Formatting {
     RESET       ("\u000f",   "r"), // duplicate
     
     // Extra
-    C_RESET       ("\u0003",   "f"); // color code on its own usually means the color ends here  
+    C_RESET     ("\u0003",   "r"); // color code on its own usually means the color ends here  
     
-    public final String irc; // IRC control code and color value
+    public final String irc; // IRC control code and possibly color value
     public final String mc; // Minecraft two-character color code
 
     private Formatting(String irc, String mc) {
-        if (irc.length() > 0 && Character.isDigit(irc.charAt(0)))
-            this.irc = '\u0003' + irc; // this is a color code
-        else this.irc = irc; // this is blank or a different control code
-        this.mc = '\u00A7' + mc; // section symbol added before value
+        this.irc = irc;
+        this.mc = '\u00A7' + mc;
+    }
+    
+    public String toString() {
+        return mc;
     }
     
     /**
@@ -71,7 +66,7 @@ public enum Formatting {
         for (Formatting c : Formatting.values()) {
             msg = msg.replaceAll(c.mc, c.irc);
         }
-        return msg + "\u000f"; // Colors shouldn't "leak" into the rest of the string
+        return msg; // Colors shouldn't "leak" into the rest of the string
     }
     
     /**
@@ -87,7 +82,7 @@ public enum Formatting {
             if (c.irc.equals("")) continue;
             msg = msg.replaceAll(c.irc, c.mc);
         }
-        return Colors.removeFormattingAndColors(msg); // and finally get rid of everything else
+        return msg; // and finally get rid of everything else
     }
     
     private static String fix(String line) {
@@ -106,7 +101,7 @@ public enum Formatting {
         // to just copy over.
         // If someone knows a nicer way to do this, let me know.
         boolean found = false;
-        int i=-1;
+        int i = -1;
         do {
             i++;
             char cl = line.charAt(i);
@@ -138,11 +133,5 @@ public enum Formatting {
         } while (i<line.length()-1);
         
         return line;
-    }
-    
-    @Override
-    public final String toString() {
-        // Color codes are translated before being sent to IRC anyway.
-        return mc;
     }
 }

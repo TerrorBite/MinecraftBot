@@ -1,8 +1,7 @@
 name: MinecraftBot
 author: Rafa652
 main: com.avisenera.minecraftbot.MinecraftBot
-load: STARTUP
-version: 1.2.3
+version: 2.0.0
 commands:
     names:
         description: Displays the users on the IRC channel
@@ -11,24 +10,24 @@ commands:
         description: Displays the users on the IRC channel
         usage: /n
     irc:
-        description: Does a given IRC action
-        usage: /irc op|deop|voice|devoice|kick|connect|rejoin|disconnect
+        description: Does a given action on IRC
+        usage: /irc say|do|op|deop|voice|devoice|kick
+        permission: minecraftbot.op
+        permission-message: '[MinecraftBot] You are not allowed to use this command.'
+    minecraftbot:
+        description: Manages the plugin and IRC connection
+        usage: /minecraftbot connect|disconnect|join|part|reload
+        permission: minecraftbot.manage
+        permission-message: '[MinecraftBot] You are not allowed to use this command.'
 permissions:
     minecraftbot.op:
-        description: Gives access to op and deop
-    minecraftbot.voice:
-        description: Gives access to voice and devoice
-    minecraftbot.kick:
-        description: Gives access to kick
+        description: Allows use of the /irc command. Equivalent to having +o in IRC.
     minecraftbot.manage:
-        description: Gives access to connect, rejoin and disconnect
-    minecraftbot.me:
-        description: Anyone using /me will have the text show up on IRC
-        default: true
-    minecraftbot.*:
-        description: Gives access to all commands
+        description: Allows use of the /minecraftbot command as well as the /irc command.
         children:
             minecraftbot.op: true
-            minecraftbot.voice: true
-            minecraftbot.kick: true
+    minecraftbot.*:
+        description: Gives access to all plugin commands. Equivalent to minecraftbot.manage
+        children:
+            minecraftbot.op: true
             minecraftbot.manage: true

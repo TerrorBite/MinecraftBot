@@ -65,11 +65,9 @@ public class IdentServer extends Thread {
             _ss.setSoTimeout(60000);
         }
         catch (Exception e) {
-            _bot.log("*** Could not start the ident server on port 113.");
             return;
         }
         
-        _bot.log("*** Ident server running on port 113 for the next 60 seconds...");
         this.setName(this.getClass() + "-Thread");
         this.start();
     }
@@ -90,11 +88,9 @@ public class IdentServer extends Thread {
             
             String line = reader.readLine();
             if (line != null) {
-                _bot.log("*** Ident request received: " + line);
                 line = line + " : USERID : UNIX : " + _login;
                 writer.write(line + "\r\n");
                 writer.flush();
-                _bot.log("*** Ident reply sent: " + line);
                 writer.close();
             }
         }
@@ -108,8 +104,6 @@ public class IdentServer extends Thread {
         catch (Exception e) {
             // Doesn't really matter...
         }
-        
-        _bot.log("*** The Ident server has been shut down.");
     }
     
     private PircBot _bot;

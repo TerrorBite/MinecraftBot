@@ -88,27 +88,7 @@ public class InputThread extends Thread {
                 try {
                     String line = null;
                     while ((line = _breader.readLine()) != null) {
-                        try {
-                            _bot.handleLine(line);
-                        }
-                        catch (Throwable t) {
-                            // Stick the whole stack trace into a String so we can output it nicely.
-                            StringWriter sw = new StringWriter();
-                            PrintWriter pw = new PrintWriter(sw);
-                            t.printStackTrace(pw);
-                            pw.flush();
-                            StringTokenizer tokenizer = new StringTokenizer(sw.toString(), "\r\n");
-                            synchronized (_bot) {
-                                _bot.log("### Your implementation of PircBot is faulty and you have");
-                                _bot.log("### allowed an uncaught Exception or Error to propagate in your");
-                                _bot.log("### code. It may be possible for PircBot to continue operating");
-                                _bot.log("### normally. Here is the stack trace that was produced: -");
-                                _bot.log("### ");
-                                while (tokenizer.hasMoreTokens()) {
-                                    _bot.log("### " + tokenizer.nextToken());
-                                }
-                            }
-                        }
+                        _bot.handleLine(line);
                     }
                     if (line == null) {
                         // The server must have disconnected us.
@@ -135,8 +115,7 @@ public class InputThread extends Thread {
             // Just assume the socket was already closed.
         }
 
-        if (!_disposed) {
-            _bot.log("*** Disconnected.");        
+        if (!_disposed) {    
             _isConnected = false;
             _bot.onDisconnect();
         }

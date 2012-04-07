@@ -1,12 +1,14 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Configuration;
+import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 public class CommandListener implements CommandExecutor {
     private MinecraftBot plugin;
@@ -129,7 +131,7 @@ public class CommandListener implements CommandExecutor {
     
     // The /minecraftbot command
     private boolean minecraftbot(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("minecraftbot.op")) return true;
+        if (!sender.hasPermission("minecraftbot.manage")) return true;
         if (args.length < 1) return false;
         
         String cmd = args[0].toLowerCase();

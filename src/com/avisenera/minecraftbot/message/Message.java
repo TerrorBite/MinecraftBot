@@ -1,6 +1,5 @@
 package com.avisenera.minecraftbot.message;
 
-import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.hooks.Hook;
 
@@ -37,14 +36,14 @@ public class Message {
         
         // Formatting is reset at the end of each variable to
         // prevent formatting in one variable from spreading to the rest of the line
-        fullmessage = formatting.replace("%name%", msg.name + Formatting.RESET);
-        fullmessage = fullmessage.replace("%message%", msg.message + Formatting.RESET);
-        fullmessage = fullmessage.replace("%reason%", msg.reason + Formatting.RESET);
-        fullmessage = fullmessage.replace("%channel%", msg.channel + Formatting.RESET);
-        fullmessage = fullmessage.replace("%kicker%", msg.kicker + Formatting.RESET);
-        fullmessage = fullmessage.replace("%oldname%", msg.oldname + Formatting.RESET);
-        fullmessage = fullmessage.replace("%mode%", msg.mode + Formatting.RESET);
-        fullmessage = fullmessage.replace("%topic%", msg.topic + Formatting.RESET);
+        fullmessage = formatting.replace("%name%", msg.name);
+        fullmessage = fullmessage.replace("%message%", msg.message);
+        fullmessage = fullmessage.replace("%reason%", msg.reason);
+        fullmessage = fullmessage.replace("%channel%", msg.channel);
+        fullmessage = fullmessage.replace("%kicker%", msg.kicker);
+        fullmessage = fullmessage.replace("%oldname%", msg.oldname);
+        fullmessage = fullmessage.replace("%mode%", msg.mode);
+        fullmessage = fullmessage.replace("%topic%", msg.topic);
         
         fullmessage = Hook.getVariable(p, fullmessage, msg);
         

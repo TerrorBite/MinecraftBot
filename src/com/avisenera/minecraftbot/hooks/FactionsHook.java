@@ -1,6 +1,5 @@
 package com.avisenera.minecraftbot.hooks;
 
-import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.message.MCMessage;
 import com.avisenera.minecraftbot.message.Message;
 import com.massivecraft.factions.P;
@@ -23,6 +22,6 @@ public class FactionsHook extends Hook {
         String faction = p.getPlayerFactionTag(message.player);
         
         if (faction == null) return line;
-        else return line.replace("%faction%", faction + Formatting.RESET);
+        else return line.replace("%faction%", faction);
     }
 }

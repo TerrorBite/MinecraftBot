@@ -22,7 +22,7 @@ public class MinecraftBot extends JavaPlugin {
         config = new Configuration(this);
         ircListener = new IRCListener(this, config);
         playerListener = new PlayerListener(this);
-        commandListener = new CommandListener(this, config);
+        commandListener = new CommandListener(this, config, ircListener);
         
         send = new LineSender(this, config, ircListener);
         
@@ -34,6 +34,8 @@ public class MinecraftBot extends JavaPlugin {
             
             // Get everything started
             getServer().getPluginManager().registerEvents(playerListener, this);
+            getCommand("n").setExecutor(commandListener);
+            getCommand("names").setExecutor(commandListener);
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
         } else {

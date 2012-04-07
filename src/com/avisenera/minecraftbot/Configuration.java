@@ -43,7 +43,6 @@ public class Configuration {
         EnumMap<Keys.settings, String> new_s = new EnumMap<Keys.settings, String>(Keys.settings.class);
         EnumMap<Keys.line_to_irc, String> new_lti = new EnumMap<Keys.line_to_irc, String>(Keys.line_to_irc.class);
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
-        boolean accepted = true;
         
         for (Keys.connection c : Keys.connection.values())
             new_c.put(c, config.getString("connection."+c));
@@ -53,6 +52,8 @@ public class Configuration {
             new_lti.put(c, config.getString("line_formatting.to_irc."+c));
         for (Keys.line_to_minecraft c : Keys.line_to_minecraft.values())
             new_ltm.put(c, config.getString("line_formatting.to_minecraft."+c));
+        
+        boolean accepted = true;
         
         // Checking for all required values
         String scheck;
@@ -82,6 +83,7 @@ public class Configuration {
             
             valid = true;
         }
+        else plugin.log(2, "Configuration did not load successfully.");
         
         return accepted;
     }

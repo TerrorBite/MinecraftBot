@@ -6,6 +6,7 @@ import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.User;
 
 /**
  * This class handles the IRC connection.
@@ -49,7 +50,11 @@ public class IRCListener extends PircBot implements Runnable {
      * The rest of the connection routine is in run().
      */
     public synchronized void connect() {
-        plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this);
+        if (isConnected()) {
+            plugin.log(0, "Attempted to connect to IRC while already connected.");
+            plugin.log(0, "To force reconnecting, reload the plugin.");
+        }
+        else plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this);
     }
     // Used to prevent the connection method from running more than once at a time
     private boolean busyconnecting = false;
@@ -124,12 +129,6 @@ public class IRCListener extends PircBot implements Runnable {
         plugin.log((autoreconnect?1:0), "Disconnected.");
         if (autoreconnect) connect();
     }
-    
-    public void joinChannel() {
-        // Joins the channel defined in the configuration
-        if (c_channel_key.isEmpty()) joinChannel(c_channel);
-        else joinChannel(c_channel, c_channel_key);
-    }
 
     /**
      * Sends a message to the IRC channel
@@ -145,6 +144,47 @@ public class IRCListener extends PircBot implements Runnable {
      */
     public void sendAction(String action) {
         this.sendAction(c_channel, action);
+    }
+    
+    // Some methods for CommandListener
+    
+    public String userlist() {
+        // Returns a list of users on IRC.
+        User list[] = this.getUsers(c_channel);
+        String nicks = c_channel + ":";
+        
+        // Raised the limit to 40 names due to being able to scroll the chat window now
+        if (list.length <= 40)
+            for (User u : list) nicks += " " + u.toString();
+        else
+            nicks += " "+list.length+" people - too many to list here.";
+        
+        return nicks;
+    }
+    
+    public void op(String nick) {
+        op(c_channel, nick);
+    }
+    public void deOp(String nick) {
+        deOp(c_channel, nick);
+    }
+    public void voice(String nick) {
+        voice(c_channel, nick);
+    }
+    public void deVoice(String nick) {
+        deVoice(c_channel, nick);
+    }
+    public void doKick(String nick, String reason) {
+        // Why is that method final?
+        kick(c_channel, nick, reason);
+    }
+    public void joinChannel() {
+        // Joins the channel defined in the configuration
+        if (c_channel_key.isEmpty()) joinChannel(c_channel);
+        else joinChannel(c_channel, c_channel_key);
+    }
+    public void partChannel() {
+        partChannel(c_channel);
     }
     
     // Now for the IRC events

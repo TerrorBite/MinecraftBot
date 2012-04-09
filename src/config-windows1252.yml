@@ -51,7 +51,7 @@ line_formatting:
 #You may enter either IRC or Minecraft color codes into any field.
 #The color codes will be automatically translated to the appropriate format.
 #List of Minecraft color codes: http://www.minecraftwiki.net/wiki/Classic_server_protocol#Color_Codes
-#Replace the & with the section symbol: Â§
+#Replace the & with the section symbol: §
 #Keep in mind that some text generated anywhere else may override the color codes you enter in these lines.
 
 #Words that are surrounded by % signs may be used as variables. See the bottom of this file for more details.
@@ -65,25 +65,25 @@ line_formatting:
     chat:   '<%name%> %message%'
     #action: A /me message
     action: '* %name% %message%'
-    join:   'Â§b* %name% has joined the game'
-    leave:  'Â§b* %name% has left the game'
-    kick:   'Â§c* %name% has been kicked (%reason%)'
+    join:   '§b* %name% has joined the game'
+    leave:  '§b* %name% has left the game'
+    kick:   '§c* %name% has been kicked (%reason%)'
     # The death message cannot be customized properly due to a limitation with Bukkit.
     # The entire death messages is represented as %message%. %name% is also available for this event.
-    death:  'Â§c* %message%'
+    death:  '§c* %message%'
     
   #For messages sent to Minecraft from IRC
   to_minecraft:
     chat:   '#> <%name%> %message%'
     action: '#> * %name% %message%'
-    join:   '#> Â§b* %name% has joined %channel%'
+    join:   '#> §b* %name% has joined %channel%'
     # At the moment, part reasons can't be displayed
-    part:   '#> Â§b* %name% has left %channel%'
-    quit:   '#> Â§b* %name% has quit IRC (%reason%)'
-    kick:   '#> Â§c* %kicker% has kicked %name% (%reason%Â§c)'
-    nick_change:  '#> Â§b* %oldname% is now known as %name%'
-    mode_change:  '#> Â§b* %name% set mode: %mode%'
-    topic_change: '#> Â§b* %name% changed the topic to: Â§r%topic%'
+    part:   '#> §b* %name% has left %channel%'
+    quit:   '#> §b* %name% has quit IRC (%reason%)'
+    kick:   '#> §c* %kicker% has kicked %name% (%reason%§c)'
+    nick_change:  '#> §b* %oldname% is now known as %name%'
+    mode_change:  '#> §b* %name% set mode: %mode%'
+    topic_change: '#> §b* %name% changed the topic to: §r%topic%'
 
 #Some words surrounded by % signs are considered to be variables. When the lines are read by the
 #plugin, the variables are replaced by some other value. The variables available per each line are different.

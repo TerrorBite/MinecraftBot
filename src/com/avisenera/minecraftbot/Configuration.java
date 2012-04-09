@@ -1,6 +1,7 @@
 package com.avisenera.minecraftbot;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.EnumMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -180,7 +181,15 @@ public class Configuration {
         {
             File conf = new File(plugin.getDataFolder(), "config.yml");
             
-            InputStream is = this.getClass().getResourceAsStream("/config.yml");
+            InputStream is;
+            
+            if (Charset.defaultCharset().displayName().equals("UTF-8")) {
+                is = this.getClass().getResourceAsStream("/config.yml");
+            } else {
+                // assuming the system is using windows-1252
+                is = this.getClass().getResourceAsStream("/config-windows1252.yml");
+            }
+            
             if (!conf.exists())
                 conf.createNewFile();
             OutputStream os = new FileOutputStream(conf);

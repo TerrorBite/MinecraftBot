@@ -27,15 +27,22 @@ public class Message {
     
     /**
      * Given a formatting string, replaces values such as %name% with their actual values.
+     * @param p MinecraftBot instance, used to pass it on to Hook
      * @param formatting The formatting string to use
      * @param msg A Message object containing the values to replace with
      * @return A formatted string with variables replaced with the actual values
      */
     public static String applyFormatting(MinecraftBot p, String formatting, Message msg) {
-        String fullmessage;
+        // && temprarily becomes U+00FE - Latin Small Letter Thorn
+        String ampersand = "\u00FE";
+        String mc_control_code = "\u00A7";
+        
+        formatting = formatting.replaceAll("&&", ampersand);
+        formatting = formatting.replaceAll("&", mc_control_code);
         
         // Formatting is reset at the end of each variable to
         // prevent formatting in one variable from spreading to the rest of the line
+        String fullmessage;
         fullmessage = formatting.replace("%name%", msg.name);
         fullmessage = fullmessage.replace("%message%", msg.message);
         fullmessage = fullmessage.replace("%reason%", msg.reason);
@@ -47,6 +54,7 @@ public class Message {
         
         fullmessage = Hook.getVariable(p, fullmessage, msg);
         
-        return fullmessage;
+        // Turn special characters back into ampersands
+        return fullmessage.replaceAll(ampersand, "&");
     }
 }

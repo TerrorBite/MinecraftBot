@@ -129,6 +129,7 @@ public class IRCListener extends PircBot implements Runnable {
     protected void onDisconnect() {
         plugin.log((autoreconnect?1:0), "Disconnected.");
         if (autoreconnect) connect();
+        else autoreconnect = true;
     }
 
     /**

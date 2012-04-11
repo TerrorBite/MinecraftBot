@@ -1,14 +1,12 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Configuration;
-import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 
 public class CommandListener implements CommandExecutor {
     private MinecraftBot plugin;
@@ -145,6 +143,7 @@ public class CommandListener implements CommandExecutor {
             String quitmessage = "";
             for (int i=1;i<args.length;i++)
                 quitmessage += args[i] + " ";
+            bot.autoreconnect = false;
             bot.quitServer(quitmessage);
             return true;
         }

@@ -181,14 +181,7 @@ public class Configuration {
         {
             File conf = new File(plugin.getDataFolder(), "config.yml");
             
-            InputStream is;
-            
-            if (Charset.defaultCharset().displayName().equals("UTF-8")) {
-                is = this.getClass().getResourceAsStream("/config.yml");
-            } else {
-                // assuming the system is using windows-1252
-                is = this.getClass().getResourceAsStream("/config-windows1252.yml");
-            }
+            InputStream is = this.getClass().getResourceAsStream("/config.yml");
             
             if (!conf.exists())
                 conf.createNewFile();

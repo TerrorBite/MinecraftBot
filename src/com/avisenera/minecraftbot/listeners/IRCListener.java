@@ -14,6 +14,7 @@ import org.jibble.pircbot.User;
  */
 public class IRCListener extends PircBot implements Runnable {
     private MinecraftBot plugin;
+    private Configuration config;
     
     // Always attempt to reconnect on disconnect unless this should stay disconnected.
     public boolean autoreconnect = true;
@@ -22,6 +23,7 @@ public class IRCListener extends PircBot implements Runnable {
     private final String c_server;
     private final String c_server_password;
     private final int c_server_port;
+    private final int retries;
     private final String c_channel;
     private final String c_channel_key;
     private final String c_nick;
@@ -37,6 +39,15 @@ public class IRCListener extends PircBot implements Runnable {
         c_channel_key = config.connection(Keys.connection.channel_key);
         c_nick = config.connection(Keys.connection.nick);
         c_nick_password = config.connection(Keys.connection.nick_password);
+        String fc_retries = config.connection(Keys.connection.retries);
+        int retry = 5;
+        try {
+            retry = Integer.parseInt(fc_retries);
+            if (retry < 1) retry = 5;
+        } catch (Exception e) {}
+        retries = retry;
+        
+        this.config = config;
         
         // Initializing some other things
         this.setLogin(c_nick);
@@ -65,11 +76,10 @@ public class IRCListener extends PircBot implements Runnable {
         busyconnecting = true;
 
         int attempt = 0;
-        final int max_tries = 10;
         
         super.setName(c_nick);
         
-        while (attempt < max_tries) {
+        while (attempt < retries) {
             attempt++;
             try {
                 if (isConnected()) break; // Already connected
@@ -85,14 +95,14 @@ public class IRCListener extends PircBot implements Runnable {
             } catch (Exception e) {
                 plugin.log(1, "Failed to connect: " + e.getMessage());
                 try {
-                    Thread.sleep(5000);
+                    if (attempt < retries) Thread.sleep(5000);
                 } catch (InterruptedException e1) {}
                 continue;
             }
         }
         
         if (!isConnected())
-            plugin.log(2, "Failed to connect to the server. Enter '/irc connect' to try again.");
+            plugin.log(2, "Failed to connect to the server. Enter '/minecraftbot connect' to try again.");
         
         busyconnecting = false;
     }
@@ -296,11 +306,13 @@ public class IRCListener extends PircBot implements Runnable {
             for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
             sendMessage(o);
             
-            // Notify Minecraft players that someone used this command
-            IRCMessage msg = new IRCMessage();
-            msg.name = sender;
-            msg.message = "asked for the player list";
-            plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+            if (config.settings(Keys.settings.show_players_command).equalsIgnoreCase("true")) {
+                // Notify Minecraft players that someone used this command
+                IRCMessage msg = new IRCMessage();
+                msg.name = sender;
+                msg.message = "asked for the player list";
+                plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+            }
             
             return true;
         }

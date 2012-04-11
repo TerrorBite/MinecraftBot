@@ -8,11 +8,11 @@ public class Keys {
     private Keys() {}
     
     public enum connection {
-        server, server_password, server_port, channel, channel_key, nick, nick_password
+        server, server_password, server_port, retries, channel, channel_key, nick, nick_password
     }
     
     public enum settings {
-        ping_developer, send_log_to_ops, quit_message
+        ping_developer, send_log_to_ops, show_players_command, quit_message
     }
     
     public enum line_to_irc {

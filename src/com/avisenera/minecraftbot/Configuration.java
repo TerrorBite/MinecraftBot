@@ -46,13 +46,13 @@ public class Configuration {
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
         
         for (Keys.connection c : Keys.connection.values())
-            new_c.put(c, config.getString("connection."+c));
+            new_c.put(c, config.getString("connection."+c, ""));
         for (Keys.settings c : Keys.settings.values())
-            new_s.put(c, config.getString("settings."+c));
+            new_s.put(c, config.getString("settings."+c, ""));
         for (Keys.line_to_irc c : Keys.line_to_irc.values())
-            new_lti.put(c, config.getString("line_formatting.to_irc."+c));
+            new_lti.put(c, config.getString("line_formatting.to_irc."+c, ""));
         for (Keys.line_to_minecraft c : Keys.line_to_minecraft.values())
-            new_ltm.put(c, config.getString("line_formatting.to_minecraft."+c));
+            new_ltm.put(c, config.getString("line_formatting.to_minecraft."+c, ""));
         
         boolean accepted = true;
         

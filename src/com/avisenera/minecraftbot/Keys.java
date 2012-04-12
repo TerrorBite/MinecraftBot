@@ -12,7 +12,7 @@ public class Keys {
     }
     
     public enum settings {
-        send_log_to_ops, show_players_command, quit_message
+        send_log_to_ops, show_players_command, show_nick_prefixes, quit_message
     }
     
     public enum line_to_irc {

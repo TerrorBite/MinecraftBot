@@ -40,6 +40,9 @@ settings:
   send_log_to_ops: true
   #show_players_command: Whether or not to display a message in Minecraft if someone on IRC says '!players'
   show_players_command: true
+  #show_nick_prefixes: Whether or not to show a prefix in front of a nick (such as @Nick for an op named nick)
+  #when sending something from IRC to Minecraft. They will still appear when using /nicks or /n.
+  show_nick_prefixes: true
   #quit_message: The quit message used when the bot quits IRC. Used only when the plugin is disabled.
   quit_message: ''
 

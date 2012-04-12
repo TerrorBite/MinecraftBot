@@ -54,6 +54,10 @@ public class LineSender {
         String formatting = config.line_to_minecraft(format);
         if (formatting.isEmpty()) return; // Empty formatting string - ignore
         
+        // Get nick prefix if enabled
+        if (config.settingsB(Keys.settings.show_nick_prefixes))
+            message.name = bot.getFullNick(message.name);
+        
         this.toMinecraft(Message.applyFormatting(plugin, formatting, message));
     }
     /**

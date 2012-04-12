@@ -118,14 +118,23 @@ public class Configuration {
     
     /**
      * Returns the given settings value in the configuration file.
-     * @param value Equivalent to config.getString("settings.(value)")
+     * @param value Equivalent to config.getString("settings.(value)", "")
      */
-    public String settings(Keys.settings value) {
+    public String settingsS(Keys.settings value) {
         if (!valid || value == null) return "";
         
         String rv = settings.get(value);
         if (rv == null) return "";
         else return rv;
+    }
+    
+    /**
+     * Returns the given settings value as a boolean in the configuration file.
+     * @param value Equivalent to config.getBoolean("settings.(value)", false)
+     */
+    public boolean settingsB(Keys.settings value) {
+        String rv = settingsS(value);
+        return (rv.equalsIgnoreCase("true"));
     }
     
     /**

@@ -74,6 +74,15 @@ public class MinecraftBot extends JavaPlugin {
     private void startMetrics() {
         try {
             Metrics metrics = new Metrics(this);
+            
+            // Send number of users on the IRC channel
+            metrics.addCustomData(new Metrics.Plotter("IRC Users") {
+                @Override
+                public int getValue() {
+                    return ircListener.usercount();
+                }
+            });
+            
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors

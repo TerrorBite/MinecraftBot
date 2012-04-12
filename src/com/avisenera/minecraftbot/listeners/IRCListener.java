@@ -158,6 +158,10 @@ public class IRCListener extends PircBot implements Runnable {
         this.sendAction(c_channel, action);
     }
     
+    public int usercount() {
+        return this.getUsers(c_channel).length;
+    }
+    
     // Some methods for CommandListener
     
     public String userlist() {

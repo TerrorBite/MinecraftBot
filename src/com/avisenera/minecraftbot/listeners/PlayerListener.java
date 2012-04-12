@@ -20,18 +20,19 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onServerCommand(ServerCommandEvent event) {
         String check = event.getCommand().toLowerCase();
-        MCMessage msg = new MCMessage();
         
         if(check.startsWith("say ")) {
+            MCMessage msg = new MCMessage();
             msg.message = event.getCommand().split("\\s+", 2)[1];
-            plugin.send.toIRC(Keys.line_to_irc.chat, msg);
+            plugin.send.toIRC(Keys.line_to_irc.server, msg);
         }
         
         // Plugins like Essentials and CommandBook have a "broadcast"
         // command which is similar to the console /say.
         else if(check.startsWith("broadcast ")) {
+            MCMessage msg = new MCMessage();
             msg.message = event.getCommand().split("\\s+", 2)[1];
-            plugin.send.toIRC(Keys.line_to_irc.chat, msg);
+            plugin.send.toIRC(Keys.line_to_irc.server, msg);
         }
     }
     

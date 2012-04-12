@@ -141,6 +141,34 @@ public class IRCListener extends PircBot implements Runnable {
         if (autoreconnect) connect();
         else autoreconnect = true;
     }
+    
+    /**
+     * Gets a user's full nick. Full nick meaning, the nick with the prefix included.
+     * @param nick The nick to check
+     * @return The full nick, including a prefix if one exists.
+     */
+    public String getFullNick(String nick) {
+        if (nick == null || nick.isEmpty()) return "";
+        
+        // If the prefix is already there, don't do anything
+        switch (nick.charAt(0)) {
+            case '~':
+            case '&':
+            case '@':
+            case '%':
+            case '+':
+                return nick;
+            default: break;
+        }
+        
+        // Go through all users and find that one nick
+        for (User u : this.getUsers(c_channel)) {
+            if (u.getNick().equalsIgnoreCase(nick)) return u.toString();
+        }
+        
+        // Nothing found
+        return nick; 
+    }
 
     /**
      * Sends a message to the IRC channel
@@ -310,7 +338,7 @@ public class IRCListener extends PircBot implements Runnable {
             for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
             sendMessage(o);
             
-            if (config.settings(Keys.settings.show_players_command).equalsIgnoreCase("true")) {
+            if (config.settingsB(Keys.settings.show_players_command)) {
                 // Notify Minecraft players that someone used this command
                 IRCMessage msg = new IRCMessage();
                 msg.name = sender;

@@ -6,7 +6,7 @@ import com.massivecraft.factions.P;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
-public class FactionsHook extends Hook {
+public class Faction extends Hook {
 
     @Override
     protected String get(PluginManager pm, String line, Message msg) {

@@ -1,5 +1,6 @@
 package com.avisenera.minecraftbot;
 
+import com.avisenera.minecraftbot.hooks.Hook;
 import com.avisenera.minecraftbot.listeners.CommandListener;
 import com.avisenera.minecraftbot.listeners.IRCListener;
 import com.avisenera.minecraftbot.listeners.PlayerListener;
@@ -23,9 +24,6 @@ public class MinecraftBot extends JavaPlugin {
         config = new Configuration(this);
 
         if (config.load()) { // If configuration properly loaded
-            
-            startMetrics();
-            
             // Initialize everything
             ircListener = new IRCListener(this, config);
             playerListener = new PlayerListener(this);
@@ -39,6 +37,8 @@ public class MinecraftBot extends JavaPlugin {
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
             
+            startMetrics();
+            
             // Start the bot
             ircListener.connect();
         } else {
@@ -50,7 +50,7 @@ public class MinecraftBot extends JavaPlugin {
     @Override
     public void onDisable() {
         if (ircListener != null) {
-            String qm = config.settings(Keys.settings.quit_message);
+            String qm = config.settingsS(Keys.settings.quit_message);
             ircListener.autoreconnect = false;
             ircListener.quitServer(qm);
             try {ircListener.dispose();}
@@ -65,7 +65,7 @@ public class MinecraftBot extends JavaPlugin {
         else if (level == 2) logger.severe(message);
         else logger.info(message);
         
-        if (config.settings(Keys.settings.send_log_to_ops).equalsIgnoreCase("true"))
+        if (config.settingsB(Keys.settings.send_log_to_ops))
             for (Player p : this.getServer().getOnlinePlayers())
                 if (p.hasPermission("minecraftbot.manage"))
                     p.sendMessage(Formatting.GRAY + message);
@@ -82,6 +82,17 @@ public class MinecraftBot extends JavaPlugin {
                     return ircListener.usercount();
                 }
             });
+            
+            // Get stats on all available hooks and their usage
+            Metrics.Graph graph = metrics.createGraph("Hooks used");
+            for (final String hook : Hook.available_hooks) {
+                graph.addPlotter(new Metrics.Plotter(hook) {
+                    @Override
+                    public int getValue() {
+                        return config.metricsCountHooks(hook);
+                    }
+                });
+            }
             
             metrics.start();
         } catch (IOException ex) {

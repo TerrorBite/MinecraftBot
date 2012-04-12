@@ -14,6 +14,9 @@ import org.bukkit.plugin.PluginManager;
 public abstract class Hook {
     protected Hook() {}
     
+    // List of available variables that are handled by hooks
+    public static final String[] available_hooks = {"Faction"};
+    
     /**
      * Attempts to return a value from an external plugin.
      * @param line The entire line which probably includes the variables to be replaced
@@ -23,7 +26,7 @@ public abstract class Hook {
     public static String getVariable(MinecraftBot instance, String line, Message msg) {
         // Later: Figure out how to use all classes in this package without having to manually add them.
         ArrayList<Hook> hooks = new ArrayList<Hook>();
-        hooks.add(new FactionsHook());
+        hooks.add(new Faction());
         
         for (Hook h : hooks) {
             line = h.get(instance.getServer().getPluginManager(), line, msg);
@@ -33,5 +36,4 @@ public abstract class Hook {
     }
     
     protected abstract String get(PluginManager pm, String line, Message msg);
-    
 }

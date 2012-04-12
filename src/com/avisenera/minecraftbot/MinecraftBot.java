@@ -3,6 +3,7 @@ package com.avisenera.minecraftbot;
 import com.avisenera.minecraftbot.listeners.CommandListener;
 import com.avisenera.minecraftbot.listeners.IRCListener;
 import com.avisenera.minecraftbot.listeners.PlayerListener;
+import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,9 +24,7 @@ public class MinecraftBot extends JavaPlugin {
 
         if (config.load()) { // If configuration properly loaded
             
-            // Maybe send a bit of data
-            if (config.settings(Keys.settings.ping_developer).equalsIgnoreCase("true"))
-                MetricsSender.send("CB_"+getServer().getBukkitVersion(), this.getDescription().getVersion());
+            startMetrics();
             
             // Initialize everything
             ircListener = new IRCListener(this, config);
@@ -70,5 +69,14 @@ public class MinecraftBot extends JavaPlugin {
             for (Player p : this.getServer().getOnlinePlayers())
                 if (p.hasPermission("minecraftbot.manage"))
                     p.sendMessage(Formatting.GRAY + message);
+    }
+    
+    private void startMetrics() {
+        try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException ex) {
+            // Ignore errors
+        }
     }
 }

@@ -63,12 +63,6 @@ public abstract class PircBot implements ReplyConstants {
     public static final String VERSION = "1.5.0";
     
     
-    private static final int OP_ADD = 1;
-    private static final int OP_REMOVE = 2;
-    private static final int VOICE_ADD = 3;
-    private static final int VOICE_REMOVE = 4;
-    
-    
     /**
      * Constructs a PircBot with the default settings.  Your own constructors
      * in classes which extend the PircBot abstract class should be responsible
@@ -1465,28 +1459,19 @@ public abstract class PircBot implements ReplyConstants {
                 if (atPos == '+' || atPos == '-') {
                     pn = atPos;
                 }
-                else if (atPos == 'o') {
-                   if (pn == '+') {
-                       this.updateUser(channel, OP_ADD, params[p]);
-                       onOp(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
-                   else {
-                       this.updateUser(channel, OP_REMOVE, params[p]);
-                       onDeop(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
+                //MinecraftBot: Changed how to know when a user's status is changed
+                else if (atPos=='q'||atPos=='a'||atPos=='o'||atPos=='h'||atPos=='v') {
+                    Hashtable<User, User> users = (Hashtable<User, User>) _channels.get(channel);
+                    Enumeration<User> enumeration = users.elements();
+                    while(enumeration.hasMoreElements()) {
+                        User userObj = (User) enumeration.nextElement();
+                        if (userObj.getNick().equalsIgnoreCase(params[params.length-1])) {
+                            if (pn == '+') userObj.addPrefix(Character.toString(atPos));
+                            else userObj.delPrefix(Character.toString(atPos));
+                        }
+                    }
                    p++;
                }
-               else if (atPos == 'v') {
-                   if (pn == '+') {
-                       this.updateUser(channel, VOICE_ADD, params[p]);
-                       onVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
-                   else {
-                       this.updateUser(channel, VOICE_REMOVE, params[p]);
-                       onDeVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
-                   p++; 
-                }
                 else if (atPos == 'k') {
                     if (pn == '+') {
                         onSetChannelKey(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
@@ -1611,87 +1596,6 @@ public abstract class PircBot implements ReplyConstants {
      * 
      */
     protected void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode) {}
-    
-    
-    
-    /**
-     * Called when a user (possibly us) gets granted operator status for a channel.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *  <p>
-     * The implementation of this method in the PircBot abstract class
-     * performs no actions and may be overridden as required.
-     * 
-     * @since PircBot 0.9.5
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The hostname of the user that performed the mode change.
-     * @param recipient The nick of the user that got 'opped'.
-     */
-    protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-
-    /**
-     * Called when a user (possibly us) gets operator status taken away.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *  <p>
-     * The implementation of this method in the PircBot abstract class
-     * performs no actions and may be overridden as required.
-     * 
-     * @since PircBot 0.9.5
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The hostname of the user that performed the mode change.
-     * @param recipient The nick of the user that got 'deopped'.
-     */
-    protected void onDeop(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-
-    /**
-     * Called when a user (possibly us) gets voice status granted in a channel.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *  <p>
-     * The implementation of this method in the PircBot abstract class
-     * performs no actions and may be overridden as required.
-     * 
-     * @since PircBot 0.9.5
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The hostname of the user that performed the mode change.
-     * @param recipient The nick of the user that got 'voiced'.
-     */
-    protected void onVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
-
-
-    /**
-     * Called when a user (possibly us) gets voice status removed.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *  <p>
-     * The implementation of this method in the PircBot abstract class
-     * performs no actions and may be overridden as required.
-     * 
-     * @since PircBot 0.9.5
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The hostname of the user that performed the mode change.
-     * @param recipient The nick of the user that got 'devoiced'.
-     */
-    protected void onDeVoice(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient) {}
 
 
     /**
@@ -2980,44 +2884,7 @@ public abstract class PircBot implements ReplyConstants {
             Hashtable<User, User> users = (Hashtable<User, User>) _channels.get(channel);
             User newUser = null;
             if (users != null) {
-                Enumeration<User> enumeration = users.elements();
-                while(enumeration.hasMoreElements()) {
-                    User userObj = (User) enumeration.nextElement();
-                    if (userObj.getNick().equalsIgnoreCase(nick)) {
-                        if (userMode == OP_ADD) {
-                            if (userObj.hasVoice()) {
-                                newUser = new User("@+", nick);
-                            }
-                            else {
-                                newUser = new User("@", nick);
-                            }
-                        }
-                        else if (userMode == OP_REMOVE) {
-                            if(userObj.hasVoice()) {
-                                newUser = new User("+", nick);
-                            }
-                            else {
-                                newUser = new User("", nick);
-                            }
-                        }
-                        else if (userMode == VOICE_ADD) {
-                            if(userObj.isOp()) {
-                                newUser = new User("@+", nick);
-                            }
-                            else {
-                                newUser = new User("+", nick);
-                            }
-                        }
-                        else if (userMode == VOICE_REMOVE) {
-                            if(userObj.isOp()) {
-                                newUser = new User("@", nick);
-                            }
-                            else {
-                                newUser = new User("", nick);
-                            }
-                        }
-                    }
-                }
+                // User mode changes are not handled here anymore
             }
             if (newUser != null) {
                 users.put(newUser, newUser);

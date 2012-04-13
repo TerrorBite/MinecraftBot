@@ -13,6 +13,8 @@ found at http://www.jibble.org/licenses/
 
 package org.jibble.pircbot;
 
+import java.util.EnumMap;
+
 /**
  * This class is used to represent a user on an IRC server.
  * Instances of this class are returned by the getUsers method
@@ -28,6 +30,24 @@ package org.jibble.pircbot;
  */
 public class User {
     
+    // Changes made for MinecraftBot:
+    // Since a nick can appear to have multiple prefixes, using a Map instead of a String to track them.
+    public enum Prefix {
+        OWNER ("~", "q"),
+        PROTECTED ("&", "a"),
+        OP ("@", "o"),
+        HALFOP ("%", "h"),
+        VOICE ("+", "v");
+        
+        public final String symbol;
+        public final String mode;
+        private Prefix(String symbol, String mode) {
+            this.symbol = symbol;
+            this.mode = mode;
+        }
+    }
+    private EnumMap<Prefix, Boolean> _prefix;
+    
     
     /**
      * Constructs a User object with a known prefix and nick.
@@ -36,50 +56,55 @@ public class User {
      * @param nick The nick of the user.
      */
     User(String prefix, String nick) {
-        _prefix = prefix;
+        _prefix = new EnumMap<Prefix, Boolean>(Prefix.class);
+        for (Prefix p : Prefix.values())
+            _prefix.put(p, Boolean.FALSE);
+        
+        addPrefix(prefix);
+        
         _nick = nick;
         _lowerNick = nick.toLowerCase();
     }
     
+    /**
+     * Adds a prefix to the user.
+     * @param prefix The prefix symbol (or equivalent mode) to add
+     */
+    public void addPrefix(String prefix) {
+        if (prefix == null || prefix.length() != 1) return;
+        for (Prefix p : Prefix.values()) {
+            if (prefix.equals(p.mode)) _prefix.put(p, Boolean.TRUE);
+            if (prefix.equals(p.symbol)) _prefix.put(p, Boolean.TRUE);
+        }
+    }
     
     /**
-     * Returns the prefix of the user. If the User object has been obtained
-     * from a list of users in a channel, then this will reflect the user's
+     * Removes a prefix from the user.
+     * @param prefix The prefix symbol to remove
+     */
+    public void delPrefix(String prefix) {
+        if (prefix == null || prefix.length() != 1) return;
+        for (Prefix p : Prefix.values()) {
+            if (prefix.equals(p.mode)) _prefix.put(p, Boolean.FALSE);
+            if (prefix.equals(p.symbol)) _prefix.put(p, Boolean.FALSE);
+        }
+    }
+    
+    /**
+     * Returns the highest-level prefix of the user. If the User object has
+     * been obtained from a list of users in a channel, then this will reflect the user's
      * status in that channel.
      *
      * @return The prefix of the user. If there is no prefix, then an empty
      *         String is returned.
      */
     public String getPrefix() {
-        return _prefix;
+        for (Prefix p : Prefix.values()) {
+            if (_prefix.get(p).booleanValue()) return p.symbol;
+        }
+        
+        return "";
     }
-    
-    
-    /**
-     * Returns whether or not the user represented by this object is an
-     * operator. If the User object has been obtained from a list of users
-     * in a channel, then this will reflect the user's operator status in
-     * that channel.
-     * 
-     * @return true if the user is an operator in the channel.
-     */
-    public boolean isOp() {
-        return _prefix.indexOf('@') >= 0;
-    }
-    
-    
-    /**
-     * Returns whether or not the user represented by this object has
-     * voice. If the User object has been obtained from a list of users
-     * in a channel, then this will reflect the user's voice status in
-     * that channel.
-     * 
-     * @return true if the user has voice in the channel.
-     */
-    public boolean hasVoice() {
-        return _prefix.indexOf('+') >= 0;
-    }        
-    
     
     /**
      * Returns the nick of the user.
@@ -154,7 +179,6 @@ public class User {
     }
     
     
-    private String _prefix;
     private String _nick;
     private String _lowerNick;
     

@@ -84,9 +84,9 @@ public class MinecraftBot extends JavaPlugin {
             });
             
             // Get stats on all available hooks and their usage
-            Metrics.Graph graph = metrics.createGraph("Hooks used");
+            Metrics.Graph ghooks = metrics.createGraph("Hooks used");
             for (final String hook : Hook.available_hooks) {
-                graph.addPlotter(new Metrics.Plotter(hook) {
+                ghooks.addPlotter(new Metrics.Plotter(hook) {
                     @Override
                     public int getValue() {
                         return config.metricsCountHooks(hook);
@@ -94,9 +94,30 @@ public class MinecraftBot extends JavaPlugin {
                 });
             }
             
+            // Get stats on how often LineSender is being used
+            Metrics.Graph gactivity = metrics.createGraph("Lines relayed");
+            gactivity.addPlotter(new Metrics.Plotter("Minecraft to IRC") {
+                @Override
+                public int getValue() {
+                    int r = mLRTI;
+                    mLRTI = 0;
+                    return r;
+                }
+            });
+            gactivity.addPlotter(new Metrics.Plotter("IRC to Minecraft") {
+                @Override
+                public int getValue() {
+                    int r = mLRTM;
+                    mLRTM = 0;
+                    return r;
+                }
+            });
+            
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors
         }
     }
+    int mLRTI = 0; // metrics: lines relayed to irc
+    int mLRTM = 0; // metrics: lines relayed to minecraft
 }

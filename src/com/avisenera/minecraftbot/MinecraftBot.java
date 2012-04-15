@@ -71,6 +71,9 @@ public class MinecraftBot extends JavaPlugin {
                     p.sendMessage(Formatting.GRAY + message);
     }
     
+    // Several metrics methods
+    LinesRelayedCount lrc = new LinesRelayedCount();
+    
     private void startMetrics() {
         try {
             Metrics metrics = new Metrics(this);
@@ -83,6 +86,9 @@ public class MinecraftBot extends JavaPlugin {
                 }
             });
             
+            // Get stats on how often LineSender is being used ("Lines Relayed" count)
+            metrics.addCustomData(lrc);
+            
             // Get stats on all available hooks and their usage
             Metrics.Graph ghooks = metrics.createGraph("Hooks used");
             for (final String hook : Hook.available_hooks) {
@@ -94,30 +100,31 @@ public class MinecraftBot extends JavaPlugin {
                 });
             }
             
-            // Get stats on how often LineSender is being used
-            Metrics.Graph gactivity = metrics.createGraph("Lines relayed");
-            gactivity.addPlotter(new Metrics.Plotter("Minecraft to IRC") {
-                @Override
-                public int getValue() {
-                    int r = mLRTI;
-                    mLRTI = 0;
-                    return r;
-                }
-            });
-            gactivity.addPlotter(new Metrics.Plotter("IRC to Minecraft") {
-                @Override
-                public int getValue() {
-                    int r = mLRTM;
-                    mLRTM = 0;
-                    return r;
-                }
-            });
-            
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors
         }
     }
-    int mLRTI = 0; // metrics: lines relayed to irc
-    int mLRTM = 0; // metrics: lines relayed to minecraft
+    
+    class LinesRelayedCount extends Metrics.Plotter {
+        public LinesRelayedCount() {
+            super("Lines Relayed");
+            this.count = 0;
+        }
+        private int count;
+        
+        @Override
+        public int getValue() {
+            return this.count;
+        }
+        
+        @Override
+        public void reset() {
+            this.count = 0;
+        }
+        
+        public void increment() {
+            this.count++;
+        }
+    }
 }

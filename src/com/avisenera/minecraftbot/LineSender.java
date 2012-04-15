@@ -42,7 +42,7 @@ public class LineSender {
         msg = Formatting.toIRC(msg);
         if (isAction) bot.sendAction(msg);
         else bot.sendMessage(msg);
-        plugin.mLRTI++;
+        plugin.lrc.increment();
     }
     
     /**
@@ -69,6 +69,6 @@ public class LineSender {
     private void toMinecraft(String msg) {
         msg = Formatting.toMC(msg);
         plugin.getServer().broadcastMessage(Formatting.toMC(msg));
-        plugin.mLRTM++;
+        plugin.lrc.increment();
     }
 }

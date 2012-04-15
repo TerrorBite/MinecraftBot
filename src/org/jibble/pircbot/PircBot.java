@@ -125,7 +125,8 @@ public abstract class PircBot implements ReplyConstants {
             throw new IOException("The PircBot is already connected to an IRC server.  Disconnect first.");
         }
         
-        // Don't clear the outqueue - there might be something important in it!
+        // MinecraftBot: Clearing the outqueue in case it may be full of old messages
+        _outQueue.clear();
         
         // Clear everything we may have know about channels.
         this.removeAllChannels();

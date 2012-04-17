@@ -49,6 +49,16 @@ public class IRCListener extends PircBot implements Runnable {
         
         this.config = config;
         
+        int delay;
+        try {
+            delay = Integer.parseInt(config.connection(Keys.connection.bot_message_delay));
+            if (delay < 0) delay = 1000;
+        } catch (NumberFormatException e) {
+            delay = 1000;
+        }
+        
+        this.setMessageDelay(delay);
+        
         // Initializing some other things
         this.setLogin(c_nick);
         this.setAutoNickChange(true);

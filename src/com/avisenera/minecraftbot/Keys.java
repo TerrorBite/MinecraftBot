@@ -8,7 +8,8 @@ public class Keys {
     private Keys() {}
     
     public enum connection {
-        server, server_password, server_port, retries, channel, channel_key, nick, nick_password
+        server, server_password, server_port, retries, channel, channel_key, nick, nick_password,
+        bot_message_delay
     }
     
     public enum settings {

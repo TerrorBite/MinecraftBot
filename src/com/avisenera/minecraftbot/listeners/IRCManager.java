@@ -1,0 +1,234 @@
+package com.avisenera.minecraftbot.listeners;
+
+import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MinecraftBot;
+import com.sorcix.sirc.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+
+/**
+ * Manages the connection to the IRC server. 
+ */
+public class IRCManager implements Runnable {
+    private MinecraftBot plugin;
+    
+    private IrcConnection server;
+    private IRCListener listener;
+    
+    // Only listeners in this package should have access to server and channel
+    IrcConnection getServer() { return server; }
+    Channel getChannel() {
+        // An annoying thing about sIRC - after joining a channel, we need to get the channel object again.
+        // The one used to join the channel doesn't update as soon as it's actually joined.
+        // This returns the object if it already exists, or else it creates a new one.
+        Iterator<Channel> chs = server.getChannels();
+        while (chs.hasNext()) {
+            Channel c = chs.next();
+            if (c.getName().equalsIgnoreCase(plugin.config.connection(Keys.connection.channel))) {
+                return c;
+            }
+        }
+        
+        return server.createChannel(plugin.config.connection(Keys.connection.channel));
+    }
+    
+    public IRCManager(MinecraftBot instance) {
+        this.plugin = instance;
+        this.listener = new IRCListener(instance, this);
+        server = new IrcConnection();
+        server.setCharset(Charset.forName("UTF-8"));
+        server.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
+                " - https://github.com/Rafa652/MinecraftBot");
+        
+        server.addMessageListener(listener);
+        server.addServerListener(listener);
+    }
+    
+    /**
+     * Begins attempting to connect to the server, if it isn't already connected.
+     */
+    public synchronized void connect() {
+        if (server.isConnected()) {
+            plugin.log(0, "Attempted to connect to IRC while already connected.");
+            plugin.log(0, "To force reconnecting, reload the plugin.");
+        }
+        else plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this);
+    }
+    
+    /**
+     * Quits the IRC server.
+     * @param message The message to use when quitting the server
+     */
+    public void disconnect(String message) {
+        listener.autoreconnect = false;
+        server.disconnect(message);
+    }
+    
+    private boolean busyconnecting = false;
+    @Override
+    public void run() {
+        if (busyconnecting) return;
+        
+        busyconnecting = true;
+        start();
+        busyconnecting = false;
+    }
+    
+    /**
+     * Begins the connection to IRC. This method should never be called directly. Use run() instead.
+     */
+    private synchronized void start() {
+        // IrcServer doesn't expect an empty string but does expect null
+        String serverpass = plugin.config.connection(Keys.connection.server_password);
+        if (serverpass.isEmpty()) serverpass = null;
+        IrcServer connection = new IrcServer(
+                plugin.config.connection(Keys.connection.server),
+                Integer.parseInt(plugin.config.connection(Keys.connection.server_port)),
+                serverpass,
+                plugin.config.connection(Keys.connection.use_ssl).equalsIgnoreCase("true"));
+        
+        start(connection, plugin.config.connection(Keys.connection.nick), 1,
+                Integer.parseInt(plugin.config.connection(Keys.connection.retries)));
+    }
+    
+    /**
+     * Attempts to connect to the IRC server.
+     * @param connection IrcConnection object containing all the connection details
+     * @param nick The nick to connect with
+     * @param current The connect attempt number
+     * @param maxtries The max number of connect attempts
+     */
+    private void start(IrcServer connection, String nick, int current, int maxtries) {
+        if (current > maxtries) {
+            plugin.log(2, "Exceeded number of reconnect attempts. Failed to connect to IRC.");
+            return;
+        } else if (current > 1) { // Wait 5 seconds before another attempt
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {}
+        } else {
+            // Set up server
+            server.setServer(connection);
+            server.setNick(nick);
+        }
+        
+        plugin.log(0, "Connecting to " + connection.getAddress() + "... (Attempt " + current + ")");
+        
+        try {
+            server.connect();
+        } catch (UnknownHostException ex) {
+            plugin.log(1, "Failed to connect: Unable to find server.");
+            start(connection, nick, (current + 1), maxtries);
+        } catch (IOException ex) {
+            plugin.log(1, "Failed to connect: " + ex.getMessage());
+            start(connection, nick, (current + 1), maxtries);
+        } catch (NickNameException ex) {
+            plugin.log(1, "Failed to connect: Nick is not available. Connecting using a different nick.");
+            start(connection, nick + "_", (current + 1), maxtries);
+        }
+        // Listener's onConnect() takes over from here
+    }
+    
+// Other methods
+    public int usercount() {
+        try {
+            int count = 0;
+            Iterator users = getChannel().getUsers();
+            while (users.hasNext()) {
+                users.next();
+                count++;
+            }
+            return count;
+        } catch (NullPointerException ex) {
+            return 0;
+        }
+    }
+    
+// Methods used by commands
+    /**
+     * Gets the list of all users in the channel.
+     * @return Formatted list of users to display to the player
+     */
+    public String userlist() {
+        int count = 0;
+        String list = getChannel().getName() + ": ";
+        try {
+            Iterator<User> users = getChannel().getUsers();
+            
+            while (users.hasNext()) {
+                User user = users.next();
+                list += user.getPrefix() + user.getNick() + " ";
+                count++;
+                if (count >= 30) {
+                    list += "and " + (usercount() - 30) + " other(s). Join the channel to see the entire list.";
+                }
+            }
+        } catch (NullPointerException ex) {
+            list += "An error occured when getting the user list.";
+        }
+        
+        return list;
+    }
+    
+    public String getNick() {
+        return server.getClient().getNick();
+    }
+    
+    public void joinChannel() {
+        String ckey = plugin.config.connection(Keys.connection.channel_key);
+        Channel ch = server.createChannel(plugin.config.connection(Keys.connection.channel));
+        if (ckey.isEmpty()) ch.join();
+        else ch.join(ckey);
+    }
+    public void partChannel() {
+        getChannel().part();
+    }
+    
+    public void op(String nick) {
+        getChannel().setMode("+o " + nick);
+    }
+    public void deop(String nick) {
+        getChannel().setMode("-o " + nick);
+    }
+    public void voice(String nick) {
+        getChannel().setMode("+v " + nick);
+    }
+    public void devoice(String nick) {
+        getChannel().setMode("-v " + nick);
+    }
+    public void kick(String nick, String reason) {
+        try {
+            getChannel().kick(getUser(nick), reason);
+        } catch (NullPointerException ex) {}
+    }
+    public void ban(String nick) {
+        try {
+            getChannel().ban(getUser(nick), false);
+        } catch (NullPointerException ex) {}
+    }
+    public void unban(String hostmask) {
+        getChannel().setMode("-b " + hostmask);
+    }
+    
+    public void sendMessage(String message) {
+        getChannel().sendMessage(message);
+    }
+    public void sendAction(String message) {
+        getChannel().sendAction(message);
+    }
+    
+    private User getUser(String nick) {
+        // See comments for getChannel() - it applies to users too
+        // createUser(nick, channel) does not work
+        Iterator<User> u = getChannel().getUsers();
+        while (u.hasNext()) {
+            User us = u.next();
+            if (us.getNick().equalsIgnoreCase(nick)) {
+                return us;
+            }
+        }
+        return null;
+    }
+}

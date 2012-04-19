@@ -83,8 +83,9 @@ public interface ServerListener {
 	 * @param channel The channel in which the user was kicked.
 	 * @param sender The user who kicked the user.
 	 * @param user The user who was kicked.
+         * @param message (MinecraftBot) The kick message
 	 */
-	void onKick(IrcConnection irc, Channel channel, User sender, User user);
+	void onKick(IrcConnection irc, Channel channel, User sender, User user, String message);
 	
 	/**
 	 * Someone (possibly us) changed a channel mode.

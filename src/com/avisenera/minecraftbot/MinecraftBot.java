@@ -2,7 +2,7 @@ package com.avisenera.minecraftbot;
 
 import com.avisenera.minecraftbot.hooks.Hook;
 import com.avisenera.minecraftbot.listeners.CommandListener;
-import com.avisenera.minecraftbot.listeners.IRCListener;
+import com.avisenera.minecraftbot.listeners.IRCManager;
 import com.avisenera.minecraftbot.listeners.PlayerListener;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -12,8 +12,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class MinecraftBot extends JavaPlugin {
     private static final Logger logger = Logger.getLogger("Minecraft");
     
-    private Configuration config;
-    private IRCListener ircListener;
+    public Configuration config;
+    private IRCManager irc;
     private PlayerListener playerListener;
     private CommandListener commandListener;
     
@@ -25,10 +25,10 @@ public class MinecraftBot extends JavaPlugin {
 
         if (config.load()) { // If configuration properly loaded
             // Initialize everything
-            ircListener = new IRCListener(this, config);
+            irc = new IRCManager(this);
             playerListener = new PlayerListener(this);
-            commandListener = new CommandListener(this, config, ircListener);
-            send = new LineSender(this, config, ircListener);
+            commandListener = new CommandListener(this, irc);
+            send = new LineSender(this, irc);
             
             // Register everything
             getServer().getPluginManager().registerEvents(playerListener, this);
@@ -40,7 +40,7 @@ public class MinecraftBot extends JavaPlugin {
             startMetrics();
             
             // Start the bot
-            ircListener.connect();
+            irc.connect();
         } else {
             log(2, "Error loading the configuration. Reload the plugin to try again.");
             getServer().getPluginManager().disablePlugin(this);
@@ -49,12 +49,9 @@ public class MinecraftBot extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        if (ircListener != null) {
+        if (irc != null) {
             String qm = config.settingsS(Keys.settings.quit_message);
-            ircListener.autoreconnect = false;
-            ircListener.quitServer(qm);
-            try {ircListener.dispose();}
-            catch (Exception e) {/*Exception is thrown if the IRC threads haven't started*/}
+            irc.disconnect(qm);
         }
     }
     
@@ -82,7 +79,7 @@ public class MinecraftBot extends JavaPlugin {
             metrics.addCustomData(new Metrics.Plotter("IRC Users") {
                 @Override
                 public int getValue() {
-                    return ircListener.usercount();
+                    return irc.usercount();
                 }
             });
             

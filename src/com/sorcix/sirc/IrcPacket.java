@@ -81,7 +81,7 @@ public final class IrcPacket {
 	 *            The IrcConnection used to send messages.
 	 */
 	protected IrcPacket(String line, final IrcConnection irc) {
-		line = IrcColors.remove(line);
+		// line = IrcColors.remove(line); Disabled for MinecraftBot
 		final int locLineStart = line.indexOf(':') + 1;
 		int locCommand;
 		// some messages don't have a prefix

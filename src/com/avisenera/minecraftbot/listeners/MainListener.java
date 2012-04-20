@@ -1,6 +1,8 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MBListener;
+import com.avisenera.minecraftbot.MetricsLineCount;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.MCMessage;
 import org.bukkit.event.EventHandler;
@@ -10,11 +12,34 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
 
-public class PlayerListener implements Listener {
+/**
+ * This class is the main purpose of this plugin.
+ * It relays messages between IRC and Minecraft using the simple API provided by this plugin.
+ */
+public class MainListener extends MBListener implements Listener {
     private MinecraftBot plugin;
+    private MetricsLineCount metrics;
     
-    public PlayerListener(MinecraftBot instance) {
+    public MainListener(MinecraftBot instance, MetricsLineCount mlc) {
         plugin = instance;
+        metrics = mlc;
+    }
+
+    @Override
+    public void onMessage(String line) {
+        plugin.getServer().broadcastMessage(line);
+    }
+    
+    /**
+     * Prepares to send a line to IRC.
+     * @param format The formatting to use
+     * @param message The message object containing the format data
+     */
+    private void send(Keys.line_to_irc format, MCMessage message) {
+        String line = plugin.getFormatter().toIRC(format, message);
+        if (line == null) return;
+        this.sendToIRC(line, false);
+        metrics.increment();
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -24,7 +49,7 @@ public class PlayerListener implements Listener {
         if(check.startsWith("say ")) {
             MCMessage msg = new MCMessage();
             msg.message = event.getCommand().split("\\s+", 2)[1];
-            plugin.send.toIRC(Keys.line_to_irc.server, msg);
+            send(Keys.line_to_irc.server, msg);
         }
         
         // Plugins like Essentials and CommandBook have a "broadcast"
@@ -32,7 +57,7 @@ public class PlayerListener implements Listener {
         else if(check.startsWith("broadcast ")) {
             MCMessage msg = new MCMessage();
             msg.message = event.getCommand().split("\\s+", 2)[1];
-            plugin.send.toIRC(Keys.line_to_irc.server, msg);
+            send(Keys.line_to_irc.server, msg);
         }
     }
     
@@ -45,7 +70,7 @@ public class PlayerListener implements Listener {
                 msg.player = event.getPlayer();
                 msg.name = event.getPlayer().getDisplayName();
                 msg.message = event.getMessage().substring(4); // cuts off space after /me
-                plugin.send.toIRC(Keys.line_to_irc.action, msg);
+                send(Keys.line_to_irc.action, msg);
             }
             catch (IndexOutOfBoundsException e) {
                 // ignore blank messages
@@ -60,7 +85,7 @@ public class PlayerListener implements Listener {
         msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
         msg.message = event.getMessage();
-        plugin.send.toIRC(Keys.line_to_irc.chat, msg);
+        send(Keys.line_to_irc.chat, msg);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -68,7 +93,7 @@ public class PlayerListener implements Listener {
         MCMessage msg = new MCMessage();
         msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
-        plugin.send.toIRC(Keys.line_to_irc.join, msg);
+        send(Keys.line_to_irc.join, msg);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -76,7 +101,7 @@ public class PlayerListener implements Listener {
         MCMessage msg = new MCMessage();
         msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();
-        plugin.send.toIRC(Keys.line_to_irc.leave, msg);
+        send(Keys.line_to_irc.leave, msg);
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -86,7 +111,7 @@ public class PlayerListener implements Listener {
         msg.name = event.getPlayer().getDisplayName();
         msg.reason = event.getReason();
         
-        plugin.send.toIRC(Keys.line_to_irc.kick, msg);
+        send(Keys.line_to_irc.kick, msg);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -98,6 +123,6 @@ public class PlayerListener implements Listener {
         MCMessage msg = new MCMessage();
         msg.player = event.getEntity();
         msg.message = dm;
-        plugin.send.toIRC(Keys.line_to_irc.death, msg);
+        send(Keys.line_to_irc.death, msg);
     }
 }

@@ -1,20 +1,24 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import com.sorcix.sirc.Channel;
 import com.sorcix.sirc.IrcAdaptor;
 import com.sorcix.sirc.IrcConnection;
 import com.sorcix.sirc.User;
+import java.util.ArrayList;
 import org.bukkit.entity.Player;
 
 public class IRCListener extends IrcAdaptor {
     private MinecraftBot plugin;
     private IRCManager manager;
-    IRCListener(MinecraftBot instance, IRCManager irc) {
+    private ArrayList<MBListener> extListeners;
+    IRCListener(MinecraftBot instance, IRCManager irc, ArrayList<MBListener> listeners) {
         plugin = instance;
         manager = irc;
+        extListeners = listeners;
     }
     
     // Server-related handlers
@@ -74,7 +78,7 @@ public class IRCListener extends IrcAdaptor {
         msg.name = sender.getNick();
         msg.message = message;
         
-        plugin.send.toMinecraft(Keys.line_to_minecraft.chat, msg);
+        send(Keys.line_to_minecraft.chat, msg);
     }
     
     @Override
@@ -84,7 +88,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.name = sender.getNick();
         msg.message = action;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+        send(Keys.line_to_minecraft.action, msg);
     }
 
     
@@ -96,7 +100,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
         msg.channel = channel.getName();
-        plugin.send.toMinecraft(Keys.line_to_minecraft.join, msg);
+        send(Keys.line_to_minecraft.join, msg);
     }
 
     @Override
@@ -109,7 +113,7 @@ public class IRCListener extends IrcAdaptor {
         if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
         else msg.channel = channel.getName();
         if (message != null) msg.reason = message;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.part, msg);
+        send(Keys.line_to_minecraft.part, msg);
     }
     
     @Override
@@ -117,7 +121,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
         msg.reason = message;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.quit, msg);
+        send(Keys.line_to_minecraft.quit, msg);
     }
     
     @Override
@@ -128,7 +132,7 @@ public class IRCListener extends IrcAdaptor {
         msg.kicker = sender.getNick();
         msg.name = user.getNick();
         msg.reason = message;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.kick, msg);
+        send(Keys.line_to_minecraft.kick, msg);
     }
     
     @Override
@@ -136,7 +140,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.oldname = oldUser.getNick();
         msg.name = newUser.getNick();
-        plugin.send.toMinecraft(Keys.line_to_minecraft.nick_change, msg);
+        send(Keys.line_to_minecraft.nick_change, msg);
     }
 
     @Override
@@ -146,7 +150,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.name = sender.getNick();
         msg.mode = mode;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.mode_change, msg);
+        send(Keys.line_to_minecraft.mode_change, msg);
     }
     
     @Override
@@ -157,7 +161,7 @@ public class IRCListener extends IrcAdaptor {
         IRCMessage msg = new IRCMessage();
         msg.name = sender.getNick();
         msg.topic = topic;
-        plugin.send.toMinecraft(Keys.line_to_minecraft.topic_change, msg);
+        send(Keys.line_to_minecraft.topic_change, msg);
     }
 
     
@@ -182,12 +186,24 @@ public class IRCListener extends IrcAdaptor {
                 IRCMessage msg = new IRCMessage();
                 msg.name += sender.getNick();
                 msg.message = "asked for the player list";
-                plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+                send(Keys.line_to_minecraft.action, msg);
             }
             
             return true;
         }
         
         return false;
+    }
+    
+    /**
+     * Passes an IRC message to the listeners.
+     * @param format The formatting string the message should use
+     * @param message The message object that contains formatting values
+     */
+    void send(Keys.line_to_minecraft format, IRCMessage message) {
+        String send = plugin.getFormatter().toMinecraft(format, message);
+        for (MBListener l : extListeners) {
+            l.onMessage(send);
+        }
     }
 }

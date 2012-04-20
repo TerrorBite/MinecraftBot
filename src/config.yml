@@ -37,9 +37,9 @@ connection:
   nick_password: ''
   
   #bot_message_delay: The amount of time (in milliseconds) the bot should wait between sending messages.
-  #500 milliseconds (0.5 seconds) should be good enough, but for servers with strict flood control you may
-  #want to increase it. If there is a lot of chat in your server, you may want to decrease it.
-  bot_message_delay: 500
+  #1000 milliseconds (1 second) should be good enough, but for servers with strict flood control you may
+  #want to increase it.
+  bot_message_delay: 1000
   
 settings:
 #Other options

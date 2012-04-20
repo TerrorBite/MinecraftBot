@@ -1,5 +1,6 @@
 package com.avisenera.minecraftbot.message;
 
+import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.hooks.Hook;
 
@@ -55,6 +56,13 @@ public class Message {
         fullmessage = Hook.getVariable(p, fullmessage, msg);
         
         // Turn special characters back into ampersands
-        return fullmessage.replaceAll(ampersand, "&");
+        fullmessage = fullmessage.replaceAll(ampersand, "&");
+        
+        // Translate formatting codes
+        if (msg instanceof IRCMessage) {
+            return Formatting.toMC(fullmessage);
+        } else {
+            return Formatting.toIRC(fullmessage);
+        }
     }
 }

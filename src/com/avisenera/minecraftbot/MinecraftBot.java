@@ -3,8 +3,9 @@ package com.avisenera.minecraftbot;
 import com.avisenera.minecraftbot.hooks.Hook;
 import com.avisenera.minecraftbot.listeners.CommandListener;
 import com.avisenera.minecraftbot.listeners.IRCManager;
-import com.avisenera.minecraftbot.listeners.PlayerListener;
+import com.avisenera.minecraftbot.listeners.MainListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,10 +15,12 @@ public class MinecraftBot extends JavaPlugin {
     
     public Configuration config;
     private IRCManager irc;
-    private PlayerListener playerListener;
+    private MainListener playerListener;
     private CommandListener commandListener;
     
-    public LineSender send;
+    private MessageFormatter format;
+    
+    private ArrayList<MBListener> extListeners = new ArrayList<MBListener>();
     
     @Override
     public void onEnable() {
@@ -25,10 +28,10 @@ public class MinecraftBot extends JavaPlugin {
 
         if (config.load()) { // If configuration properly loaded
             // Initialize everything
-            irc = new IRCManager(this);
-            playerListener = new PlayerListener(this);
+            irc = new IRCManager(this, extListeners);
+            playerListener = new MainListener(this, mlc);
             commandListener = new CommandListener(this, irc);
-            send = new LineSender(this, irc);
+            format = new MessageFormatter(this);
             
             // Register everything
             getServer().getPluginManager().registerEvents(playerListener, this);
@@ -36,6 +39,7 @@ public class MinecraftBot extends JavaPlugin {
             getCommand("names").setExecutor(commandListener);
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
+            this.registerListener(playerListener);
             
             startMetrics();
             
@@ -68,9 +72,33 @@ public class MinecraftBot extends JavaPlugin {
                     p.sendMessage(Formatting.GRAY + message);
     }
     
-    // Several metrics methods
-    LinesRelayedCount lrc = new LinesRelayedCount();
+    /**
+     * Returns the message formatter.
+     */
+    public MessageFormatter getFormatter() {
+        return format;
+    }
     
+    /**
+     * Registers a listener. By registering the listener, it will be able to send and receive IRC messages.
+     * @param listener The listener object to register
+     */
+    public void registerListener(MBListener listener) {
+        if (!extListeners.contains(listener)) {
+            listener.initialize(this, irc);
+            extListeners.add(listener);
+        }
+    }
+    /**
+     * Removes a listener. They will no longer receive IRC messages.
+     * @param listener The listener object to remove
+     */
+    public void removeListener(MBListener listener) {
+        extListeners.remove(listener);
+    }
+    
+    // Metrics
+    MetricsLineCount mlc = new MetricsLineCount();
     private void startMetrics() {
         try {
             Metrics metrics = new Metrics(this);
@@ -84,7 +112,7 @@ public class MinecraftBot extends JavaPlugin {
             });
             
             // Get stats on how often LineSender is being used ("Lines Relayed" count)
-            metrics.addCustomData(lrc);
+            metrics.addCustomData(mlc);
             
             // Get stats on all available hooks and their usage
             Metrics.Graph ghooks = metrics.createGraph("Hooks used");
@@ -100,28 +128,6 @@ public class MinecraftBot extends JavaPlugin {
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors
-        }
-    }
-    
-    class LinesRelayedCount extends Metrics.Plotter {
-        public LinesRelayedCount() {
-            super("Lines Relayed");
-            this.count = 0;
-        }
-        private int count;
-        
-        @Override
-        public int getValue() {
-            return this.count;
-        }
-        
-        @Override
-        public void reset() {
-            this.count = 0;
-        }
-        
-        public void increment() {
-            this.count++;
         }
     }
 }

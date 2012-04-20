@@ -1,11 +1,14 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
+import com.avisenera.minecraftbot.message.IRCMessage;
 import com.sorcix.sirc.*;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
 
@@ -36,9 +39,9 @@ public class IRCManager implements Runnable {
         return server.createChannel(config.get(Keys.connection.channel));
     }
     
-    public IRCManager(MinecraftBot instance) {
+    public IRCManager(MinecraftBot instance, ArrayList<MBListener> listeners) {
         this.plugin = instance;
-        this.listener = new IRCListener(instance, this);
+        this.listener = new IRCListener(instance, this, listeners);
         server = new IrcConnection();
         server.setCharset(Charset.forName("UTF-8"));
         server.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
@@ -222,6 +225,16 @@ public class IRCManager implements Runnable {
     }
     public void sendAction(String message) {
         getChannel().sendAction(message);
+    }
+    
+    /**
+     * Sends a message to IRC and to the listeners.
+     */
+    public void sendMessage(Keys.line_to_minecraft format, IRCMessage message) {
+        listener.send(format, message);
+        
+        if (format != Keys.line_to_minecraft.action) sendMessage(message.message);
+        else sendAction(message.message);
     }
     
     private User getUser(String nick) {

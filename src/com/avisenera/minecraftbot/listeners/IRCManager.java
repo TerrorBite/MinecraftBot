@@ -6,6 +6,7 @@ import com.sorcix.sirc.*;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.util.EnumMap;
 import java.util.Iterator;
 
 /**
@@ -16,6 +17,7 @@ public class IRCManager implements Runnable {
     
     private IrcConnection server;
     private IRCListener listener;
+    EnumMap<Keys.connection, String> config;
     
     // Only listeners in this package should have access to server and channel
     IrcConnection getServer() { return server; }
@@ -26,12 +28,12 @@ public class IRCManager implements Runnable {
         Iterator<Channel> chs = server.getChannels();
         while (chs.hasNext()) {
             Channel c = chs.next();
-            if (c.getName().equalsIgnoreCase(plugin.config.connection(Keys.connection.channel))) {
+            if (c.getName().equalsIgnoreCase(config.get(Keys.connection.channel))) {
                 return c;
             }
         }
         
-        return server.createChannel(plugin.config.connection(Keys.connection.channel));
+        return server.createChannel(config.get(Keys.connection.channel));
     }
     
     public IRCManager(MinecraftBot instance) {
@@ -80,17 +82,20 @@ public class IRCManager implements Runnable {
      * Begins the connection to IRC. This method should never be called directly. Use run() instead.
      */
     private synchronized void start() {
+        // Get current config
+        config = plugin.config.connection();
+        
         // IrcServer doesn't expect an empty string but does expect null
-        String serverpass = plugin.config.connection(Keys.connection.server_password);
+        String serverpass = config.get(Keys.connection.server_password);
         if (serverpass.isEmpty()) serverpass = null;
         IrcServer connection = new IrcServer(
-                plugin.config.connection(Keys.connection.server),
-                Integer.parseInt(plugin.config.connection(Keys.connection.server_port)),
+                config.get(Keys.connection.server),
+                Integer.parseInt(config.get(Keys.connection.server_port)),
                 serverpass,
-                plugin.config.connection(Keys.connection.use_ssl).equalsIgnoreCase("true"));
+                config.get(Keys.connection.use_ssl).equalsIgnoreCase("true"));
         
-        start(connection, plugin.config.connection(Keys.connection.nick), 1,
-                Integer.parseInt(plugin.config.connection(Keys.connection.retries)));
+        start(connection, config.get(Keys.connection.nick), 1,
+                Integer.parseInt(config.get(Keys.connection.retries)));
     }
     
     /**
@@ -177,8 +182,8 @@ public class IRCManager implements Runnable {
     }
     
     public void joinChannel() {
-        String ckey = plugin.config.connection(Keys.connection.channel_key);
-        Channel ch = server.createChannel(plugin.config.connection(Keys.connection.channel));
+        String ckey = config.get(Keys.connection.channel_key);
+        Channel ch = server.createChannel(config.get(Keys.connection.channel));
         if (ckey.isEmpty()) ch.join();
         else ch.join(ckey);
     }

@@ -27,8 +27,8 @@ public class IRCListener extends IrcAdaptor {
         
         // Check for any nick issues
         String currentnick = server.getClient().getNick();
-        String desirednick = plugin.config.connection(Keys.connection.nick);
-        String nickpass = plugin.config.connection(Keys.connection.nick_password);
+        String desirednick = manager.config.get(Keys.connection.nick);
+        String nickpass = manager.config.get(Keys.connection.nick_password);
         if (currentnick.equals(desirednick)) { // All good; Must authenticate
             if (!nickpass.isEmpty())
                 server.createUser("NickServ").send("IDENTIFY " + nickpass);
@@ -106,7 +106,7 @@ public class IRCListener extends IrcAdaptor {
         
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
-        if (channel == null) msg.channel = plugin.config.connection(Keys.connection.channel);
+        if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
         else msg.channel = channel.getName();
         if (message != null) msg.reason = message;
         plugin.send.toMinecraft(Keys.line_to_minecraft.part, msg);

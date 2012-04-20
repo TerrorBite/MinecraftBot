@@ -105,6 +105,13 @@ public class Configuration {
     }
     
     /**
+     * Returns the Map containing all the configuration options under connection.
+     */
+    public EnumMap<Keys.connection, String> connection() {
+        return connection.clone();
+    }
+    
+    /**
      * Returns the given connection value in the configuration file.
      * @param value Equivalent to config.getString("connection.(value)")
      */

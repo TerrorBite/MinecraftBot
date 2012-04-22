@@ -1,6 +1,7 @@
 package com.avisenera.minecraftbot.listeners;
 
 import com.avisenera.minecraftbot.Configuration;
+import com.avisenera.minecraftbot.Formatting;
 import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
@@ -346,7 +347,7 @@ public class IRCListener extends PircBot implements Runnable {
             int n = p.length;
             o = "There " + (n==1?"is ":"are ") + n + " player" + (n==1?"":"s") + " connected" + (n==0?".":":");
             for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
-            sendMessage(o);
+            sendMessage(Formatting.toIRC(o));
             
             if (config.settingsB(Keys.settings.show_players_command)) {
                 // Notify Minecraft players that someone used this command

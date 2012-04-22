@@ -22,10 +22,10 @@ connection:
   use_ssl: false
   
   #retires: The amount of times to try connecting to the server. Default is 5. 0 or less will use default.
-  #Setting a very high number could result in unexpected behaviour when on an unstable connection.
+  #Setting a very high number could result in strange behaviour if on an unstable connection.
   retries: 5
   
-  #channel: The channel to join. Only one channel may be used.
+  #channel: Required. The channel to join. Only one channel may be used.
   channel: ''
   #channel_key: Optional. The key, sometimes called the channel password, required to join the channel.
   channel_key: ''

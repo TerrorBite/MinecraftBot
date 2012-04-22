@@ -754,7 +754,7 @@ public class IrcConnection {
 		if (!this.isConnected()) {
 			if (nick != null) {
 				if (this.state.getClient() == null) {
-					this.state.setClient(new User(nick, "sIRC", null, this));
+					this.state.setClient(new User(nick, "MinecraftBot", null, this));
 					return;
 				}
 				this.state.getClient().setNick(nick);

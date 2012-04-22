@@ -73,7 +73,7 @@ line_formatting:
     action: '* %name% %message%'
     join:   '&b* %name% has joined the game'
     leave:  '&b* %name% has left the game'
-    kick:   '&c* %name% has been kicked (&r%reason%&c)'
+    kick:   '&c* %name% has been kicked &r(%reason%&r)'
     # Due to the way death messages are worked with in Bukkit, the entire death message is represented
     # by %message%. The death message may be edited using another plugin. %name% is available to use here too.
     death:  '&c* %message%'
@@ -83,10 +83,9 @@ line_formatting:
     chat:   '#> <%name%> %message%'
     action: '#> * %name% %message%'
     join:   '#> &b* %name% has joined %channel%'
-    # At the moment, part reasons can't be displayed
-    part:   '#> &b* %name% has left %channel% (&r%reason%&b)'
-    quit:   '#> &b* %name% has quit IRC (&r%reason%&b)'
-    kick:   '#> &c* %kicker% has kicked %name% (&r%reason%&c)'
+    part:   '#> &b* %name% has left %channel% &r(%reason%&r)'
+    quit:   '#> &b* %name% has quit IRC &r(%reason%&r)'
+    kick:   '#> &c* %kicker% has kicked %name% &r(%reason%&r)'
     nick_change:  '#> &b* %oldname% is now known as %name%'
     mode_change:  '#> &b* %name% set mode: %mode%'
     topic_change: '#> &b* %name% changed the topic to: &r%topic%'

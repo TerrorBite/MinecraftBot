@@ -119,8 +119,9 @@ public class IRCManager implements Runnable {
         } else {
             // Set up server
             server.setServer(connection);
-            server.setNick(nick);
+            server.setMessageDelay(Integer.parseInt(config.get(Keys.connection.bot_message_delay)));
         }
+        server.setNick(nick);
         
         plugin.log(0, "Connecting to " + connection.getAddress() + "... (Attempt " + current + ")");
         
@@ -157,21 +158,20 @@ public class IRCManager implements Runnable {
 // Methods used by commands
     /**
      * Gets the list of all users in the channel.
-     * @return Formatted list of users to display to the player
+     * @return Formatted list of users to display to the player. 30 nicks maximum.
      */
     public String userlist() {
-        int count = 0;
-        String list = getChannel().getName() + ": ";
+        int totalnicks = usercount();
+        int displayed = (totalnicks>30?30:totalnicks);
+        String list = "Displaying "+displayed+" out of "+totalnicks+" nicks in "+getChannel().getName()+":";
         try {
             Iterator<User> users = getChannel().getUsers();
-            
+            int count = 1;
             while (users.hasNext()) {
+                if (count > 30) break;
                 User user = users.next();
-                list += user.getPrefix() + user.getNick() + " ";
+                list += " " + user.getNick();
                 count++;
-                if (count >= 30) {
-                    list += "and " + (usercount() - 30) + " other(s). Join the channel to see the entire list.";
-                }
             }
         } catch (NullPointerException ex) {
             list += "An error occured when getting the user list.";

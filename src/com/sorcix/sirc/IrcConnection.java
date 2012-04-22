@@ -276,7 +276,8 @@ public class IrcConnection {
 		// connect socket
 		SocketFactory sfact;
 		if (this.server.isSecure()) {
-			sfact = SSLSocketFactory.getDefault();
+                        // MinecraftBot: See NaiveTrustManager class
+			sfact = NaiveTrustManager.getSocketFactory();
 		} else {
 			sfact = SocketFactory.getDefault();
 		}

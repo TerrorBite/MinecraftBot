@@ -203,6 +203,7 @@ public class IRCListener extends IrcAdaptor {
      */
     void send(Keys.line_to_minecraft format, IRCMessage message) {
         String send = plugin.getFormatter().toMinecraft(format, message);
+        if (send == null) return; // Blank line - ignore
         for (MBListener l : extListeners) {
             l.onMessage(send);
         }

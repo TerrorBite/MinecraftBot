@@ -109,8 +109,10 @@ public class CommandListener implements CommandExecutor {
             if (args.length > 1) {
                 String reason = "";
                 for (int i=2;i<args.length;i++)
-                    reason += args[i] + " ";
-                irc.kick(args[1], reason);
+                    reason += " " + args[i];
+                // empty kick messages are not handled too well
+                if (reason.isEmpty()) irc.kick(args[1], args[1]);
+                else irc.kick(args[1], reason.substring(1));
             } else {
                 sender.sendMessage("/irc kick (nick) [reason] - Kicks the given nick on IRC");
             }
@@ -153,7 +155,8 @@ public class CommandListener implements CommandExecutor {
         else if (cmd.equals("disconnect")) {
             String quitmessage = "";
             for (int i=1;i<args.length;i++)
-                quitmessage += args[i] + " ";
+                quitmessage += " " + args[i];
+            if (!quitmessage.isEmpty()) quitmessage = quitmessage.substring(1);
             irc.disconnect(quitmessage);
             return true;
         }

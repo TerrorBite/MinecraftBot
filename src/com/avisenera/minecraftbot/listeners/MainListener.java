@@ -27,15 +27,13 @@ public class MainListener extends MBListener implements Listener {
 
     @Override
     public void onMessage(String line) {
+        // Received IRC message - sending it to the game
         plugin.getServer().broadcastMessage(line);
+        metrics.increment();
     }
     
-    /**
-     * Prepares to send a line to IRC.
-     * @param format The formatting to use
-     * @param message The message object containing the format data
-     */
     private void send(Keys.line_to_irc format, MCMessage message) {
+        // Sending MC event to IRC
         String line = plugin.getFormatter().toIRC(format, message);
         if (line == null) return;
         this.sendToIRC(line, false);

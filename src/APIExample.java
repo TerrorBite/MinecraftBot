@@ -7,16 +7,17 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /*
- * MinecraftBot has a very simple API which allows another plugin to be able to receive messages
- * from IRC and also to send messages to IRC. This is a very basic example on how to use it and it
- * may contain errors if it is actually used the way it is.
+ * This is an example that shows a plugin using this API.
  * 
- * While the API is simple, it should be enough to use data from IRC. Even MinecraftBot uses this
- * same API to do its main function of passing messages back and forth between IRC and Minecraft.
+ * The simple API in MinecraftBot allows another plugin to receive the same IRC message that are being
+ * sent to the game as well as allowing the plugin to send their own messages.
+ * 
+ * This API should be enough for other plugins to use. Even MinecraftBot uses this same system
+ * to do its main function of passing messages back and forth between IRC and Minecraft.
  */
 public class APIExample extends JavaPlugin implements Listener {
     
-    // The listener class must extend the MBListener class.
+    // The listener class must inherit from the MBListener class.
     // The MBListener class contains three methods: onMessage, sendToIRC and unregister.
     private class IRC extends MBListener {
         
@@ -55,6 +56,7 @@ public class APIExample extends JavaPlugin implements Listener {
     // The listener's sendToIRC method is public.
     // The first parameter is the line to send to IRC and the second controls whether to send it
     // as a regular message or as an action.
+    // Anything sent to IRC using this method will not show up in Minecraft's chat. Only in IRC.
     
     @EventHandler
     public void onBedEnter(PlayerBedEnterEvent e) {

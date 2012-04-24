@@ -100,7 +100,7 @@ public class IRCListener extends IrcAdaptor {
         
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
-        msg.channel = channel.getName();
+        if (channel != null) msg.channel = channel.getName();
         send(Keys.line_to_minecraft.join, msg);
     }
 

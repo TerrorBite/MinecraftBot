@@ -234,20 +234,4 @@ public class Configuration {
             plugin.log(2, "Could not find the default config.yml! Is it in the .jar?");
         }
     }
-    
-    /**
-     * Searches for the usage of certain variables.
-     * @param variable The variable name without the % signs around it
-     * @return 1 if the variable is being used somewhere in the configuration, 0 if not
-     */
-    public int metricsCountHooks(String variable) {
-        String searchfor = "%"+variable.toLowerCase()+"%";
-        
-        for (Keys.line_to_irc c : Keys.line_to_irc.values())
-            if (line_to_irc.get(c).contains(searchfor)) return 1;
-        for (Keys.line_to_minecraft c : Keys.line_to_minecraft.values())
-            if (line_to_minecraft.get(c).contains(searchfor)) return 1;
-        
-        return 0;
-    }
 }

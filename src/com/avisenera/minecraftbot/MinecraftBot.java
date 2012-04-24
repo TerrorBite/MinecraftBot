@@ -114,17 +114,6 @@ public class MinecraftBot extends JavaPlugin {
             // Get stats on how often LineSender is being used ("Lines Relayed" count)
             metrics.addCustomData(mlc);
             
-            // Get stats on all available hooks and their usage
-            Metrics.Graph ghooks = metrics.createGraph("Hooks used");
-            for (final String hook : Hook.available_hooks) {
-                ghooks.addPlotter(new Metrics.Plotter(hook) {
-                    @Override
-                    public int getValue() {
-                        return config.metricsCountHooks(hook);
-                    }
-                });
-            }
-            
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors

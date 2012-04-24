@@ -1,6 +1,5 @@
 package com.avisenera.minecraftbot.listeners;
 
-import com.avisenera.minecraftbot.Configuration;
 import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
@@ -10,12 +9,10 @@ import org.bukkit.command.CommandSender;
 
 public class CommandListener implements CommandExecutor {
     private MinecraftBot plugin;
-    private Configuration config;
-    private IRCListener bot;
-    public CommandListener(MinecraftBot instance, Configuration cfg, IRCListener irc) {
+    private IRCManager irc;
+    public CommandListener(MinecraftBot instance, IRCManager irc) {
         plugin = instance;
-        config = cfg;
-        bot = irc;
+        this.irc = irc;
     }
 
     @Override
@@ -27,7 +24,7 @@ public class CommandListener implements CommandExecutor {
         else if (command.equals("minecraftbot")) return minecraftbot(sender, args);
         
         else if (command.equals("n") || command.equals("names")) {
-            sender.sendMessage(bot.userlist());
+            sender.sendMessage(irc.userlist());
             return true;
         }
         return false;
@@ -45,13 +42,11 @@ public class CommandListener implements CommandExecutor {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
-                plugin.send.toIRC(fullmsg, false);
                 
-                // Need to send the same message to Minecraft chat
                 IRCMessage msg = new IRCMessage();
-                msg.name = bot.getNick();
+                msg.name = irc.getNick();
                 msg.message = fullmsg;
-                plugin.send.toMinecraft(Keys.line_to_minecraft.chat, msg);
+                irc.sendMessage(Keys.line_to_minecraft.chat, msg);
             } else {
                 sender.sendMessage("/irc say (message) - Sends a message directly to IRC");
             }
@@ -63,13 +58,11 @@ public class CommandListener implements CommandExecutor {
                 String fullmsg = "";
                 for (int i=1;i<args.length;i++)
                     fullmsg += args[i] + " ";
-                plugin.send.toIRC(fullmsg, true);
                 
-                // Need to send the same message to Minecraft chat
                 IRCMessage msg = new IRCMessage();
-                msg.name = bot.getNick();
+                msg.name = irc.getNick();
                 msg.message = fullmsg;
-                plugin.send.toMinecraft(Keys.line_to_minecraft.action, msg);
+                irc.sendMessage(Keys.line_to_minecraft.action, msg);
             } else {
                 sender.sendMessage("/irc do (action) - Sends an action directly to IRC");
             }
@@ -78,7 +71,7 @@ public class CommandListener implements CommandExecutor {
         
         else if (cmd.equals("op")) {
             if (args.length == 2) {
-                bot.op(args[1]);
+                irc.op(args[1]);
             } else {
                 sender.sendMessage("/irc op (nick) - Sets mode +o to the given nick");
             }
@@ -87,7 +80,7 @@ public class CommandListener implements CommandExecutor {
         
         else if (cmd.equals("deop")) {
             if (args.length == 2) {
-                bot.deOp(args[1]);
+                irc.deop(args[1]);
             } else {
                 sender.sendMessage("/irc deop (nick) - Sets mode -o to the given nick");
             }
@@ -96,7 +89,7 @@ public class CommandListener implements CommandExecutor {
         
         else if (cmd.equals("voice")) {
             if (args.length == 2) {
-                bot.voice(args[1]);
+                irc.voice(args[1]);
             } else {
                 sender.sendMessage("/irc voice (nick) - Sets mode +v to the given nick");
             }
@@ -105,7 +98,7 @@ public class CommandListener implements CommandExecutor {
         
         else if (cmd.equals("devoice")) {
             if (args.length == 2) {
-                bot.deVoice(args[1]);
+                irc.devoice(args[1]);
             } else {
                 sender.sendMessage("/irc devoice (nick) - Sets mode -v to the given nick");
             }
@@ -116,10 +109,30 @@ public class CommandListener implements CommandExecutor {
             if (args.length > 1) {
                 String reason = "";
                 for (int i=2;i<args.length;i++)
-                    reason += args[i] + " ";
-                bot.doKick(args[1], reason);
+                    reason += " " + args[i];
+                // empty kick messages are not handled too well
+                if (reason.isEmpty()) irc.kick(args[1], args[1]);
+                else irc.kick(args[1], reason.substring(1));
             } else {
                 sender.sendMessage("/irc kick (nick) [reason] - Kicks the given nick on IRC");
+            }
+            return true;
+        }
+        
+        else if (cmd.equals("ban")) {
+            if (args.length == 2) {
+                irc.ban(args[1]);
+            } else {
+                sender.sendMessage("/irc ban (nick) - Bans the given nick from the IRC channel.");
+            }
+            return true;
+        }
+        
+        else if (cmd.equals("unban")) {
+            if (args.length == 2) {
+                irc.unban(args[1]);
+            } else {
+                sender.sendMessage("/irc unban (hostmask) - Removes the given hostmask from the banlist.");
             }
             return true;
         }
@@ -135,31 +148,31 @@ public class CommandListener implements CommandExecutor {
         String cmd = args[0].toLowerCase();
         
         if (cmd.equals("connect")) {
-            bot.connect();
+            irc.connect();
             return true;
         }
         
         else if (cmd.equals("disconnect")) {
             String quitmessage = "";
             for (int i=1;i<args.length;i++)
-                quitmessage += args[i] + " ";
-            bot.autoreconnect = false;
-            bot.quitServer(quitmessage);
+                quitmessage += " " + args[i];
+            if (!quitmessage.isEmpty()) quitmessage = quitmessage.substring(1);
+            irc.disconnect(quitmessage);
             return true;
         }
         
         else if (cmd.equals("join")) {
-            bot.joinChannel();
+            irc.joinChannel();
             return true;
         }
         
         else if (cmd.equals("part")) {
-            bot.partChannel();
+            irc.partChannel();
             return true;
         }
         
         else if (cmd.equals("reload")) {
-            config.load();
+            plugin.config.load();
             return true;
         }
         

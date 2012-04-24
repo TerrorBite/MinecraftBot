@@ -1,7 +1,6 @@
 package com.avisenera.minecraftbot;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.EnumMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -56,38 +55,54 @@ public class Configuration {
         
         boolean accepted = true;
         
-        if (!valid) { // First time loading the config - must check for required values
-            // Checking for all required values
-            String scheck;
-            // Server name
-            scheck = new_c.get(Keys.connection.server);
-            if (scheck == null || scheck.isEmpty()) {
-                plugin.log(2, "The server to connect to is not defined.");
-                accepted = false;
-            }
-            // Server port
-            scheck = new_c.get(Keys.connection.server_port);
-            try {
-                int icheck = Integer.parseInt(scheck);
-                if (icheck > 65535 || icheck < 1) {
-                    plugin.log(2, "An invalid port number was defined in the configuration file.");
-                    accepted = false;
-                }
-            } catch (NumberFormatException e) {
+        // Checking for all required values #########################
+        String scheck;
+        // Server name
+        scheck = new_c.get(Keys.connection.server);
+        if (scheck == null || scheck.isEmpty()) {
+            plugin.log(2, "The server to connect to is not defined.");
+            accepted = false;
+        }
+        // Server port
+        scheck = new_c.get(Keys.connection.server_port);
+        try {
+            int icheck = Integer.parseInt(scheck);
+            if (icheck > 65535 || icheck < 1) {
                 plugin.log(2, "An invalid port number was defined in the configuration file.");
                 accepted = false;
             }
-            // Channel name
-            scheck = new_c.get(Keys.connection.channel);
-            if (scheck == null || scheck.isEmpty()) {
-                plugin.log(2, "A channel was not defined in the configuration file.");
-                accepted = false;
-            }
-            // Fix channel name
-            if (!scheck.startsWith("#")) {
-                scheck = "#" + scheck;
-                new_c.put(Keys.connection.channel, scheck);
-            }
+        } catch (NumberFormatException e) {
+            plugin.log(2, "An invalid port number was defined in the configuration file.");
+            accepted = false;
+        }
+        // Channel name
+        scheck = new_c.get(Keys.connection.channel);
+        if (scheck == null || scheck.isEmpty()) {
+            plugin.log(2, "A channel was not defined in the configuration file.");
+            accepted = false;
+        }
+        // Fix channel name
+        if (!scheck.startsWith("#")) {
+            scheck = "#" + scheck;
+            new_c.put(Keys.connection.channel, scheck);
+        }
+        
+        // Fixing numeric values to defaults ########################
+        // bot message delay - default is 1000
+        scheck = new_c.get(Keys.connection.bot_message_delay);
+        try {
+            int bmd = Integer.parseInt(scheck);
+            if (bmd < 0) new_c.put(Keys.connection.bot_message_delay, "1000");
+        } catch (NumberFormatException e) {
+            new_c.put(Keys.connection.bot_message_delay, "1000");
+        }
+        // connection tries - default is 5
+        scheck = new_c.get(Keys.connection.retries);
+        try {
+            int retries = Integer.parseInt(scheck);
+            if (retries < 0) new_c.put(Keys.connection.retries, "5");
+        } catch (NumberFormatException e) {
+            new_c.put(Keys.connection.retries, "5");
         }
         
         if (accepted) {
@@ -99,9 +114,15 @@ public class Configuration {
             
             valid = true;
         }
-        else plugin.log(2, "Configuration did not load successfully.");
         
         return accepted;
+    }
+    
+    /**
+     * Returns the Map containing all the configuration options under connection.
+     */
+    public EnumMap<Keys.connection, String> connection() {
+        return connection.clone();
     }
     
     /**

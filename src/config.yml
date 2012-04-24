@@ -3,7 +3,8 @@
 #Not all required values have been filled in, however. To use this plugin, you must at least add to the
 #'server' and 'channel' values under the 'connection' section.
 
-#Missing values are assumed to be either blank or false.
+#Missing values are assumed to be blank.
+#Missing or incorrect values in true/false fields are assumed to be false.
 
 #It is possible to change the configuration values and apply them while the plugin is active.
 #You may do so with the '/minecraftbot reload' command. Note that everything under 'connection'
@@ -15,14 +16,16 @@ connection:
   server: ''
   #server_password: Optional. It's very likely that you won't have to change this.
   server_password: ''
-  #server_port: The port of the IRC server. Typically 6667. This plugin does not support SSL.
+  #server_port: The port of the IRC server. Typically 6667.
   server_port: 6667
+  #use_ssl: Connecting to the server using SSL? Typical SSL port for most servers is 6697.
+  use_ssl: false
   
   #retires: The amount of times to try connecting to the server. Default is 5. 0 or less will use default.
-  #Setting a very high number could result in unexpected behaviour when on an unstable connection.
+  #Setting a very high number could result in strange behaviour if on an unstable connection.
   retries: 5
   
-  #channel: The channel to join. Only one channel may be used.
+  #channel: Required. The channel to join. Only one channel may be used.
   channel: ''
   #channel_key: Optional. The key, sometimes called the channel password, required to join the channel.
   channel_key: ''
@@ -33,7 +36,9 @@ connection:
   #This password will also be used to attempt ghosting through NickServ if necessary
   nick_password: ''
   
-  #bot_message_delay: The time (in milliseconds) the bot should wait between sending messages.
+  #bot_message_delay: The amount of time (in milliseconds) the bot should wait between sending messages.
+  #1000 milliseconds (1 second) should be good enough, but for servers with strict flood control you may
+  #want to increase it.
   bot_message_delay: 1000
   
 settings:
@@ -43,9 +48,6 @@ settings:
   send_log_to_ops: true
   #show_players_command: Whether or not to display a message in Minecraft if someone on IRC says '!players'
   show_players_command: true
-  #show_nick_prefixes: Whether or not to show a prefix in front of a nick (such as @Nick for an op named nick)
-  #when sending something from IRC to Minecraft. They will still appear when using /nicks or /n.
-  show_nick_prefixes: true
   #quit_message: The quit message used when the bot quits IRC. Used only when the plugin is disabled.
   quit_message: ''
 
@@ -71,7 +73,7 @@ line_formatting:
     action: '* %name% %message%'
     join:   '&b* %name% has joined the game'
     leave:  '&b* %name% has left the game'
-    kick:   '&c* %name% has been kicked (%reason%&c)'
+    kick:   '&c* %name% has been kicked &r(%reason%&r)'
     # Due to the way death messages are worked with in Bukkit, the entire death message is represented
     # by %message%. The death message may be edited using another plugin. %name% is available to use here too.
     death:  '&c* %message%'
@@ -81,10 +83,9 @@ line_formatting:
     chat:   '#> <%name%> %message%'
     action: '#> * %name% %message%'
     join:   '#> &b* %name% has joined %channel%'
-    # At the moment, part reasons can't be displayed
-    part:   '#> &b* %name% has left %channel%'
-    quit:   '#> &b* %name% has quit IRC (%reason%)'
-    kick:   '#> &c* %kicker% has kicked %name% (%reason%&c)'
+    part:   '#> &b* %name% has left %channel% &r(%reason%&r)'
+    quit:   '#> &b* %name% has quit IRC &r(%reason%&r)'
+    kick:   '#> &c* %kicker% has kicked %name% &r(%reason%&r)'
     nick_change:  '#> &b* %oldname% is now known as %name%'
     mode_change:  '#> &b* %name% set mode: %mode%'
     topic_change: '#> &b* %name% changed the topic to: &r%topic%'

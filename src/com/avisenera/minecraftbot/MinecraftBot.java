@@ -2,9 +2,10 @@ package com.avisenera.minecraftbot;
 
 import com.avisenera.minecraftbot.hooks.Hook;
 import com.avisenera.minecraftbot.listeners.CommandListener;
-import com.avisenera.minecraftbot.listeners.IRCListener;
-import com.avisenera.minecraftbot.listeners.PlayerListener;
+import com.avisenera.minecraftbot.listeners.IRCManager;
+import com.avisenera.minecraftbot.listeners.MainListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,12 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class MinecraftBot extends JavaPlugin {
     private static final Logger logger = Logger.getLogger("Minecraft");
     
-    private Configuration config;
-    private IRCListener ircListener;
-    private PlayerListener playerListener;
+    public Configuration config;
+    private IRCManager irc;
+    private MainListener playerListener;
     private CommandListener commandListener;
     
-    public LineSender send;
+    private MessageFormatter format;
+    
+    private ArrayList<MBListener> extListeners = new ArrayList<MBListener>();
     
     @Override
     public void onEnable() {
@@ -25,10 +28,10 @@ public class MinecraftBot extends JavaPlugin {
 
         if (config.load()) { // If configuration properly loaded
             // Initialize everything
-            ircListener = new IRCListener(this, config);
-            playerListener = new PlayerListener(this);
-            commandListener = new CommandListener(this, config, ircListener);
-            send = new LineSender(this, config, ircListener);
+            irc = new IRCManager(this, extListeners);
+            playerListener = new MainListener(this, mlc);
+            commandListener = new CommandListener(this, irc);
+            format = new MessageFormatter(this);
             
             // Register everything
             getServer().getPluginManager().registerEvents(playerListener, this);
@@ -36,11 +39,12 @@ public class MinecraftBot extends JavaPlugin {
             getCommand("names").setExecutor(commandListener);
             getCommand("irc").setExecutor(commandListener);
             getCommand("minecraftbot").setExecutor(commandListener);
+            this.registerListener(playerListener);
             
             startMetrics();
             
             // Start the bot
-            ircListener.connect();
+            irc.connect();
         } else {
             log(2, "Error loading the configuration. Reload the plugin to try again.");
             getServer().getPluginManager().disablePlugin(this);
@@ -49,12 +53,9 @@ public class MinecraftBot extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        if (ircListener != null) {
+        if (irc != null) {
             String qm = config.settingsS(Keys.settings.quit_message);
-            ircListener.autoreconnect = false;
-            ircListener.quitServer(qm);
-            try {ircListener.dispose();}
-            catch (Exception e) {/*Exception is thrown if the IRC threads haven't started*/}
+            irc.disconnect(qm);
         }
     }
     
@@ -71,9 +72,33 @@ public class MinecraftBot extends JavaPlugin {
                     p.sendMessage(Formatting.GRAY + message);
     }
     
-    // Several metrics methods
-    LinesRelayedCount lrc = new LinesRelayedCount();
+    /**
+     * Returns the message formatter.
+     */
+    public MessageFormatter getFormatter() {
+        return format;
+    }
     
+    /**
+     * Registers a listener. By registering the listener, it will be able to send and receive IRC messages.
+     * @param listener The listener object to register
+     */
+    public void registerListener(MBListener listener) {
+        if (!extListeners.contains(listener)) {
+            listener.initialize(this, irc);
+            extListeners.add(listener);
+        }
+    }
+    /**
+     * Removes a listener. They will no longer receive IRC messages.
+     * @param listener The listener object to remove
+     */
+    public void removeListener(MBListener listener) {
+        extListeners.remove(listener);
+    }
+    
+    // Metrics
+    MetricsLineCount mlc = new MetricsLineCount();
     private void startMetrics() {
         try {
             Metrics metrics = new Metrics(this);
@@ -82,12 +107,12 @@ public class MinecraftBot extends JavaPlugin {
             metrics.addCustomData(new Metrics.Plotter("IRC Users") {
                 @Override
                 public int getValue() {
-                    return ircListener.usercount();
+                    return irc.usercount();
                 }
             });
             
             // Get stats on how often LineSender is being used ("Lines Relayed" count)
-            metrics.addCustomData(lrc);
+            metrics.addCustomData(mlc);
             
             // Get stats on all available hooks and their usage
             Metrics.Graph ghooks = metrics.createGraph("Hooks used");
@@ -103,28 +128,6 @@ public class MinecraftBot extends JavaPlugin {
             metrics.start();
         } catch (IOException ex) {
             // Ignore errors
-        }
-    }
-    
-    class LinesRelayedCount extends Metrics.Plotter {
-        public LinesRelayedCount() {
-            super("Lines Relayed");
-            this.count = 0;
-        }
-        private int count;
-        
-        @Override
-        public int getValue() {
-            return this.count;
-        }
-        
-        @Override
-        public void reset() {
-            this.count = 0;
-        }
-        
-        public void increment() {
-            this.count++;
         }
     }
 }

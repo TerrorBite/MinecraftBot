@@ -95,20 +95,15 @@ public class IRCListener extends IrcAdaptor {
     
     @Override
     public void onJoin(IrcConnection irc, Channel channel, User user) {
-        // Not checking for the channel here
-        // Everyone will know if it was forced into another channel this way
-        
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
-        if (channel != null) msg.channel = channel.getName();
+        if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
+        else msg.channel = channel.getName();
         send(Keys.line_to_minecraft.join, msg);
     }
 
     @Override
     public void onPart(IrcConnection irc, Channel channel, User user, String message) {
-        if (channel == null) {} // continue
-        else if (!channel.equals(manager.getChannel())) return;
-        
         IRCMessage msg = new IRCMessage();
         msg.name = user.getNick();
         if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
@@ -149,7 +144,8 @@ public class IRCListener extends IrcAdaptor {
         if (!channel.equals(manager.getChannel())) return;
         
         IRCMessage msg = new IRCMessage();
-        msg.name = sender.getNick();
+        if (sender != null) msg.name = sender.getNick();
+        else msg.name = "(could not get nick)";
         msg.mode = mode;
         send(Keys.line_to_minecraft.mode_change, msg);
     }

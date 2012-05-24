@@ -1,5 +1,5 @@
 MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.
-It uses the sIRC library (https://github.com/sorcix/sIRC) to connect to and interact with IRC.
+It uses the PircBotX library (http://code.google.com/p/pircbotx/) to connect to and interact with IRC.
 
 More info
 -Bukkit forums: http://forums.bukkit.org/threads/65448/

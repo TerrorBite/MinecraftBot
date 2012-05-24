@@ -4,13 +4,13 @@ import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
-import com.sorcix.sirc.*;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
+import org.pircbotx.Channel;
+import org.pircbotx.PircBotX;
+import org.pircbotx.User;
+import org.pircbotx.UtilSSLSocketFactory;
 
 /**
  * Manages the connection to the IRC server. 
@@ -18,44 +18,33 @@ import java.util.Iterator;
 public class IRCManager implements Runnable {
     private MinecraftBot plugin;
     
-    private IrcConnection server;
+    private PircBotX bot;
     private IRCListener listener;
     EnumMap<Keys.connection, String> config;
     
     // Only listeners in this package should have access to server and channel
-    IrcConnection getServer() { return server; }
+    PircBotX getServer() { return bot; }
     Channel getChannel() {
-        // An annoying thing about sIRC - after joining a channel, we need to get the channel object again.
-        // The one used to join the channel doesn't update as soon as it's actually joined.
-        // This returns the object if it already exists, or else it creates a new one.
-        Iterator<Channel> chs = server.getChannels();
-        while (chs.hasNext()) {
-            Channel c = chs.next();
-            if (c.getName().equalsIgnoreCase(config.get(Keys.connection.channel))) {
-                return c;
-            }
-        }
-        
-        return server.createChannel(config.get(Keys.connection.channel));
+        return bot.getChannel(config.get(Keys.connection.channel));
     }
     
     public IRCManager(MinecraftBot instance, ArrayList<MBListener> listeners) {
         this.plugin = instance;
         this.listener = new IRCListener(instance, this, listeners);
-        server = new IrcConnection();
-        server.setCharset(Charset.forName("UTF-8"));
-        server.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
+        bot = new PircBotX();
+        bot.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
                 " - https://github.com/Rafa652/MinecraftBot");
+        bot.setFinger("What are you doing? Stop it.");
+        bot.setAutoNickChange(true);
         
-        server.addMessageListener(listener);
-        server.addServerListener(listener);
+        bot.getListenerManager().addListener(listener);
     }
     
     /**
      * Begins attempting to connect to the server, if it isn't already connected.
      */
     public synchronized void connect() {
-        if (server.isConnected()) {
+        if (bot.isConnected()) {
             plugin.log(0, "Attempted to connect to IRC while already connected.");
             plugin.log(0, "To force reconnecting, reload the plugin.");
         }
@@ -68,7 +57,7 @@ public class IRCManager implements Runnable {
      */
     public void disconnect(String message) {
         listener.autoreconnect = false;
-        server.disconnect(message);
+        bot.quitServer(message);
     }
     
     private boolean busyconnecting = false;
@@ -77,6 +66,7 @@ public class IRCManager implements Runnable {
         if (busyconnecting) return;
         
         busyconnecting = true;
+        
         start();
         busyconnecting = false;
     }
@@ -85,30 +75,29 @@ public class IRCManager implements Runnable {
      * Begins the connection to IRC. This method should never be called directly. Use run() instead.
      */
     private synchronized void start() {
-        // Get current config
-        config = plugin.config.connection();
-        
-        // IrcServer doesn't expect an empty string but does expect null
-        String serverpass = config.get(Keys.connection.server_password);
-        if (serverpass.isEmpty()) serverpass = null;
-        IrcServer connection = new IrcServer(
+        config = plugin.config.connection(); // Get a copy of the current configuration
+        bot.setMessageDelay(Integer.parseInt(config.get(Keys.connection.bot_message_delay)));
+        bot.setName(config.get(Keys.connection.nick));
+        start(
                 config.get(Keys.connection.server),
                 Integer.parseInt(config.get(Keys.connection.server_port)),
-                serverpass,
-                config.get(Keys.connection.use_ssl).equalsIgnoreCase("true"));
-        
-        start(connection, config.get(Keys.connection.nick), 1,
-                Integer.parseInt(config.get(Keys.connection.retries)));
+                config.get(Keys.connection.server_password),
+                (config.get(Keys.connection.use_ssl).equalsIgnoreCase("true")),
+                1,
+                Integer.parseInt(config.get(Keys.connection.retries))
+                );
     }
     
     /**
      * Attempts to connect to the IRC server.
-     * @param connection IrcConnection object containing all the connection details
-     * @param nick The nick to connect with
+     * @param server The server name to connect to
+     * @param port The port nubmer to connect to
+     * @param password Server password, or a blank string if none
+     * @param ssl Connecting through SSL?
      * @param current The connect attempt number
      * @param maxtries The max number of connect attempts
      */
-    private void start(IrcServer connection, String nick, int current, int maxtries) {
+    private void start(String server, int port, String password, boolean ssl, int current, int maxtries) {
         if (current > maxtries) {
             plugin.log(2, "Exceeded number of reconnect attempts. Failed to connect to IRC.");
             return;
@@ -116,43 +105,28 @@ public class IRCManager implements Runnable {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException ex) {}
-        } else {
-            // Set up server
-            server.setServer(connection);
-            server.setMessageDelay(Integer.parseInt(config.get(Keys.connection.bot_message_delay)));
         }
-        server.setNick(nick);
         
-        plugin.log(0, "Connecting to " + connection.getAddress() + "... (Attempt " + current + ")");
+        plugin.log(0, "Connecting to " + server + "... (Attempt " + current + ")");
         
         try {
-            server.connect();
-        } catch (UnknownHostException ex) {
-            plugin.log(1, "Failed to connect: Unable to find server.");
-            start(connection, nick, (current + 1), maxtries);
-        } catch (IOException ex) {
+            if (password.isEmpty()) {
+                if (ssl) bot.connect(server, port, new UtilSSLSocketFactory().trustAllCertificates());
+                else bot.connect(server, port);
+            } else {
+                if (ssl) bot.connect(server, port, password, new UtilSSLSocketFactory().trustAllCertificates());
+                else bot.connect(server, port, password);
+            }
+        } catch (Exception ex) {
             plugin.log(1, "Failed to connect: " + ex.getMessage());
-            start(connection, nick, (current + 1), maxtries);
-        } catch (NickNameException ex) {
-            plugin.log(1, "Failed to connect: Nick is not available. Connecting using a different nick.");
-            start(connection, nick + "_", (current + 1), maxtries);
         }
+        if (!bot.isConnected()) start(server, port, password, ssl, (current + 1), maxtries);
         // Listener's onConnect() takes over from here
     }
     
 // Other methods
     public int usercount() {
-        try {
-            int count = 0;
-            Iterator users = getChannel().getUsers();
-            while (users.hasNext()) {
-                users.next();
-                count++;
-            }
-            return count;
-        } catch (NullPointerException ex) {
-            return 0;
-        }
+        return getChannel().getUsers().size();
     }
     
 // Methods used by commands
@@ -165,7 +139,7 @@ public class IRCManager implements Runnable {
         int displayed = (totalnicks>30?30:totalnicks);
         String list = "Displaying "+displayed+" out of "+totalnicks+" nicks in "+getChannel().getName()+":";
         try {
-            Iterator<User> users = getChannel().getUsers();
+            Iterator<User> users = getChannel().getUsers().iterator();
             int count = 1;
             while (users.hasNext()) {
                 if (count > 30) break;
@@ -181,50 +155,49 @@ public class IRCManager implements Runnable {
     }
     
     public String getNick() {
-        return server.getClient().getNick();
+        return bot.getUserBot().getNick();
     }
     
     public void joinChannel() {
-        String ckey = config.get(Keys.connection.channel_key);
-        Channel ch = server.createChannel(config.get(Keys.connection.channel));
-        if (ckey.isEmpty()) ch.join();
-        else ch.join(ckey);
+        String channel = config.get(Keys.connection.channel);
+        String key = config.get(Keys.connection.channel_key);
+        if (key.isEmpty()) bot.joinChannel(channel);
+        else bot.joinChannel(channel, key);
     }
     public void partChannel() {
-        getChannel().part();
+        bot.partChannel(getChannel());
     }
     
     public void op(String nick) {
-        getChannel().setMode("+o " + nick);
+        bot.setMode(getChannel(), "+o "+nick);
     }
     public void deop(String nick) {
-        getChannel().setMode("-o " + nick);
+        bot.setMode(getChannel(), "-o "+nick);
     }
     public void voice(String nick) {
-        getChannel().setMode("+v " + nick);
+        bot.setMode(getChannel(), "+v "+nick);
     }
     public void devoice(String nick) {
-        getChannel().setMode("-v " + nick);
+        bot.setMode(getChannel(), "-v "+nick);
+    }
+    public void kick(String nick) {
+        bot.kick(getChannel(), bot.getUser(nick));
     }
     public void kick(String nick, String reason) {
-        try {
-            getChannel().kick(getUser(nick), reason);
-        } catch (NullPointerException ex) {}
+        bot.kick(getChannel(), bot.getUser(nick), reason);
     }
     public void ban(String nick) {
-        try {
-            getChannel().ban(getUser(nick), false);
-        } catch (NullPointerException ex) {}
+        bot.ban(getChannel(), "*!*@"+bot.getUser(nick).getHostmask());
     }
     public void unban(String hostmask) {
-        getChannel().setMode("-b " + hostmask);
+        bot.unBan(getChannel(), hostmask);
     }
     
     public void sendMessage(String message) {
-        getChannel().sendMessage(message);
+        bot.sendMessage(getChannel(), message);
     }
-    public void sendAction(String message) {
-        getChannel().sendAction(message);
+    public void sendAction(String action) {
+        bot.sendAction(getChannel(), action);
     }
     
     /**
@@ -235,18 +208,5 @@ public class IRCManager implements Runnable {
         
         if (format != Keys.line_to_minecraft.action) sendMessage(message.message);
         else sendAction(message.message);
-    }
-    
-    private User getUser(String nick) {
-        // See comments for getChannel() - it applies to users too
-        // createUser(nick, channel) does not work
-        Iterator<User> u = getChannel().getUsers();
-        while (u.hasNext()) {
-            User us = u.next();
-            if (us.getNick().equalsIgnoreCase(nick)) {
-                return us;
-            }
-        }
-        return null;
     }
 }

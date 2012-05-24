@@ -1,14 +1,15 @@
 package com.avisenera.minecraftbot;
 
-import com.avisenera.minecraftbot.hooks.Hook;
-import com.avisenera.minecraftbot.listeners.CommandListener;
-import com.avisenera.minecraftbot.listeners.IRCManager;
-import com.avisenera.minecraftbot.listeners.MainListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.avisenera.minecraftbot.listeners.CommandListener;
+import com.avisenera.minecraftbot.listeners.IRCManager;
+import com.avisenera.minecraftbot.listeners.MainListener;
 
 public class MinecraftBot extends JavaPlugin {
     private static final Logger logger = Logger.getLogger("Minecraft");
@@ -107,7 +108,8 @@ public class MinecraftBot extends JavaPlugin {
             metrics.addCustomData(new Metrics.Plotter("IRC Users") {
                 @Override
                 public int getValue() {
-                    return irc.usercount();
+                    try {return irc.usercount();}
+                    catch (NullPointerException e) {return 0;}
                 }
             });
             

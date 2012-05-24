@@ -5,14 +5,14 @@ import com.avisenera.minecraftbot.Keys;
 import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
-import com.sorcix.sirc.Channel;
-import com.sorcix.sirc.IrcAdaptor;
-import com.sorcix.sirc.IrcConnection;
-import com.sorcix.sirc.User;
 import java.util.ArrayList;
 import org.bukkit.entity.Player;
+import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.*;
 
-public class IRCListener extends IrcAdaptor {
+@SuppressWarnings("rawtypes")
+public class IRCListener extends ListenerAdapter {
     private MinecraftBot plugin;
     private IRCManager manager;
     private ArrayList<MBListener> extListeners;
@@ -24,31 +24,31 @@ public class IRCListener extends IrcAdaptor {
     
     // Server-related handlers
     @Override
-    public void onConnect(IrcConnection irc) {
+    public void onConnect(ConnectEvent event) {
         // Join channel
         manager.joinChannel();
         
-        IrcConnection server = manager.getServer();
+        PircBotX server = manager.getServer();
         
         // Check for any nick issues
-        String currentnick = server.getClient().getNick();
+        String currentnick = server.getUserBot().getNick();
         String desirednick = manager.config.get(Keys.connection.nick);
         String nickpass = manager.config.get(Keys.connection.nick_password);
         if (currentnick.equals(desirednick)) { // All good; Must authenticate
             if (!nickpass.isEmpty())
-                server.createUser("NickServ").send("IDENTIFY " + nickpass);
+                server.sendMessage("NickServ", "IDENFITY "+nickpass);
         } else { // Not good - we have a different nick
             if (!nickpass.isEmpty()) { // Use the password to ghost the other nick
                 plugin.log(0, "The desired nick appears to be taken. Attempting to retake it...");
-                server.createUser("NickServ").send("GHOST " + desirednick + " " + nickpass);
+                server.sendMessage("NickServ", "GHOST " + desirednick + " " + nickpass);
                 try {Thread.sleep(3000);} catch (InterruptedException ex) {}
-                server.setNick(desirednick);
+                server.changeNick(desirednick);
                 try {Thread.sleep(3000);} catch (InterruptedException ex) {}
                 
-                currentnick = server.getClient().getNick();
+                currentnick = server.getUserBot().getNick();
                 if (currentnick.equals(desirednick)) { // All good; Must authenticate
                     plugin.log(0, "Nick successfully retaken.");
-                    server.createUser("NickServ").send("IDENTIFY " + nickpass);
+                    server.sendMessage("NickServ", "IDENTIFY " + nickpass);
                 } else {
                     plugin.log(2, "Failed to retake nick. Current nick: " + currentnick);
                 }
@@ -59,7 +59,7 @@ public class IRCListener extends IrcAdaptor {
     }
 
     @Override
-    public void onDisconnect(IrcConnection irc) {
+    public void onDisconnect(DisconnectEvent e) {
         plugin.log((autoreconnect?1:0), "Disconnected.");
         if (autoreconnect) manager.connect();
         else autoreconnect = true;
@@ -69,95 +69,93 @@ public class IRCListener extends IrcAdaptor {
     // With most events, the channel is checked. This is because it's possible for an IRC
     // op to force the bot into another channel. This bot should only be concerned with
     // what's happening in one channel.
+    // The exception is on joins and parts.
 
     @Override
-    public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
-        if (!target.equals(manager.getChannel())) return;
-        if (isCommand(sender, message)) return;
+    public void onMessage(MessageEvent e) {
+        if (!e.getChannel().equals(manager.getChannel())) return;
+        if (isCommand(e.getUser().getNick(), e.getMessage())) return;
         
         IRCMessage msg = new IRCMessage();
-        msg.name = sender.getNick();
-        msg.message = message;
+        msg.name = e.getUser().getNick();
+        msg.message = e.getMessage();
         
         send(Keys.line_to_minecraft.chat, msg);
     }
     
     @Override
-    public void onAction(IrcConnection irc, User sender, Channel target, String action) {
-        if (!target.equals(manager.getChannel())) return;
+    public void onAction(ActionEvent e) {
+        if (!e.getChannel().equals(manager.getChannel())) return;
         
         IRCMessage msg = new IRCMessage();
-        msg.name = sender.getNick();
-        msg.message = action;
+        msg.name = e.getUser().getNick();
+        msg.message = e.getAction();
         send(Keys.line_to_minecraft.action, msg);
     }
 
     
     @Override
-    public void onJoin(IrcConnection irc, Channel channel, User user) {
+    public void onJoin(JoinEvent e) {
         IRCMessage msg = new IRCMessage();
-        msg.name = user.getNick();
-        if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
-        else msg.channel = channel.getName();
+        msg.name = e.getUser().getNick();
+        msg.channel = e.getChannel().getName();
         send(Keys.line_to_minecraft.join, msg);
     }
 
     @Override
-    public void onPart(IrcConnection irc, Channel channel, User user, String message) {
+    public void onPart(PartEvent e) {
         IRCMessage msg = new IRCMessage();
-        msg.name = user.getNick();
-        if (channel == null) msg.channel = manager.config.get(Keys.connection.channel);
-        else msg.channel = channel.getName();
-        if (message != null) msg.reason = message;
+        msg.name = e.getUser().getNick();
+        msg.channel = e.getChannel().getName();
+        if (e.getReason() != null) msg.reason = e.getReason();
         send(Keys.line_to_minecraft.part, msg);
     }
     
     @Override
-    public void onQuit(IrcConnection irc, User user, String message) {
+    public void onQuit(QuitEvent e) {
         IRCMessage msg = new IRCMessage();
-        msg.name = user.getNick();
-        msg.reason = message;
+        msg.name = e.getUser().getNick();
+        msg.reason = e.getReason();
         send(Keys.line_to_minecraft.quit, msg);
     }
     
     @Override
-    public void onKick(IrcConnection irc, Channel channel, User sender, User user, String message) {
-        if (!channel.equals(manager.getChannel())) return;
+    public void onKick(KickEvent e) {
+        if (!e.getChannel().equals(manager.getChannel())) return;
         
         IRCMessage msg = new IRCMessage();
-        msg.kicker = sender.getNick();
-        msg.name = user.getNick();
-        msg.reason = message;
+        msg.kicker = e.getSource().getNick();
+        msg.name = e.getRecipient().getNick();
+        msg.reason = e.getReason();
         send(Keys.line_to_minecraft.kick, msg);
     }
     
     @Override
-    public void onNick(IrcConnection irc, User oldUser, User newUser) {
+    public void onNickChange(NickChangeEvent e) {
         IRCMessage msg = new IRCMessage();
-        msg.oldname = oldUser.getNick();
-        msg.name = newUser.getNick();
+        msg.oldname = e.getOldNick();
+        msg.name = e.getNewNick();
         send(Keys.line_to_minecraft.nick_change, msg);
     }
 
     @Override
-    public void onMode(IrcConnection irc, Channel channel, User sender, String mode) {
-        if (!channel.equals(manager.getChannel())) return;
+    public void onMode(ModeEvent e) {
+        if (!e.getChannel().equals(manager.getChannel())) return;
         
         IRCMessage msg = new IRCMessage();
-        if (sender != null) msg.name = sender.getNick();
-        else msg.name = "(could not get nick)";
-        msg.mode = mode;
+        msg.name = e.getUser().getNick();
+        msg.mode = e.getMode();
         send(Keys.line_to_minecraft.mode_change, msg);
     }
     
     @Override
-    public void onTopic(IrcConnection irc, Channel channel, User sender, String topic) {
-        if (sender == null) return; // Only looking for new topics
-        if (!channel.equals(manager.getChannel())) return;
+    public void onTopic(TopicEvent e) {
+        if (!e.isChanged()) return; // Only looking for new topics
+        if (!e.getChannel().equals(manager.getChannel())) return;
         
         IRCMessage msg = new IRCMessage();
-        msg.name = sender.getNick();
-        msg.topic = topic;
+        msg.name = e.getUser().getNick();
+        msg.topic = e.getTopic();
         send(Keys.line_to_minecraft.topic_change, msg);
     }
 
@@ -168,7 +166,7 @@ public class IRCListener extends IrcAdaptor {
      * @param message The message that is sent
      * @return True if the message was a command. If true, stop the message.
      */
-    private boolean isCommand(User sender, String message) {
+    private boolean isCommand(String sender, String message) {
         // Player list
         if (message.toLowerCase().startsWith("!players")) {
             Player p[] = plugin.getServer().getOnlinePlayers();
@@ -181,7 +179,7 @@ public class IRCListener extends IrcAdaptor {
             if (plugin.config.settingsB(Keys.settings.show_players_command)) {
                 // Notify Minecraft players that someone used this command
                 IRCMessage msg = new IRCMessage();
-                msg.name += sender.getNick();
+                msg.name += sender;
                 msg.message = "asked for the player list";
                 send(Keys.line_to_minecraft.action, msg);
             }

@@ -111,7 +111,7 @@ public class CommandListener implements CommandExecutor {
                 for (int i=2;i<args.length;i++)
                     reason += " " + args[i];
                 // empty kick messages are not handled too well
-                if (reason.isEmpty()) irc.kick(args[1], args[1]);
+                if (reason.isEmpty()) irc.kick(args[1]);
                 else irc.kick(args[1], reason.substring(1));
             } else {
                 sender.sendMessage("/irc kick (nick) [reason] - Kicks the given nick on IRC");

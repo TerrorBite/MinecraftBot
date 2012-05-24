@@ -31,11 +31,13 @@ public class IRCManager implements Runnable {
     public IRCManager(MinecraftBot instance, ArrayList<MBListener> listeners) {
         this.plugin = instance;
         this.listener = new IRCListener(instance, this, listeners);
+        
         bot = new PircBotX();
+        bot.setAutoNickChange(true);
+        bot.setLogin("MinecraftBot");
+        bot.setFinger("What are you doing? Stop it.");
         bot.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
                 " - https://github.com/Rafa652/MinecraftBot");
-        bot.setFinger("What are you doing? Stop it.");
-        bot.setAutoNickChange(true);
         
         bot.getListenerManager().addListener(listener);
     }

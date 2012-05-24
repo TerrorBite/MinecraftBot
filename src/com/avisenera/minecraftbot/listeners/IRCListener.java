@@ -25,36 +25,41 @@ public class IRCListener extends ListenerAdapter {
     // Server-related handlers
     @Override
     public void onConnect(ConnectEvent event) {
+        // Check for any nick issues
+        nickCheck();
+        
         // Join channel
         manager.joinChannel();
-        
-        PircBotX server = manager.getServer();
-        
-        // Check for any nick issues
-        String currentnick = server.getUserBot().getNick();
-        String desirednick = manager.config.get(Keys.connection.nick);
+    }
+    private void nickCheck() {
+        String nick = manager.config.get(Keys.connection.nick);
         String nickpass = manager.config.get(Keys.connection.nick_password);
-        if (currentnick.equals(desirednick)) { // All good; Must authenticate
-            if (!nickpass.isEmpty())
-                server.sendMessage("NickServ", "IDENFITY "+nickpass);
-        } else { // Not good - we have a different nick
-            if (!nickpass.isEmpty()) { // Use the password to ghost the other nick
-                plugin.log(0, "The desired nick appears to be taken. Attempting to retake it...");
-                server.sendMessage("NickServ", "GHOST " + desirednick + " " + nickpass);
-                try {Thread.sleep(3000);} catch (InterruptedException ex) {}
-                server.changeNick(desirednick);
-                try {Thread.sleep(3000);} catch (InterruptedException ex) {}
-                
-                currentnick = server.getUserBot().getNick();
-                if (currentnick.equals(desirednick)) { // All good; Must authenticate
-                    plugin.log(0, "Nick successfully retaken.");
-                    server.sendMessage("NickServ", "IDENTIFY " + nickpass);
-                } else {
-                    plugin.log(2, "Failed to retake nick. Current nick: " + currentnick);
-                }
-            } else { // No password. Nothing can be done.
-                plugin.log(1, "The desired nick is already taken. Current nick: " + currentnick);
-            }
+        if (nickpass.isEmpty()) return;
+        
+        // Have nickpass - must identify
+        if (manager.getServer().getUserBot().getNick().equals(nick)) {
+            manager.getServer().sendMessage("NickServ", "IDENTIFY "+nickpass);
+            pause(2000);
+            return;
+        }
+        
+        // Ghosting
+        manager.getServer().sendMessage("NickServ", "GHOST "+nick+" "+nickpass);
+        pause(2000);
+        manager.getServer().changeNick(nick);
+        pause(2000);
+        
+        // Try again
+        if (manager.getServer().getUserBot().getNick().equals(nick)) {
+            manager.getServer().sendMessage("NickServ", "IDENTIFY "+nickpass);
+            pause(2000);
+        }
+        // If the original nick is still not being used, nothing is done.
+    }
+    private void pause(long millis) { // It's annoying having to surround everything in try-catch statements.
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
         }
     }
 

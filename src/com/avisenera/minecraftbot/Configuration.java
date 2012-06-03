@@ -18,6 +18,7 @@ public class Configuration {
     private boolean valid = false;
     
     private EnumMap<Keys.connection, String> connection;
+    private EnumMap<Keys.commands, String> commands;
     private EnumMap<Keys.settings, String> settings;
     private EnumMap<Keys.line_to_irc, String> line_to_irc;
     private EnumMap<Keys.line_to_minecraft, String> line_to_minecraft;
@@ -40,12 +41,15 @@ public class Configuration {
         if (config == null) return false;
         
         EnumMap<Keys.connection, String> new_c = new EnumMap<Keys.connection, String>(Keys.connection.class);
+        EnumMap<Keys.commands, String> new_co = new EnumMap<Keys.commands, String>(Keys.commands.class);
         EnumMap<Keys.settings, String> new_s = new EnumMap<Keys.settings, String>(Keys.settings.class);
         EnumMap<Keys.line_to_irc, String> new_lti = new EnumMap<Keys.line_to_irc, String>(Keys.line_to_irc.class);
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
         
         for (Keys.connection c : Keys.connection.values())
             new_c.put(c, config.getString("connection."+c, ""));
+        for (Keys.commands c : Keys.commands.values())
+            new_co.put(c, config.getString("commands."+c, ""));
         for (Keys.settings c : Keys.settings.values())
             new_s.put(c, config.getString("settings."+c, ""));
         for (Keys.line_to_irc c : Keys.line_to_irc.values())
@@ -107,6 +111,7 @@ public class Configuration {
         
         if (accepted) {
             connection = new_c;
+            commands = new_co;
             settings = new_s;
             line_to_irc = new_lti;
             line_to_minecraft = new_ltm;
@@ -145,6 +150,27 @@ public class Configuration {
         if (!valid || value == null) return "";
         
         String rv = settings.get(value);
+        if (rv == null) return "";
+        else return rv;
+    }
+    
+    /**
+     * Returns the given commands value as a boolean in the configuration file.
+     * @param value Equivalent to config.getBoolean("commands.(value)", false)
+     */
+    public boolean commandsB(Keys.commands value) {
+        String rv = commandsS(value);
+        return (rv.equalsIgnoreCase("true"));
+    }
+    
+    /**
+     * Returns the given commands value in the configuration file.
+     * @param value Equivalent to config.getString("commands.(value)", "")
+     */
+    public String commandsS(Keys.commands value) {
+        if (!valid || value == null) return "";
+        
+        String rv = commands.get(value);
         if (rv == null) return "";
         else return rv;
     }

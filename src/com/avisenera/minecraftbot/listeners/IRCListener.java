@@ -6,6 +6,8 @@ import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import java.util.ArrayList;
+
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
@@ -172,7 +174,7 @@ public class IRCListener extends ListenerAdapter {
      */
     private boolean isCommand(String sender, String message) {
         // Player list
-        if (message.toLowerCase().startsWith("!players")) {
+        if (message.toLowerCase().startsWith("!players") && plugin.config.commandsB(Keys.commands.players)) {
             Player p[] = plugin.getServer().getOnlinePlayers();
             String o;
             int n = p.length;
@@ -180,7 +182,7 @@ public class IRCListener extends ListenerAdapter {
             for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
             manager.sendMessage(Formatting.toIRC(o));
             
-            if (plugin.config.settingsB(Keys.settings.show_players_command)) {
+            if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
                 // Notify Minecraft players that someone used this command
                 IRCMessage msg = new IRCMessage();
                 msg.name += sender;
@@ -189,6 +191,32 @@ public class IRCListener extends ListenerAdapter {
             }
             
             return true;
+        }
+        
+        // Show world time
+        if (message.toLowerCase().startsWith("!time") && plugin.config.commandsB(Keys.commands.time)) {
+        	String worldtimes = "";
+        	for (World w : plugin.getServer().getWorlds()) {
+        		// Only get time from normal environments
+        		if (!(w.getEnvironment() == World.Environment.NORMAL)) continue;
+        		worldtimes += ", "+w.getName()+": ";
+        		
+        		int hr = 0; int min = 0; float time = w.getTime();
+        		while (time >= 1000) { hr++; time -= 1000; } // 1000 units for each hour
+        		while (time >= 16.7) { min++; time -= 16.7; } // 16 2/3 units for each minute
+        		worldtimes += String.format("%02d:%02d", hr, min);
+        	}
+        	manager.sendMessage(Formatting.toIRC(worldtimes.substring(2)));
+        	
+        	if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
+                // Notify Minecraft players that someone used this command
+                IRCMessage msg = new IRCMessage();
+                msg.name += sender;
+                msg.message = "asked for the time";
+                send(Keys.line_to_minecraft.action, msg);
+            }
+        	
+        	return true;
         }
         
         return false;

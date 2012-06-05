@@ -16,7 +16,7 @@ import org.pircbotx.UtilSSLSocketFactory;
  * Manages the connection to the IRC server. 
  */
 public class IRCManager implements Runnable {
-    private MinecraftBot plugin;
+    public MinecraftBot plugin;
     
     private PircBotX bot;
     private IRCListener listener;

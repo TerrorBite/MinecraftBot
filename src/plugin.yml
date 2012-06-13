@@ -1,6 +1,6 @@
 name: MinecraftBot
 author: Rafa652
-version: 2.2.1
+version: 2.2.2
 description: Simple IRC and Minecraft integration.
 main: com.avisenera.minecraftbot.MinecraftBot
 commands:

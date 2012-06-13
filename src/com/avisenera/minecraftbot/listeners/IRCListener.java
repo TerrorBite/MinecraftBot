@@ -202,6 +202,10 @@ public class IRCListener extends ListenerAdapter {
         		worldtimes += ", "+w.getName()+": ";
         		
         		int hr = 0; int min = 0; float time = w.getTime();
+        		// Correct the time so 0600 corresponds to morning
+        		time += 6000;
+        		if (time >= 24000) time -= 24000;
+        		// Format the time
         		while (time >= 1000) { hr++; time -= 1000; } // 1000 units for each hour
         		while (time >= 16.7) { min++; time -= 16.7; } // 16 2/3 units for each minute
         		worldtimes += String.format("%02d:%02d", hr, min);

@@ -78,7 +78,7 @@ public class MainListener extends MBListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerChat(PlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         MCMessage msg = new MCMessage();
         msg.player = event.getPlayer();
         msg.name = event.getPlayer().getDisplayName();

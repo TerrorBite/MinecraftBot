@@ -196,10 +196,27 @@ public class IRCManager implements Runnable {
     }
     
     public void sendMessage(String message) {
-        bot.sendMessage(getChannel(), message);
+        (new SendThread(message, false)).start();
     }
     public void sendAction(String action) {
-        bot.sendAction(getChannel(), action);
+        (new SendThread(action, true)).start();
+    }
+    
+    // 1.3.1 introduced AsyncPlayerChatEvent which appears to be interrupted if it happens to take more
+    // than an instant to work through. This is a quick, messy workaround to it. A better solution will come later.
+    
+    private class SendThread extends Thread {
+        private final String message;
+        private final boolean action;
+        public SendThread(String message, boolean action) {
+            this.message = message;
+            this.action = action;
+        }
+        
+        public void run() {
+            if (action) bot.sendAction(getChannel(), message);
+            else bot.sendMessage(getChannel(), message);
+        }
     }
     
     /**

@@ -1,7 +1,9 @@
 package com.avisenera.minecraftbot;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.EnumMap;
+
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -22,6 +24,7 @@ public class Configuration {
     private EnumMap<Keys.settings, String> settings;
     private EnumMap<Keys.line_to_irc, String> line_to_irc;
     private EnumMap<Keys.line_to_minecraft, String> line_to_minecraft;
+    private ArrayList<String> ignore_list;
 
     /**
      * When instantiating this class, the configuration is not loaded.<br>
@@ -45,6 +48,7 @@ public class Configuration {
         EnumMap<Keys.settings, String> new_s = new EnumMap<Keys.settings, String>(Keys.settings.class);
         EnumMap<Keys.line_to_irc, String> new_lti = new EnumMap<Keys.line_to_irc, String>(Keys.line_to_irc.class);
         EnumMap<Keys.line_to_minecraft, String> new_ltm = new EnumMap<Keys.line_to_minecraft, String>(Keys.line_to_minecraft.class);
+        ArrayList<String> new_ignores = new ArrayList<String>();
         
         for (Keys.connection c : Keys.connection.values())
             new_c.put(c, config.getString("connection."+c, ""));
@@ -58,6 +62,18 @@ public class Configuration {
             new_ltm.put(c, config.getString("line_formatting.to_minecraft."+c, ""));
         
         boolean accepted = true;
+        
+        BufferedReader ignores = getIgnoreList(plugin);
+        String lineinput;
+        try {
+            while ((lineinput = ignores.readLine()) != null) {
+                if (lineinput.startsWith("#")) continue;
+                new_ignores.add(lineinput);
+            }
+        } catch (IOException e1) {
+            plugin.log(2, "An error occured while attempting to read the ignore list.");
+            accepted = false;
+        }
         
         // Checking for all required values #########################
         String scheck;
@@ -115,6 +131,7 @@ public class Configuration {
             settings = new_s;
             line_to_irc = new_lti;
             line_to_minecraft = new_ltm;
+            ignore_list = new_ignores;
             plugin.log(0, "Configuration has been loaded.");
             
             valid = true;
@@ -209,6 +226,13 @@ public class Configuration {
     }
     
     /**
+     * Returns an array list containing all the current ignore values.
+     */
+    public ArrayList<String> ignoreList() {
+        return new ArrayList<String>(ignore_list);
+    }
+    
+    /**
      * Gets the configuration file. If the file does not exist, it tries to
      * create it. This method sends log information in case an error occurs.
      * @return null if the file was just created or an error occured.
@@ -228,6 +252,30 @@ public class Configuration {
             plugin.log(2, "Error while loading config! Check if config.yml or the plugins folder is writable.");
         } catch (InvalidConfigurationException e) {
             plugin.log(2, "Configuration is invalid. Check your syntax. (Remove any tab characters.)");
+        }
+        return null;
+    }
+    
+    private BufferedReader getIgnoreList(MinecraftBot plugin) {
+        // Checks if the ignore list file exists, and if it doesn't, creates it.
+        try {
+            File il = new File(plugin.getDataFolder(), "ignorelist.txt");
+            if (!il.exists()) {
+                // Create the new ignore list
+                il.createNewFile();
+                BufferedWriter out = new BufferedWriter(new FileWriter(il));
+                out.write("# Ignore list - Any nicks placed into this file will be ignored in IRC."); out.newLine();
+                out.write("# This file is the equivalent of sending many /irc ignore commands at once."); out.newLine();
+                out.write("# It is not automatically updated. When reloading the file, all ignored nicks " +
+                		"will be replaced with the nicks in this file."); out.newLine();
+                out.newLine();
+                out.write("#One nick per line."); out.newLine();
+                out.flush();
+                out.close();
+            }
+            return new BufferedReader(new FileReader(il));
+        } catch (IOException ex) {
+            plugin.log(2, "Failed to create new ignore list file. Check if the plugins folder is writable.");
         }
         return null;
     }

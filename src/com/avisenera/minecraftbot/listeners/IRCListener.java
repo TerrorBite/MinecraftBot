@@ -58,10 +58,8 @@ public class IRCListener extends ListenerAdapter {
         // If the original nick is still not being used, nothing is done.
     }
     private void pause(long millis) { // It's annoying having to surround everything in try-catch statements.
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ex) {
-        }
+        try { Thread.sleep(millis); }
+        catch (InterruptedException ex) { }
     }
 
     @Override
@@ -234,6 +232,7 @@ public class IRCListener extends ListenerAdapter {
     void send(Keys.line_to_minecraft format, IRCMessage message) {
         String send = plugin.getFormatter().toMinecraft(format, message);
         if (send == null) return; // Blank line - ignore
+        
         for (MBListener l : extListeners) {
             l.onMessage(send);
         }

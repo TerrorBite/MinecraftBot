@@ -137,6 +137,45 @@ public class CommandListener implements CommandExecutor {
             return true;
         }
         
+        else if (cmd.equals("ignore")) {
+            if (args.length == 2) {
+                String ignore = args[1].toLowerCase();
+                if (plugin.config.ignoreList().contains(ignore)) {
+                    sender.sendMessage(args[1] + " is already in the ignore list.");
+                } else {
+                    plugin.config.ignoreList().add(ignore);
+                    sender.sendMessage(args[1] + " has been added to the ignore list.");
+                }
+            } else {
+                sender.sendMessage("/irc ignore (nick) - Ignores the given nick on IRC.");
+            }
+            return true;
+        }
+        
+        else if (cmd.equals("unignore")) {
+            if (args.length == 2) {
+                String unignore = args[1].toLowerCase();
+                if (plugin.config.ignoreList().contains(unignore)) {
+                    plugin.config.ignoreList().remove(unignore);
+                    sender.sendMessage(args[1] + " has been removed from the ignore list.");
+                } else {
+                    sender.sendMessage(args[1] + " does not exist in the ignore list.");
+                }
+            } else {
+                sender.sendMessage("/irc unignore (nick) - Removes the given nick from the IRC ignore list.");
+            }
+            return true;
+        }
+        
+        else if (cmd.equals("ignorelist")) {
+            String list = "Ignore list:";
+            for (String nick : plugin.config.ignoreList()) {
+                list += " " + nick;
+            }
+            sender.sendMessage(list);
+            return true;
+        }
+        
         return false;
     }
     

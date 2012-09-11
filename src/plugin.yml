@@ -1,6 +1,6 @@
 name: MinecraftBot
 author: Rafa652
-version: 2.2.3
+version: 2.2.4
 description: Simple IRC and Minecraft integration.
 main: com.avisenera.minecraftbot.MinecraftBot
 commands:
@@ -12,7 +12,7 @@ commands:
         usage: /n
     irc:
         description: Does a given action on IRC
-        usage: /irc say|do|op|deop|voice|devoice|kick|ban|unban
+        usage: /irc say|do|op|deop|voice|devoice|kick|ban|unban|ignore|unignore
         permission: minecraftbot.op
         permission-message: '[MinecraftBot] You are not allowed to use this command.'
     minecraftbot:

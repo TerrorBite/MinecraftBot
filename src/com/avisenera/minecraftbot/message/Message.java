@@ -34,6 +34,14 @@ public class Message {
      * @return A formatted string with variables replaced with the actual values
      */
     public static String applyFormatting(MinecraftBot p, String formatting, Message msg) {
+        // Checking if message should be ignored
+        if (msg instanceof IRCMessage) {
+            String nick = msg.name.toLowerCase();
+            for (String test : p.config.ignoreList()) {
+                if (test.equals(nick)) return null;
+            }
+        }
+        
         // && temprarily becomes U+00FE - Latin Small Letter Thorn
         String ampersand = "\u00FE";
         String mc_control_code = "\u00A7";

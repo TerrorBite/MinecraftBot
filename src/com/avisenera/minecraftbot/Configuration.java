@@ -28,7 +28,7 @@ public class Configuration {
 
     /**
      * When instantiating this class, the configuration is not loaded.<br>
-     * You must load the configuration by using {@link reload()}.
+     * You must load the configuration by using {@link load()}.
      */
     public Configuration(MinecraftBot instance) {
         plugin = instance;
@@ -63,12 +63,13 @@ public class Configuration {
         
         boolean accepted = true;
         
+        // Getting ignore list
         BufferedReader ignores = getIgnoreList(plugin);
         String lineinput;
         try {
             while ((lineinput = ignores.readLine()) != null) {
                 if (lineinput.startsWith("#")) continue;
-                new_ignores.add(lineinput);
+                new_ignores.add(lineinput.toLowerCase());
             }
         } catch (IOException e1) {
             plugin.log(2, "An error occured while attempting to read the ignore list.");
@@ -229,7 +230,7 @@ public class Configuration {
      * Returns an array list containing all the current ignore values.
      */
     public ArrayList<String> ignoreList() {
-        return new ArrayList<String>(ignore_list);
+        return ignore_list;
     }
     
     /**

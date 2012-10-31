@@ -20,7 +20,7 @@ public enum Formatting {
     ORANGE      ("\u000307", "6"), // using MC gold
     YELLOW      ("\u000308", "e"),
     LIGHT_GREEN ("\u000309", "a"),
-    TEAL        ("\u000310", "b"), // Using MC aqua
+    TEAL        ("\u000310", "3"), // Using MC dark aqua
     LIGHT_CYAN  ("\u000311", "b"), // using MC aqua
     LIGHT_BLUE  ("\u000312", "9"),
     PINK        ("\u000313", "d"),

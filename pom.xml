@@ -61,7 +61,7 @@
     <scm>
         <tag>HEAD</tag>
         <connection>scm:git:git://github.com/TerrorBite/${project.name}.git</connection>
-        <url>https://github.com/LethargicLion/InformaBan</url>
+        <url>https://github.com/TerrorBite/${project.name}</url>
         <developerConnection>scm:git:ssh://git@github.com:TerrorBite/${project.name}.git</developerConnection>
     </scm>
     <description>MinecraftBot is a simple bot meant to integrate IRC and Minecraft chat.</description>
@@ -73,7 +73,7 @@
         <system>BukkitDev</system>
         <url>http://dev.bukkit.org/server-mods/irc-minecraftbot/tickets/</url>
     </issueManagement>
-    <inceptionYear>2012-09-13</inceptionYear>
+    <inceptionYear>2011-10-03</inceptionYear>
     <url>http://dev.bukkit.org/server-mods/irc-minecraftbot/</url>
     <ciManagement>
         <system>Jenkins</system>

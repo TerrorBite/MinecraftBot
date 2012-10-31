@@ -1,11 +1,4 @@
-#Eclipse
-bin
-.settings
-.classpath
+target/
+.settings/
 .project
-
-#NetBeans
-build
-dist
-nbproject
-build.xml
+.classpath

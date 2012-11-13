@@ -62,7 +62,7 @@ public class MainListener extends MBListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         // The command /me can't be registered normally, so it's handled here instead
-        if (event.getMessage().toLowerCase().startsWith("/me")) {
+        if (event.getMessage().toLowerCase().startsWith("/me ")) {
             try {
                 MCMessage msg = new MCMessage();
                 msg.player = event.getPlayer();

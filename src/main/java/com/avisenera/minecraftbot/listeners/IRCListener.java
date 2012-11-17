@@ -223,7 +223,7 @@ public class IRCListener extends ListenerAdapter {
         }
         
         // Kick a player
-        if (message.toLowerCase().startsWith("!kick") && plugin.config.commandsB(Keys.commands.kick)) {
+        if (message.toLowerCase().startsWith("!mckick") && plugin.config.commandsB(Keys.commands.mckick)) {
         	// Divide the command up into its parts ([0] command, [1] target player, [2] kick reason)
         	String[] parts = message.split(" ", 3);
         	if (manager.userHasOp(sender) && parts.length >= 2) {

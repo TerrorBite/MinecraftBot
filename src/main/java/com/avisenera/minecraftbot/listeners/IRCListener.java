@@ -241,10 +241,10 @@ public class IRCListener extends ListenerAdapter {
 	                    send(Keys.line_to_minecraft.action, msg);
 	                }
 	        	}
-	        	return true;
         	} else {
         		manager.sendMessage("Kicking in-game players is not enabled in the configuration file.");
         	}
+        	return true;
         }
         
         // Ban a player
@@ -266,10 +266,10 @@ public class IRCListener extends ListenerAdapter {
 	                    send(Keys.line_to_minecraft.action, msg);
 	                }
 	        	}
-	        	return true;
         	} else {
         		manager.sendMessage("Banning in-game players is not enabled in the configuration file.");
         	}
+        	return true;
         }
         
         return false;

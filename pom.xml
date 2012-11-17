@@ -103,3 +103,4 @@
 		<url>http://ci.lethargiclion.net/job/${project.name}/</url>
 	</ciManagement>
 </project>
+

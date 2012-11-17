@@ -40,7 +40,7 @@ public class IRCManager implements Runnable {
         bot.setLogin("MinecraftBot");
         bot.setFinger("What are you doing? Stop it.");
         bot.setVersion("MinecraftBot v" + plugin.getDescription().getVersion() +
-                " - https://github.com/Rafa652/MinecraftBot");
+                " - https://github.com/TerrorBite/MinecraftBot");
         
         bot.getListenerManager().addListener(listener);
     }

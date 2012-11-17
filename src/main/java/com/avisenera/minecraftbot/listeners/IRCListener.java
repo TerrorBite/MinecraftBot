@@ -223,53 +223,47 @@ public class IRCListener extends ListenerAdapter {
         }
         
         // Kick a player
-        if (message.toLowerCase().startsWith("!mckick")) {
-        	if (plugin.config.commandsB(Keys.commands.mckick)) {
-	        	// Divide the command up into its parts ([0] command, [1] target player, [2] kick reason)
-	        	String[] parts = message.split(" ", 3);
-	        	if (manager.userHasOp(sender) && parts.length >= 2) {
-	        		// Kick player
-	        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
-	        		String kickReason = (parts.length == 3) ? parts[2] : "Kicked!";
-	        		playerToKick.kickPlayer(kickReason);
-	        		
-	        		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
-	                    // Notify Minecraft players that someone used this command
-	                    IRCMessage msg = new IRCMessage();
-	                    msg.name += sender;
-	                    msg.message = "kicked "+playerToKick.getDisplayName()+" from IRC: "+kickReason;
-	                    send(Keys.line_to_minecraft.action, msg);
-	                }
-	        	}
-	        	return true;
-        	} else {
-        		manager.sendMessage("Kicking in-game players is not enabled in the configuration file.");
+        if (message.toLowerCase().startsWith("!mckick") && plugin.config.commandsB(Keys.commands.mckick)) {
+        	// Divide the command up into its parts ([0] command, [1] target player, [2] kick reason)
+        	String[] parts = message.split(" ", 3);
+        	if (manager.userHasOp(sender) && parts.length >= 2) {
+        		// Kick player
+        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
+        		String kickReason = (parts.length == 3) ? parts[2] : "Kicked!";
+        		playerToKick.kickPlayer(kickReason);
+        		
+        		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
+                    // Notify Minecraft players that someone used this command
+                    IRCMessage msg = new IRCMessage();
+                    msg.name += sender;
+                    msg.message = "kicked "+playerToKick.getDisplayName()+" from IRC: "+kickReason;
+                    send(Keys.line_to_minecraft.action, msg);
+                }
         	}
+        	
+        	return true;
         }
         
         // Ban a player
-        if (message.toLowerCase().startsWith("!mcban")) {
-        	if (plugin.config.commandsB(Keys.commands.mcban)) {
-	        	// Divide the command up into its parts ([0] command, [1] target player)
-	        	String[] parts = message.split(" ", 2);
-	        	if (manager.userHasOp(sender) && parts.length == 2) {
-	        		// Ban player
-	        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
-	        		String banReason = "Banned!";
-	        		playerToKick.setBanned(true);
-	        		
-	        		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
-	                    // Notify Minecraft players that someone used this command
-	                    IRCMessage msg = new IRCMessage();
-	                    msg.name += sender;
-	                    msg.message = "banned "+playerToKick.getDisplayName()+" from IRC: "+banReason;
-	                    send(Keys.line_to_minecraft.action, msg);
-	                }
-	        	}
-	        	return true;
-        	} else {
-        		manager.sendMessage("Banning in-game players is not enabled in the configuration file.");
+        if (message.toLowerCase().startsWith("!mcban") && plugin.config.commandsB(Keys.commands.mcban)) {
+        	// Divide the command up into its parts ([0] command, [1] target player)
+        	String[] parts = message.split(" ", 2);
+        	if (manager.userHasOp(sender) && parts.length == 2) {
+        		// Ban player
+        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
+        		String banReason = "Banned!";
+        		playerToKick.setBanned(true);
+        		
+        		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
+                    // Notify Minecraft players that someone used this command
+                    IRCMessage msg = new IRCMessage();
+                    msg.name += sender;
+                    msg.message = "banned "+playerToKick.getDisplayName()+" from IRC: "+banReason;
+                    send(Keys.line_to_minecraft.action, msg);
+                }
         	}
+        	
+        	return true;
         }
         
         return false;

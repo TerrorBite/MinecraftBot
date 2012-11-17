@@ -1,16 +1,19 @@
 package com.avisenera.minecraftbot.listeners;
 
-import com.avisenera.minecraftbot.Keys;
-import com.avisenera.minecraftbot.MBListener;
-import com.avisenera.minecraftbot.MinecraftBot;
-import com.avisenera.minecraftbot.message.IRCMessage;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.Set;
+
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.UtilSSLSocketFactory;
+
+import com.avisenera.minecraftbot.Keys;
+import com.avisenera.minecraftbot.MBListener;
+import com.avisenera.minecraftbot.MinecraftBot;
+import com.avisenera.minecraftbot.message.IRCMessage;
 
 /**
  * Manages the connection to the IRC server. 
@@ -227,5 +230,37 @@ public class IRCManager implements Runnable {
         
         if (format != Keys.line_to_minecraft.action) sendMessage(message.message);
         else sendAction(message.message);
+    }
+    
+    /**
+     * Checks if the specified IRC user has voice in the channel
+     * @param nick IRC nickname
+     * @return Whether or not user is voiced
+     */
+    public boolean userHasVoice(String nick) {
+    	// Get a reference to the user
+    	User u = bot.getUser(nick);
+    	// Check if user has voice
+    	Set<Channel> channelsVoiceIn = u.getChannelsVoiceIn();
+    	if (channelsVoiceIn.contains(getChannel())) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Checks if the specified IRC user has operator in the channel
+     * @param nick IRC nickname
+     * @return Whether or not user is an IRC operator
+     */
+    public boolean userHasOp(String nick) {
+    	// Get a reference to the user
+    	User u = bot.getUser(nick);
+    	// Check if user has op
+    	Set<Channel> channelsOpIn = u.getChannelsOpIn();
+    	if (channelsOpIn.contains(getChannel())) {
+    		return true;
+    	}
+    	return false;
     }
 }

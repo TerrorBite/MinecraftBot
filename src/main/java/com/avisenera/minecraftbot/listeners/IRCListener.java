@@ -244,6 +244,28 @@ public class IRCListener extends ListenerAdapter {
         	return true;
         }
         
+        // Ban a player
+        if (message.toLowerCase().startsWith("!mcban") && plugin.config.commandsB(Keys.commands.mcban)) {
+        	// Divide the command up into its parts ([0] command, [1] target player)
+        	String[] parts = message.split(" ", 2);
+        	if (manager.userHasOp(sender) && parts.length == 2) {
+        		// Ban player
+        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
+        		String banReason = "Banned!";
+        		playerToKick.setBanned(true);
+        		
+        		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
+                    // Notify Minecraft players that someone used this command
+                    IRCMessage msg = new IRCMessage();
+                    msg.name += sender;
+                    msg.message = "banned "+playerToKick.getDisplayName()+" from IRC: "+banReason;
+                    send(Keys.line_to_minecraft.action, msg);
+                }
+        	}
+        	
+        	return true;
+        }
+        
         return false;
     }
     

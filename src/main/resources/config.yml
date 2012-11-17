@@ -59,6 +59,8 @@ commands:
   time: true 
   #!mckick: Kicks a player from the Minecraft server
   mckick: true
+  #!mcban: Bans a player from the Minecraft server
+  mcban: true
 
 line_formatting:
 #You may edit how each line sent by this plugin looks like.

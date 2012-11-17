@@ -16,7 +16,7 @@ public class Keys {
     }
     
     public enum commands {
-    	show_to_mc, players, time, mckick
+    	show_to_mc, players, time, mckick, mcban
     }
     
     public enum settings {

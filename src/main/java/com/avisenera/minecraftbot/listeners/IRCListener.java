@@ -250,15 +250,16 @@ public class IRCListener extends ListenerAdapter {
         	String[] parts = message.split(" ", 2);
         	if (manager.userHasOp(sender) && parts.length == 2) {
         		// Ban player
-        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
+        		Player playerToBan = Bukkit.getServer().getPlayer(parts[1]);
         		String banReason = "Banned!";
-        		playerToKick.setBanned(true);
+        		playerToBan.setBanned(true);
+        		playerToBan.kickPlayer(banReason);
         		
         		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
                     // Notify Minecraft players that someone used this command
                     IRCMessage msg = new IRCMessage();
                     msg.name += sender;
-                    msg.message = "banned "+playerToKick.getDisplayName()+" from IRC: "+banReason;
+                    msg.message = "banned "+playerToBan.getDisplayName()+" from IRC: "+banReason;
                     send(Keys.line_to_minecraft.action, msg);
                 }
         	}

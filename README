@@ -4,3 +4,6 @@ It uses the PircBotX library (http://code.google.com/p/pircbotx/) to connect to 
 More info
 -Bukkit forums: http://forums.bukkit.org/threads/65448/
 -BukkitDev: http://dev.bukkit.org/server-mods/irc-minecraftbot/
+
+Download latest build
+-Jenkins: http://ci.lethargiclion.net/job/MinecraftBot/

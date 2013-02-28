@@ -134,6 +134,12 @@ public class IRCManager implements Runnable {
         return getChannel().getUsers().size();
     }
     
+// Used by other plugins
+    public Set<User> getIRCUserList()
+    {
+    	return getChannel().getUsers();
+    }
+    
 // Methods used by commands
     /**
      * Gets the list of all users in the channel.

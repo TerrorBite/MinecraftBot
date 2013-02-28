@@ -2,10 +2,12 @@ package com.avisenera.minecraftbot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.pircbotx.User;
 
 import com.avisenera.minecraftbot.listeners.CommandListener;
 import com.avisenera.minecraftbot.listeners.IRCManager;
@@ -120,5 +122,10 @@ public class MinecraftBot extends JavaPlugin {
         } catch (IOException ex) {
             // Ignore errors
         }
+    }
+    
+    public Set<User> getIRCUserList()
+    {
+    	return irc.getIRCUserList();
     }
 }

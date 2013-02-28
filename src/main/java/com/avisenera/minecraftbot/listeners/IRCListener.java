@@ -185,7 +185,7 @@ public class IRCListener extends ListenerAdapter {
                 // Notify Minecraft players that someone used this command
                 IRCMessage msg = new IRCMessage();
                 msg.name += sender;
-                msg.message = "asked for the player list";
+                msg.message = "viewed the player list";
                 send(Keys.line_to_minecraft.action, msg);
             }
             
@@ -215,7 +215,7 @@ public class IRCListener extends ListenerAdapter {
                 // Notify Minecraft players that someone used this command
                 IRCMessage msg = new IRCMessage();
                 msg.name += sender;
-                msg.message = "asked for the time";
+                msg.message = "viewed the time";
                 send(Keys.line_to_minecraft.action, msg);
             }
         	

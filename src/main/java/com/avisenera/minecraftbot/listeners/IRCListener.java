@@ -6,6 +6,7 @@ import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -174,11 +175,11 @@ public class IRCListener extends ListenerAdapter {
     private boolean isCommand(String sender, String message) {
         // Player list
         if (message.toLowerCase().startsWith("!players") && plugin.config.commandsB(Keys.commands.players)) {
-            Player p[] = plugin.getServer().getOnlinePlayers();
+            Collection<? extends Player> pl = plugin.getServer().getOnlinePlayers();
             String o;
-            int n = p.length;
+            int n = pl.size();
             o = "There " + (n==1?"is ":"are ") + n + " player" + (n==1?"":"s") + " connected" + (n==0?".":":");
-            for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
+            for (Player p : pl) o += " " + p.getDisplayName();
             manager.sendMessage(Formatting.toIRC(o));
             
             if (plugin.config.commandsB(Keys.commands.show_to_mc)) {

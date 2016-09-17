@@ -14,20 +14,17 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>RELEASE</version>
+			<version>1.10.2-R0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.pircbotx</groupId>
 			<artifactId>pircbotx</artifactId>
 			<version>1.7</version>
-			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.massivecraft.factions</groupId>
 			<artifactId>Factions</artifactId>
 			<version>1.6.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -67,8 +64,8 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>bukkit-repo</id>
-			<url>http://repo.bukkit.org/content/groups/public</url>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
 			<releases>
 				<updatePolicy>always</updatePolicy>
 			</releases>
@@ -79,6 +76,10 @@
 		<repository>
 			<id>fm-repo</id>
 			<url>http://repo.feildmaster.com/</url>
+		</repository>
+		<repository>
+			<id>pircbotx</id>
+			<url>http://central.maven.org/maven2/org/pircbotx/pircbotx/1.7</url>
 		</repository>
 	</repositories>
 	<scm>

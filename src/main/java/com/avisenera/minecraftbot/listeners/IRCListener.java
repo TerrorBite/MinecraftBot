@@ -6,7 +6,9 @@ import com.avisenera.minecraftbot.MBListener;
 import com.avisenera.minecraftbot.MinecraftBot;
 import com.avisenera.minecraftbot.message.IRCMessage;
 import java.util.ArrayList;
+import java.util.Collection;
 
+import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -174,11 +176,11 @@ public class IRCListener extends ListenerAdapter {
     private boolean isCommand(String sender, String message) {
         // Player list
         if (message.toLowerCase().startsWith("!players") && plugin.config.commandsB(Keys.commands.players)) {
-            Player p[] = plugin.getServer().getOnlinePlayers();
+            Collection<? extends Player> pl = plugin.getServer().getOnlinePlayers();
             String o;
-            int n = p.length;
+            int n = pl.size();
             o = "There " + (n==1?"is ":"are ") + n + " player" + (n==1?"":"s") + " connected" + (n==0?".":":");
-            for (int i=0; i<p.length; i++) o += " " + p[i].getDisplayName();
+            for (Player p : pl) o += " " + p.getDisplayName();
             manager.sendMessage(Formatting.toIRC(o));
             
             if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
@@ -228,15 +230,23 @@ public class IRCListener extends ListenerAdapter {
         	String[] parts = message.split(" ", 3);
         	if (manager.userHasOp(sender) && parts.length >= 2) {
         		// Kick player
-        		Player playerToKick = Bukkit.getServer().getPlayer(parts[1]);
-        		String kickReason = (parts.length == 3) ? parts[2] : "Kicked!";
-        		playerToKick.kickPlayer(kickReason);
-        		
+        		String playerNameToKick = parts[1];
+				String kickReason = (parts.length == 3) ? parts[2] : "Kicked!";
+				/* look up all players with given name in playerlist.
+            	 * Docs have it this is the name people see in chat and playerlist,
+            	 * and in contrast to getDisplayName() it does not include colours.
+            	 */
+        		for(Player p : Bukkit.getServer().getOnlinePlayers()) {
+        			if(p.getPlayerListName().equals(playerNameToKick)) {
+        				p.kickPlayer(kickReason);
+        			}
+        		}
+
         		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
                     // Notify Minecraft players that someone used this command
                     IRCMessage msg = new IRCMessage();
                     msg.name += sender;
-                    msg.message = "kicked "+playerToKick.getDisplayName()+" from IRC: "+kickReason;
+                    msg.message = "kicked "+playerNameToKick+" from IRC: "+kickReason;
                     send(Keys.line_to_minecraft.action, msg);
                 }
         	}
@@ -250,16 +260,24 @@ public class IRCListener extends ListenerAdapter {
         	String[] parts = message.split(" ", 2);
         	if (manager.userHasOp(sender) && parts.length == 2) {
         		// Ban player
-        		Player playerToBan = Bukkit.getServer().getPlayer(parts[1]);
-        		String banReason = "Banned!";
-        		playerToBan.setBanned(true);
-        		playerToBan.kickPlayer(banReason);
-        		
+            	String playerNameToBan = parts[1];
+            	String banReason = "Banned!";
+            	/* look up all players with given name in playerlist.
+            	 * Docs have it this is the name people see in chat and playerlist,
+            	 * and in contrast to getDisplayName() it does not include colours.
+            	 */
+        		for(Player p : Bukkit.getServer().getOnlinePlayers()) {
+        			if(p.getPlayerListName().equals(playerNameToBan)) {
+        				Bukkit.getServer().getBanList(Type.NAME).addBan(p.getName(), banReason, null, sender);
+        				p.kickPlayer(banReason);
+        			}
+        		}
+
         		if (plugin.config.commandsB(Keys.commands.show_to_mc)) {
                     // Notify Minecraft players that someone used this command
                     IRCMessage msg = new IRCMessage();
                     msg.name += sender;
-                    msg.message = "banned "+playerToBan.getDisplayName()+" from IRC: "+banReason;
+                    msg.message = "banned "+playerNameToBan+" from IRC: "+banReason;
                     send(Keys.line_to_minecraft.action, msg);
                 }
         	}

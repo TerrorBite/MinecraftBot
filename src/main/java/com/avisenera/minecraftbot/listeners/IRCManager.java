@@ -53,7 +53,7 @@ public class IRCManager implements Runnable {
             plugin.log(0, "Attempted to connect to IRC while already connected.");
             plugin.log(0, "To force reconnecting, reload the plugin.");
         }
-        else plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, this);
+        else plugin.getServer().getScheduler().runTaskAsynchronously(plugin, this);
     }
     
     /**
